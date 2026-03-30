@@ -8,8 +8,8 @@
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
     "paths": {
-      "ngx-dark-mode": [
-        "./dist/ngx-dark-mode"
+      "ngx-theme-stack": [
+        "./projects/ngx-theme-stack/src/public-api.ts"
       ]
     },
     "noFallthroughCasesInSwitch": true,
@@ -29,10 +29,10 @@
   "files": [],
   "references": [
     {
-      "path": "./projects/ngx-dark-mode/tsconfig.lib.json"
+      "path": "./projects/ngx-theme-stack/tsconfig.lib.json"
     },
     {
-      "path": "./projects/ngx-dark-mode/tsconfig.spec.json"
+      "path": "./projects/ngx-theme-stack/tsconfig.spec.json"
     }
   ]
 }

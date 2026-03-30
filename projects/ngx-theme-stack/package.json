@@ -1,5 +1,5 @@
 {
-  "name": "@wanderleedev/ngx-dark-mode",
+  "name": "@wanderleedev/ngx-theme-stack",
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/common": "^21.2.0",
@@ -8,5 +8,6 @@
   "dependencies": {
     "tslib": "^2.3.0"
   },
-  "sideEffects": false
+  "sideEffects": false,
+  "schematics": "./schematics/collection.json"
 }
