@@ -7,7 +7,6 @@ import {
   inject,
   Injectable,
   PLATFORM_ID,
-  RendererFactory2,
   signal,
 } from '@angular/core';
 import { NGX_THEME_STACK_CONFIG } from './theme-stack.config';
@@ -26,7 +25,6 @@ export class CoreThemeService {
   readonly #config = inject(NGX_THEME_STACK_CONFIG);
   readonly #destroyRef = inject(DestroyRef);
   readonly #document = inject(DOCUMENT);
-  readonly #renderer = inject(RendererFactory2).createRenderer(null, null);
   readonly #isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   // ── Theme configuration ───────────────────────────────────────────────────
@@ -104,6 +102,7 @@ export class CoreThemeService {
     }
 
     if (theme === 'system') {
+      this.#systemPreference.set(this.resolveSystemPreference());
       this.startSystemThemeListener();
     } else {
       this.stopSystemThemeListener();
@@ -121,8 +120,7 @@ export class CoreThemeService {
 
   private resolveInitialTheme(): NgTheme {
     if (!this.#isBrowser) return this.#config.theme;
-    const saved = this.readStoredTheme();
-    return saved && this.#validThemes.has(saved) ? saved : this.#config.theme;
+    return this.readStoredTheme() ?? this.#config.theme;
   }
 
   private startSystemThemeListener(): void {
@@ -142,27 +140,44 @@ export class CoreThemeService {
     const { mode } = this.#config;
 
     if (mode === 'attribute' || mode === 'both') {
-      this.#renderer.setAttribute(host, 'data-theme', userTheme);
+      this.applyThemeAttribute(host, userTheme);
     }
 
     if (mode === 'class' || mode === 'both') {
-      for (const theme of this.availableThemes) {
-        this.#renderer.removeClass(host, theme);
-      }
-      this.#renderer.addClass(host, userTheme);
+      this.applyThemeClasses(host, userTheme);
     }
 
-    if (userTheme === 'dark' || userTheme === 'light') {
-      this.#renderer.setStyle(host, 'color-scheme', userTheme);
+    this.applyColorSchemeHint(host, userTheme);
+  }
+
+  private applyThemeAttribute(host: HTMLElement, theme: NgTheme): void {
+    host.setAttribute('data-theme', theme);
+  }
+
+  private applyThemeClasses(host: HTMLElement, theme: NgTheme): void {
+    for (const t of this.availableThemes) {
+      host.classList.remove(t);
+    }
+
+    host.classList.add(theme);
+  }
+
+  private applyColorSchemeHint(host: HTMLElement, theme: NgTheme): void {
+    if (theme === 'dark' || theme === 'light') {
+      host.style.setProperty('color-scheme', theme);
       return;
     }
 
-    this.#renderer.removeStyle(host, 'color-scheme');
+    host.style.removeProperty('color-scheme');
   }
 
   private readStoredTheme(): NgTheme | null {
     try {
-      return localStorage.getItem(this.#config.storageKey) as NgTheme;
+      const stored = localStorage.getItem(this.#config.storageKey);
+      if (stored && this.#validThemes.has(stored as NgTheme)) {
+        return stored as NgTheme;
+      }
+      return null;
     } catch (e) {
       console.warn('[ngx-theme-stack] Could not read theme from localStorage.', e);
       return null;
