@@ -10,5 +10,8 @@
   },
   "license": "MIT",
   "sideEffects": false,
-  "schematics": "./schematics/collection.json"
+  "schematics": "./schematics/collection.json",
+  "publishConfig": {
+    "access": "public"
+  }
 }
