@@ -1,5 +1,5 @@
 {
-  "name": "@wanderleedev/ngx-theme-stack",
+  "name": "ngx-theme-stack",
   "version": "0.0.2",
   "peerDependencies": {
     "@angular/common": "^21.2.0",

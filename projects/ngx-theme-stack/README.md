@@ -1,64 +1,61 @@
-# NgxDarkMode
+# ngx-theme-stack
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.0.
+A robust, SSR-safe, and signal-based theme management library for Angular applications.
 
-## Code scaffolding
+## Features
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- 🌓 **SSR Safe**: Works perfectly with Angular Universal/SSR.
+- 🚦 **Signal-based**: Built with modern Angular Signals for reactive theme management.
+- 🛠️ **Schematics Support**: Easy installation and configuration via `ng add`.
+- 🧬 **Flexible**: Support for custom themes and system theme detection.
+
+## Quick Start
+
+### Installation
 
 ```bash
-ng generate component component-name
+ng add @wanderleedev/ngx-theme-stack
 ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### Usage
 
-```bash
-ng generate --help
+Inject the `ThemeService` into your component or use the provided directives.
+
+```typescript
+import { Component, inject } from '@angular/core';
+import { ThemeService } from 'ngx-theme-stack';
+
+@Component({
+  selector: 'app-root',
+  template: `
+    <button (click)="theme.toggleTheme()">Toggle Theme</button>
+    <p>Current theme: {{ theme.currentTheme() }}</p>
+  `,
+  imports: [],
+})
+export class AppComponent {
+  theme = inject(ThemeService);
+}
 ```
 
-## Building
+## Developing
+
+### Building
 
 To build the library, run:
 
 ```bash
-ng build ngx-dark-mode
+ng build ngx-theme-stack
 ```
 
-This command will compile your project, and the build artifacts will be placed in the `dist/` directory.
+The build artifacts will be placed in the `dist/ngx-theme-stack` directory.
 
-### Publishing the Library
-
-Once the project is built, you can publish your library by following these steps:
-
-1. Navigate to the `dist` directory:
-
-   ```bash
-   cd dist/ngx-dark-mode
-   ```
-
-2. Run the `npm publish` command to publish your library to the npm registry:
-   ```bash
-   npm publish
-   ```
-
-## Running unit tests
-
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+### Running unit tests
 
 ```bash
-ng test
+ng test ngx-theme-stack
 ```
 
-## Running end-to-end tests
+## License
 
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+MIT
