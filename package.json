@@ -23,6 +23,7 @@
     ]
   },
   "private": true,
+  "license": "MIT",
   "packageManager": "npm@11.6.4",
   "overrides": {
     "@angular/common": "^21.2.5",
