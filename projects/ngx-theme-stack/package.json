@@ -1,6 +1,6 @@
 {
   "name": "ngx-theme-stack",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "scripts": {
     "build": "tsc -p tsconfig.schematics.json",
     "postbuild": "copyfiles schematics/*/schema.json schematics/collection.json ../../dist/ngx-theme-stack/"
@@ -10,6 +10,7 @@
     "@angular/core": "^21.2.0"
   },
   "dependencies": {
+    "@inquirer/prompts": "^7.1.0",
     "tslib": "^2.3.0"
   },
   "license": "MIT",
