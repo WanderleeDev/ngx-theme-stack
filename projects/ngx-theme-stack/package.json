@@ -3,7 +3,7 @@
   "version": "0.0.2",
   "scripts": {
     "build": "tsc -p tsconfig.schematics.json",
-    "postbuild": "copyfiles src/schematics/*/schema.json src/schematics/collection.json ../../dist/ngx-theme-stack/ --up 2"
+    "postbuild": "copyfiles schematics/*/schema.json schematics/collection.json ../../dist/ngx-theme-stack/"
   },
   "peerDependencies": {
     "@angular/common": "^21.2.0",

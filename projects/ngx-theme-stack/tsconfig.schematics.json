@@ -11,7 +11,7 @@
     "noImplicitThis": true,
     "noUnusedParameters": true,
     "noUnusedLocals": true,
-    "rootDir": "src/schematics",
+    "rootDir": "schematics",
     "outDir": "../../dist/ngx-theme-stack/schematics",
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
@@ -21,6 +21,6 @@
     "target": "es2022",
     "types": ["node"]
   },
-  "include": ["src/schematics/**/*"],
-  "exclude": ["src/schematics/*/files/**/*"]
+  "include": ["schematics/**/*"],
+  "exclude": ["schematics/*/files/**/*"]
 }
