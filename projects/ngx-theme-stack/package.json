@@ -1,6 +1,6 @@
 {
   "name": "ngx-theme-stack",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "scripts": {
     "build": "tsc -p tsconfig.schematics.json",
     "postbuild": "copyfiles schematics/*/schema.json schematics/collection.json ../../dist/ngx-theme-stack/"
