@@ -1,14 +1,11 @@
 import {
   Rule,
-  SchematicContext,
   SchematicsException,
   Tree,
   chain,
 } from '@angular-devkit/schematics';
 import { getWorkspace } from '@schematics/angular/utility/workspace';
 import { input, select } from '@inquirer/prompts';
-import { from, Observable } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
 
 interface SchemaOptions {
   setupMode: string;
@@ -107,11 +104,10 @@ function injectScript(options: SchemaOptions): Rule {
 /**
  * Main schematic rule for ng-add.
  */
-export default function (options: SchemaOptions): Rule {
-  return (tree: Tree, context: SchematicContext) => {
-    return from(askQuestions(options)).pipe(
-      switchMap(() => chain([injectScript(options)])(tree, context) as Observable<Tree>)
-    );
+export function ngAdd(options: SchemaOptions): Rule {
+  return async () => {
+    await askQuestions(options);
+    return chain([injectScript(options)]);
   };
 }
 

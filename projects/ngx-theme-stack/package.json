@@ -1,6 +1,10 @@
 {
   "name": "ngx-theme-stack",
   "version": "0.0.2",
+  "scripts": {
+    "build": "tsc -p tsconfig.schematics.json",
+    "postbuild": "copyfiles src/schematics/*/schema.json src/schematics/collection.json ../../dist/ngx-theme-stack/ --up 2"
+  },
   "peerDependencies": {
     "@angular/common": "^21.2.0",
     "@angular/core": "^21.2.0"
@@ -11,7 +15,12 @@
   "license": "MIT",
   "sideEffects": false,
   "schematics": "./schematics/collection.json",
-  "publishConfig": {
-    "access": "public"
+  "ng-add": {
+    "save": "dependencies"
+  },
+  "devDependencies": {
+    "copyfiles": "file:../../node_modules/copyfiles",
+    "typescript": "file:../../node_modules/typescript"
   }
 }
+
