@@ -1,6 +1,6 @@
 {
   "name": "ngx-theme-stack",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "scripts": {
     "build": "tsc -p tsconfig.schematics.json"
   },
