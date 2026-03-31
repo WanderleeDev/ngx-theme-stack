@@ -6,7 +6,6 @@
   "properties": {
     "setupMode": {
       "type": "string",
-      "default": "quick",
       "x-prompt": {
         "message": "Choose setup mode:",
         "type": "list",
