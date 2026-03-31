@@ -1,9 +1,9 @@
 {
   "name": "ngx-theme-stack",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "scripts": {
     "build": "tsc -p tsconfig.schematics.json",
-    "postbuild": "copyfiles schematics/*/schema.json schematics/collection.json ../../dist/ngx-theme-stack/"
+    "postbuild": "copyfiles schematics/*/schema.json schematics/collection.json schematics/package.json ../../dist/ngx-theme-stack/"
   },
   "peerDependencies": {
     "@angular/common": "^21.2.0",
