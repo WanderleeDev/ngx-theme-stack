@@ -13,7 +13,7 @@
     },
     "mode": {
       "type": "string",
-      "description": "Installation mode: quick uses defaults, custom asks each option.",
+      "description": "Installation mode.",
       "default": "quick",
       "enum": ["quick", "custom"],
       "x-prompt": {
@@ -22,47 +22,12 @@
         "items": [
           {
             "value": "quick",
-            "label": "Quick  – use default settings (theme: system, mode: class, storageKey: ngx-theme-stack-theme)"
+            "label": "Quick  – apply defaults instantly (theme: system, mode: class)"
           },
           {
             "value": "custom",
-            "label": "Custom – choose each option interactively"
+            "label": "Custom – choose themes, default theme, storage key and apply mode"
           }
-        ]
-      }
-    },
-    "theme": {
-      "type": "string",
-      "description": "Default theme to apply on startup.",
-      "default": "system",
-      "x-prompt": {
-        "message": "Which default theme should be applied on startup?",
-        "type": "list",
-        "items": [
-          { "value": "system", "label": "system  – follow OS preference (recommended)" },
-          { "value": "light",  "label": "light   – always light" },
-          { "value": "dark",   "label": "dark    – always dark" }
-        ]
-      }
-    },
-    "storageKey": {
-      "type": "string",
-      "description": "localStorage key used to persist the selected theme.",
-      "default": "ngx-theme-stack-theme",
-      "x-prompt": "What localStorage key should be used to persist the theme? (default: ngx-theme-stack-theme)"
-    },
-    "themeMode": {
-      "type": "string",
-      "description": "Strategy used to apply the theme to the <html> element.",
-      "default": "class",
-      "enum": ["class", "attribute", "both"],
-      "x-prompt": {
-        "message": "How should the theme be applied to the <html> element?",
-        "type": "list",
-        "items": [
-          { "value": "class",     "label": "class      – add/remove CSS class (e.g. .dark)" },
-          { "value": "attribute", "label": "attribute  – set data-theme attribute" },
-          { "value": "both",      "label": "both       – apply class AND attribute simultaneously" }
         ]
       }
     }
