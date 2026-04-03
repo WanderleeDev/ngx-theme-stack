@@ -1,10 +1,10 @@
 {
   "name": "ngx-theme-stack",
-  "version": "0.0.15",
+  "version": "0.0.16",
   "description": "A stack of themes for Angular applications.",
   "scripts": {
     "build": "tsc -p tsconfig.schematics.json",
-    "postbuild": "copyfiles schematics/*/schema.json schematics/*/files/** schematics/collection.json ../../dist/ngx-theme-stack/ && node -e \"const fs=require('fs'),path=require('path'),dir='../../dist/ngx-theme-stack/schematics';fs.readdirSync(dir,{recursive:true}).forEach(f=>{if(f.endsWith('.js')){const o=path.join(dir,f);fs.renameSync(o,o.slice(0,-3)+'.cjs');}});\" && printf \"# Nested package.json's are only needed for development.\\n**/package.json\\n\" > ../../dist/ngx-theme-stack/.npmignore"
+    "postbuild": "copyfiles schematics/*/schema.json schematics/*/files/** schematics/collection.json ../../dist/ngx-theme-stack/ && node -e \"const f='../../dist/ngx-theme-stack/package.json',p=JSON.parse(require('fs').readFileSync(f,'utf8'));delete p.type;require('fs').writeFileSync(f,JSON.stringify(p,null,2)+'\\n');\""
   },
   "schematics": "./schematics/collection.json",
   "ng-add":{
