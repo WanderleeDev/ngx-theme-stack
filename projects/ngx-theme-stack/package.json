@@ -4,7 +4,7 @@
   "description": "A stack of themes for Angular applications.",
   "scripts": {
     "build": "tsc -p tsconfig.schematics.json",
-    "postbuild": "copyfiles schematics/*/schema.json schematics/*/files/** schematics/collection.json ../../dist/ngx-theme-stack/"
+    "postbuild": "copyfiles schematics/*/schema.json schematics/*/files/** schematics/collection.json ../../dist/ngx-theme-stack/ && printf \"# Nested package.json's are only needed for development.\\n**/package.json\\n# Exception: schematics/package.json is required for CommonJS module resolution\\n!schematics/package.json\\n\" > ../../dist/ngx-theme-stack/.npmignore"
   },
   "schematics": "./schematics/collection.json",
   "ng-add":{
