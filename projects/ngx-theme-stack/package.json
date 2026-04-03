@@ -1,26 +1,26 @@
 {
   "name": "ngx-theme-stack",
-  "version": "0.0.11",
+  "version": "0.0.13",
+  "description": "A stack of themes for Angular applications.",
   "scripts": {
-    "build": "tsc -p tsconfig.schematics.json"
+    "build": "tsc -p tsconfig.schematics.json",
+    "postbuild": "copyfiles schematics/*/schema.json schematics/*/files/** schematics/collection.json ../../dist/ngx-theme-stack/"
+  },
+  "schematics": "./schematics/collection.json",
+  "ng-add":{
+    "save": "devDependencies"
   },
   "peerDependencies": {
     "@angular/common": "^21.2.0",
     "@angular/core": "^21.2.0"
   },
   "dependencies": {
-    "@inquirer/prompts": "^7.1.0",
     "tslib": "^2.3.0"
-  },
-  "license": "MIT",
-  "sideEffects": false,
-  "schematics": "./schematics/collection.json",
-  "ng-add": {
-    "save": "dependencies"
   },
   "devDependencies": {
     "copyfiles": "file:../../node_modules/copyfiles",
     "typescript": "file:../../node_modules/typescript"
-  }
+  },
+  "sideEffects": false,
+  "license": "MIT"
 }
-

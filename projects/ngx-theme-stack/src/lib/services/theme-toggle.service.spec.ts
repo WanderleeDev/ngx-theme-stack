@@ -1,9 +1,9 @@
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { CoreThemeService } from './core-theme.service';
 import { ThemeToggleService } from './theme-toggle.service';
 import { NGX_THEME_STACK_CONFIG } from './theme-stack.config';
-import { NgConfig } from './types';
+import { CoreThemeService } from '../core/core-theme.service';
+import { NgConfig } from '../types';
 
 function setup(systemPrefersDark = false) {
   let store: Record<string, string> = {};

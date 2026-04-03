@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { CoreThemeService } from './core-theme.service';
+import { CoreThemeService } from '../core/core-theme.service';
 
 /**
  * Convenience service for cycling through themes in a fixed order.

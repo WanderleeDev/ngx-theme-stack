@@ -9,8 +9,9 @@ import {
   PLATFORM_ID,
   signal,
 } from '@angular/core';
-import { NGX_THEME_STACK_CONFIG } from './theme-stack.config';
-import { NgSystemTheme, NgTheme } from './types';
+import { NGX_THEME_STACK_CONFIG } from '../services/theme-stack.config';
+import { NgTheme, NgSystemTheme } from '../types';
+
 
 /**
  * Core service for managing the application's color theme.

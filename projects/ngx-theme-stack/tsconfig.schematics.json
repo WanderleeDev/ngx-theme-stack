@@ -1,13 +1,16 @@
 {
   "compilerOptions": {
     "baseUrl": ".",
-    "lib": ["es2022", "dom"],
+    "lib": [
+      "es2018",
+      "dom"
+    ],
     "declaration": true,
     "module": "commonjs",
     "moduleResolution": "node",
     "noEmitOnError": true,
     "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": true,
+    "noImplicitAny": true,  
     "noImplicitThis": true,
     "noUnusedParameters": true,
     "noUnusedLocals": true,
@@ -17,10 +20,15 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "strictNullChecks": true,
-    "strict": true,
-    "target": "es2022",
-    "types": ["node"]
+    "target": "es6",
+    "types": [
+      "node"
+    ]
   },
-  "include": ["schematics/**/*"],
-  "exclude": ["schematics/*/files/**/*"]
+  "include": [
+    "schematics/**/*"
+  ],
+  "exclude": [
+    "schematics/*/files/**/*"
+  ]
 }

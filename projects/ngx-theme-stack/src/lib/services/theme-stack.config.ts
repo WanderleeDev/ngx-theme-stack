@@ -1,5 +1,5 @@
 import { InjectionToken } from '@angular/core';
-import { DEFAULT_THEMES, NgConfig } from './types';
+import { DEFAULT_THEMES, NgConfig } from '../types';
 
 export const DEFAULT_NG_CONFIG = {
   theme: 'system',

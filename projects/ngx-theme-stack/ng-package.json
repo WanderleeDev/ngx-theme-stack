@@ -5,11 +5,6 @@
     "entryFile": "src/public-api.ts"
   },
   "assets": [
-    "schematics/collection.json",
-    "schematics/package.json",
-    "schematics/**/schema.json"
-  ],
-  "allowedNonPeerDependencies": [
-    "@inquirer/prompts"
+    "schematics/**/*"
   ]
 }

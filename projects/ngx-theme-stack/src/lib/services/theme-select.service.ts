@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
-import { CoreThemeService } from './core-theme.service';
-import { NgTheme } from './types';
+import { CoreThemeService } from '../core/core-theme.service';
+import { NgTheme } from '../types';
+
 
 /**
  * Convenience service for selecting a theme from a list.
