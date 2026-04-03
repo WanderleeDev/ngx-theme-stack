@@ -7,9 +7,21 @@
 /bazel-out
 
 # Node
-/node_modules
+node_modules
 npm-debug.log
 yarn-error.log
+pnpm-debug.log
+
+# pnpm workspace — lock file se commitea, pero no los node_modules anidados
+# pnpm-lock.yaml  ← NO ignorar, debe commitarse
+projects/*/node_modules
+
+# NPM auth tokens — NUNCA commitear
+.npmrc
+dist/**/.npmrc
+
+# npm pack output
+*.tgz
 
 # IDEs and editors
 .idea/
@@ -37,6 +49,9 @@ yarn-error.log
 testem.log
 /typings
 __screenshots__/
+
+# Vitest
+/vitest-coverage
 
 # System files
 .DS_Store

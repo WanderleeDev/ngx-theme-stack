@@ -3,8 +3,5 @@
   "dest": "../../dist/ngx-theme-stack",
   "lib": {
     "entryFile": "src/public-api.ts"
-  },
-  "assets": [
-    "schematics/**/*"
-  ]
+  }
 }
