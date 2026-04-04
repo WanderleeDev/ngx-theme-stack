@@ -1,11 +1,14 @@
-import { Component, inject } from '@angular/core';
-import { ThemeToggleService } from 'ngx-theme-stack';
+import { Component } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { ThemeSwitcherComponent } from '../../components/theme-switcher/theme-switcher';
+import { CLOUDS, STARS } from './theme-scene.data';
+
 @Component({
   selector: 'app-theme-scene',
-  standalone: true,
-  imports: [],
+  imports: [RouterOutlet, ThemeSwitcherComponent],
   templateUrl: './theme-scene.html',
 })
 export class ThemeSceneComponent {
-  protected themeService = inject(ThemeToggleService);
+  protected readonly stars = STARS;
+  protected readonly clouds = CLOUDS;
 }

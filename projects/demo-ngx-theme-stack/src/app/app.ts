@@ -1,15 +1,19 @@
-import { Component } from '@angular/core';
-import { ThemeCardComponent } from './components/theme-card/theme-card';
-import { ThemeSceneComponent } from './layouts/theme-scene/theme-scene';
+import { Component, inject } from '@angular/core';
+import { Meta } from '@angular/platform-browser';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
-  standalone: true,
-  imports: [ThemeSceneComponent, ThemeCardComponent],
-  template: `
-    <app-theme-scene>
-      <app-theme-card />
-    </app-theme-scene>
-  `,
+  imports: [RouterOutlet],
+  template: ` <router-outlet /> `,
 })
-export class App {}
+export class App {
+  private meta = inject(Meta);
+
+  constructor() {
+    this.meta.addTag({ 
+      name: 'description', 
+      content: 'Official demo for ngx-theme-stack. Advanced theme management for Angular with SSR support, procedural sounds and beautiful transitions.' 
+    });
+  }
+}
