@@ -1,13 +1,10 @@
-<div class="z-10 bg-white/10 dark:bg-black/20 backdrop-blur-2xl border border-white/20 dark:border-white/10 p-12 rounded-[4rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)] flex flex-col items-center gap-10 text-center max-w-sm w-full mx-4 transition-all duration-200 ease-out">
-  <div class="space-y-3">
-    <h1 class="text-5xl font-black tracking-tighter text-slate-900 dark:text-white transition-colors duration-200">
-      {{ themeService.isDark() ? 'Midnight' : 'Daylight' }}
-    </h1>
-    <p class="text-slate-700 dark:text-purple-200/70 font-medium transition-colors duration-200">
-      Current: <span class="px-3 py-1 bg-white/20 rounded-full text-xs font-bold uppercase tracking-widest transition-all duration-200">{{ themeService.isDark() ? 'Dark' : 'Light' }}</span>
-    </p>
-  </div>
-
+<app-theme-card-wrapper
+  [title]="themeService.isDark() ? 'Midnight' : 'Daylight'"
+  [subtitle]="'Theme'"
+  [isDark]="themeService.isDark()"
+  [tags]="tags"
+  [footerLabel]="'ngx-theme-stack:toggle'"
+>
   <button
     (click)="toggleTheme()"
     class="group relative flex items-center justify-center w-20 h-20 bg-slate-900 dark:bg-white text-white dark:text-slate-950 rounded-full transition-all duration-200 active:scale-95 hover:shadow-[0_0_40px_-5px_rgba(0,0,0,0.4)] dark:hover:shadow-[0_0_40px_-5px_rgba(255,255,255,0.4)] cursor-pointer"
@@ -16,18 +13,4 @@
       {{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}
     </span>
   </button>
-
-  <div class="pt-6 border-t border-white/10 w-full flex flex-col items-center gap-4 transition-all duration-200">
-    <p class="text-[13px] text-slate-500 dark:text-purple-400 uppercase tracking-[0.2em] font-bold transition-colors duration-200">
-      ngx-theme-stack
-    </p>
-
-    <div class="flex flex-wrap justify-center gap-2">
-      @for (tag of tags; track tag) {
-        <span class="px-2 py-1 bg-black/5 dark:bg-white/10 rounded-md text-[9px] font-mono text-slate-600 dark:text-purple-300 transition-all duration-200 border border-white/10 uppercase">
-          {{ tag }}
-        </span>
-      }
-    </div>
-  </div>
-</div>
+</app-theme-card-wrapper>

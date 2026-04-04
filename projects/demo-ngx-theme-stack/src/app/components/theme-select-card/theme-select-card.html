@@ -1,0 +1,29 @@
+<app-theme-card-wrapper
+  [title]="'Select'"
+  [subtitle]="'Theme'"
+  [isDark]="themeService.isDark()"
+  [tags]="tags"
+  [footerLabel]="'ngx-theme-stack:select'"
+>
+  <div class="grid grid-cols-3 gap-4 w-full px-4">
+    @for (theme of themeService.availableThemes; track theme) {
+      <button
+        (click)="selectTheme(theme)"
+        [title]="theme"
+        class="group flex flex-col items-center justify-center p-4 rounded-2xl transition-all duration-300 active:scale-90 border-2 cursor-pointer"
+        [class.bg-white/20]="theme === themeService.selectedTheme()"
+        [class.border-white/40]="theme === themeService.selectedTheme()"
+        [class.border-transparent]="theme !== themeService.selectedTheme()"
+        [class.bg-black/5]="theme !== themeService.selectedTheme() && !themeService.isDark()"
+        [class.bg-white/5]="theme !== themeService.selectedTheme() && themeService.isDark()"
+      >
+        <span class="material-symbols-outlined text-3xl mb-1 transition-transform group-hover:scale-110">
+          {{ getIcon(theme) }}
+        </span>
+        <span class="text-[10px] uppercase font-bold tracking-tighter opacity-70">
+          {{ theme }}
+        </span>
+      </button>
+    }
+  </div>
+</app-theme-card-wrapper>
