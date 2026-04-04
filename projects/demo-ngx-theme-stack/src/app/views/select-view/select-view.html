@@ -1,1 +1,36 @@
-<p>select-view works!</p>
+<app-theme-card-wrapper>
+  <div header class="space-y-4">
+    <h1 class="text-4xl md:text-5xl font-black tracking-tighter text-slate-900 dark:text-white transition-colors duration-300 leading-none">
+      Select
+    </h1>
+    <div class="flex items-center justify-center gap-2 text-slate-600 dark:text-purple-200/60 font-semibold text-sm transition-colors duration-300 uppercase">
+      Current
+      <span class="w-1 h-1 rounded-full bg-current opacity-30"></span>
+      <span class="text-[10px] font-bold tracking-widest text-slate-800 dark:text-white uppercase transition-colors">
+        {{ themeService.selectedTheme() }}
+      </span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-4 w-full px-4">
+    @for (theme of themeService.availableThemes; track theme) {
+      <button
+        (click)="selectTheme(theme)"
+        [attr.aria-label]="'Select theme ' + theme"
+        class="group flex flex-col items-center justify-center p-4 rounded-3xl transition-all duration-300 active:scale-95 border-2 cursor-pointer"
+        [class.bg-white/20]="theme === themeService.selectedTheme()"
+        [class.border-white/40]="theme === themeService.selectedTheme()"
+        [class.border-transparent]="theme !== themeService.selectedTheme()"
+        [class.bg-black/5]="theme !== themeService.selectedTheme() && !themeService.isDark()"
+        [class.bg-white/5]="theme !== themeService.selectedTheme() && themeService.isDark()"
+      >
+        <span class="material-symbols-outlined text-2xl mb-1 opacity-60 dark:opacity-40">
+          palette
+        </span>
+        <span class="text-[10px] font-black uppercase tracking-widest">
+          {{ theme }}
+        </span>
+      </button>
+    }
+  </div>
+</app-theme-card-wrapper>

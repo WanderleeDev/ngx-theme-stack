@@ -1,15 +1,17 @@
-import { Component, input } from '@angular/core';
+import { NgOptimizedImage } from '@angular/common';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-theme-card-wrapper',
-  imports: [],
+  imports: [NgOptimizedImage],
   templateUrl: './theme-card-wrapper.html',
-  styles: ``,
 })
 export class ThemeCardWrapperComponent {
-  title = input.required<string>();
-  subtitle = input<string>();
-  tags = input<string[]>([]);
-  isDark = input(false);
-  footerLabel = input('ngx-theme-stack');
+  protected readonly libraryTags = [
+    'Angular 19',
+    'SSR Ready',
+    'Signals Core',
+    'Hydration Safe',
+    'Zero Dep',
+  ];
 }

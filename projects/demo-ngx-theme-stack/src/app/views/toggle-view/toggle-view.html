@@ -1,1 +1,24 @@
-<p>toggle-view works!</p>
+<app-theme-card-wrapper>
+  <div header class="space-y-4">
+    <h1 class="text-4xl md:text-5xl font-black tracking-tighter text-slate-900 dark:text-white transition-colors duration-300 leading-none">
+      {{ themeService.isDark() ? 'Midnight' : 'Daylight' }}
+    </h1>
+    <div class="flex items-center justify-center gap-2 text-slate-600 dark:text-purple-200/60 font-semibold text-sm transition-colors duration-300">
+      Theme
+      <span class="w-1 h-1 rounded-full bg-current opacity-30"></span>
+      <span class="text-[10px] font-bold uppercase tracking-widest text-slate-800 dark:text-white transition-colors">
+        {{ themeService.isDark() ? 'Dark' : 'Light' }}
+      </span>
+    </div>
+  </div>
+
+  <button
+    (click)="toggleTheme()"
+    [attr.aria-label]="'Toggle theme to ' + (themeService.isDark() ? 'light' : 'dark')"
+    class="group relative flex items-center justify-center w-20 h-20 bg-slate-900 dark:bg-white text-white dark:text-slate-950 rounded-full transition-all duration-200 active:scale-95 hover:shadow-[0_0_40px_-5px_rgba(0,0,0,0.4)] dark:hover:shadow-[0_0_40px_-5px_rgba(255,255,255,0.4)] cursor-pointer"
+  >
+    <span class="material-symbols-outlined text-4xl transition-transform duration-200 group-hover:rotate-45">
+      {{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}
+    </span>
+  </button>
+</app-theme-card-wrapper>
