@@ -7,7 +7,8 @@
     "build": "ng build",
     "build:lib": "ng build ngx-theme-stack && cd projects/ngx-theme-stack/ && pnpm run build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "lint": "ng lint"
   },
   "prettier": {
     "printWidth": 100,
@@ -35,15 +36,20 @@
   },
   "devDependencies": {
     "@angular-devkit/schematics": "^21.2.6",
+    "@angular-eslint/builder": "21.3.1",
     "@angular/build": "^21.2.6",
     "@angular/cli": "^21.0.1",
     "@angular/compiler-cli": "^21.0.0",
+    "@eslint/js": "^10.0.1",
     "@schematics/angular": "^21.2.6",
     "@types/node": "^25.5.2",
+    "angular-eslint": "21.3.1",
     "copyfiles": "^2.4.1",
+    "eslint": "^10.0.3",
     "jsdom": "^28.0.0",
     "ng-packagr": "^21.2.0",
     "typescript": "~5.9.2",
+    "typescript-eslint": "8.56.1",
     "vitest": "^4.0.8"
   }
 }
