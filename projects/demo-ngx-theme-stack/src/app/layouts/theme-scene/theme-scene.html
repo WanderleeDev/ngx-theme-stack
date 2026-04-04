@@ -49,8 +49,18 @@
     </div>
   </div>
 
-  <div class="z-50 fixed top-8 left-1/2 -translate-x-1/2 scale-75 md:scale-100">
-    <app-theme-switcher />
+  <div class="z-50 fixed top-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4">
+    <!-- Brand Logo -->
+    <div class="flex items-center gap-2 group cursor-default transition-all duration-700 hover:scale-105">
+      <img src="favicon.webp" alt="ngx-theme-stack logo" class="w-8 h-8 rounded-lg shadow-lg group-hover:rotate-12 transition-transform duration-500">
+      <span class="text-lg font-black tracking-tighter text-slate-800 dark:text-white transition-colors duration-1000">
+        ngx-theme-stack
+      </span>
+    </div>
+
+    <div class="scale-75 md:scale-100">
+      <app-theme-switcher />
+    </div>
   </div>
   <router-outlet />
 
