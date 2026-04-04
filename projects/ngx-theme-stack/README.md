@@ -1,64 +1,131 @@
-# NgxThemeStack
+# ngx-theme-stack 🎨
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.0.
+A complete and lightweight solution for managing themes (light, dark, system, and custom) in **Angular** applications. Built with performance, accessibility, and SSR (Server-Side Rendering) support in mind.
 
-## Code scaffolding
+## 🚀 Features
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+- ⚡ **Single Command Installation**: Automatic configuration via `ng add`.
+- 🌓 **System Preference Detection**: Automatic synchronization with OS settings (`prefers-color-scheme`).
+- 🔄 **Dynamic Switching**: Multiple ways to toggle themes (toggle, cycle, select).
+- 🛠️ **Highly Customizable**: Support for custom themes, class prefixes, and configurable storage.
+- 🧱 **Modern Architecture**: Powered by Angular Signals for maximum reactivity and performance.
+- 🌍 **SSR Ready**: Safe to use in Server-Side Rendering environments.
 
-```bash
-ng generate component component-name
-```
+## 📦 Installation
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the library, run:
+To install the library and configure it automatically in your project, run:
 
 ```bash
-ng build ngx-theme-stack
+ng add ngx-theme-stack
 ```
 
-This command will compile your project, and the build artifacts will be placed in the `dist/` directory.
+### Installation Modes
 
-### Publishing the Library
+When running `ng add`, you will be presented with two configuration options:
 
-Once the project is built, you can publish your library by following these steps:
+1.  **Quick Mode**: 
+    - Applies default configuration instantly.
+    - Initial theme: `system`.
+    - Apply mode: `class` (adds the theme class to the `<html>` element).
+    - Available themes: `['light', 'dark', 'system']`.
 
-1. Navigate to the `dist` directory:
+2.  **Custom Mode**:
+    - Choose which themes to include (e.g., if you have a `blue` or `high-contrast` theme).
+    - Configure the default theme upon app startup.
+    - Change the `localStorage` key where the theme choice is saved.
+    - Decide how to apply themes: via classes (`class`), attributes (`data-theme`), or both.
 
-   ```bash
-   cd dist/ngx-theme-stack
-   ```
+## 🏗️ Architecture & Extensibility
 
-2. Run the `npm publish` command to publish your library to the npm registry:
-   ```bash
-   npm publish
-   ```
+The library is designed to be flexible. The **`CoreThemeService`** is the foundation:
 
-## Running unit tests
+-   **Solid Base:** Manages state (`Signal`), persistence (`localStorage`), system detection (`matchMedia`), and safe DOM manipulation (SSR compatible).
+-   **Extensibility:** You can inject `CoreThemeService` to build your own custom services or components with specific business logic.
 
-To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+### Utility Services (Ready to Use)
+For common use cases, we include three services with predefined logic:
 
-```bash
-ng test
+1.  **`ThemeToggleService`**: A simple binary switch between `light` and `dark`.
+2.  **`ThemeSelectService`**: Exposes the full list of themes and methods to select them.
+3.  **`ThemeCycleService`**: A circular function to cycle through all available themes with a single click.
+
+---
+
+## ⚙️ Supported Versions
+
+| Angular Version | Support |
+| :--- | :--- |
+| **Angular 21** | ✅ Stable |
+| **Angular 20** | ✅ Stable |
+| **Angular 19** | ✅ Stable |
+| **Angular 18** | ✅ Stable |
+
+## 🛠️ Basic Usage
+
+### CoreThemeService
+
+This is the main service managing the theme state.
+
+```typescript
+import { inject } from '@angular/core';
+import { CoreThemeService } from 'ngx-theme-stack';
+
+@Component({ ... })
+export class MyComponent {
+  private themeService = inject(CoreThemeService);
+
+  // Reactive signals
+  isDark = this.themeService.isDark; // boolean (true/false)
+  selectedTheme = this.themeService.selectedTheme; // 'light' | 'dark' | 'system' | ...
+
+  changeTheme(theme: string) {
+    this.themeService.setTheme(theme);
+  }
+}
 ```
 
-## Running end-to-end tests
+### Utility Services Examples
 
-For end-to-end (e2e) testing, run:
+#### ThemeToggleService usage:
 
-```bash
-ng e2e
+```typescript
+import { ThemeToggleService } from 'ngx-theme-stack';
+
+@Component({
+  selector: 'app-theme-toggle',
+  template: `
+    <button (click)="toggle.toggle()">
+      Switch to {{ toggle.isDark() ? 'Light' : 'Dark' }}
+    </button>
+  `
+})
+export class ThemeToggleComponent {
+  protected toggle = inject(ThemeToggleService);
+}
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+## 🎨 Styling
 
-## Additional Resources
+By default, the library adds the theme name as a class or attribute to the `<html>` element. Use this in your global styles:
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+```css
+/* Using Classes (Default) */
+html.dark {
+  background-color: #121212;
+  color: white;
+}
+
+html.light {
+  background-color: #ffffff;
+  color: #333;
+}
+
+/* Using Attributes */
+[data-theme='blue'] {
+  --primary-color: #0000ff;
+}
+```
+
+## 📄 License
+
+[MIT](./LICENSE)
