@@ -1,13 +1,13 @@
 {
   "name": "ngx-theme-stack",
-  "version": "0.0.16",
+  "version": "1.0.0",
   "description": "A stack of themes for Angular applications.",
   "scripts": {
     "build": "tsc -p tsconfig.schematics.json",
     "postbuild": "copyfiles schematics/*/schema.json schematics/*/files/** schematics/collection.json ../../dist/ngx-theme-stack/ && node -e \"const f='../../dist/ngx-theme-stack/package.json',p=JSON.parse(require('fs').readFileSync(f,'utf8'));delete p.type;require('fs').writeFileSync(f,JSON.stringify(p,null,2)+'\\n');\""
   },
   "schematics": "./schematics/collection.json",
-  "ng-add":{
+  "ng-add": {
     "save": "devDependencies"
   },
   "peerDependencies": {
