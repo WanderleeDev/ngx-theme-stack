@@ -49,30 +49,31 @@
     </div>
   </div>
 
-  <div class="z-50 fixed top-6 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4">
-    <!-- Brand Logo -->
-    <div class="flex items-center gap-2 group cursor-default transition-all duration-700 hover:scale-105">
-      <img src="favicon.webp" alt="ngx-theme-stack logo" class="w-8 h-8 rounded-lg shadow-lg group-hover:rotate-12 transition-transform duration-500">
-      <span class="text-lg font-black tracking-tighter text-slate-800 dark:text-white transition-colors duration-1000">
-        ngx-theme-stack
-      </span>
-    </div>
+  <!-- Main Vertical Flow Container -->
+  <div class="relative z-50 min-h-screen flex flex-col items-center justify-between py-12 px-4 gap-12 overflow-x-hidden">
+    
+    <!-- Top Header (Switcher) -->
+    <header class="w-full flex justify-center">
+      <div class="scale-90 md:scale-100">
+        <app-theme-switcher />
+      </div>
+    </header>
 
-    <div class="scale-75 md:scale-100">
-      <app-theme-switcher />
-    </div>
+    <!-- Center Content (Cards) -->
+    <section class="flex-1 w-full flex items-center justify-center">
+       <router-outlet />
+    </section>
+
+    <!-- Bottom Footer -->
+    <footer class="w-full py-4 text-center text-slate-600 dark:text-white/60 tracking-tight flex flex-col md:flex-row items-center justify-center gap-1 md:gap-4 text-[10px] md:text-xs">
+      <span>Built by <strong class="font-bold">WanderleeDev</strong></span>
+      <div class="flex items-center gap-3">
+        <a href="#" class="hover:text-slate-900 dark:hover:text-white transition-colors underline underline-offset-4 decoration-dotted">Docs</a>
+        <span class="opacity-30 hidden md:inline">·</span>
+        <a href="#" class="hover:text-slate-900 dark:hover:text-white transition-colors underline underline-offset-4 decoration-dotted">GitHub</a>
+        <span class="opacity-30 hidden md:inline">·</span>
+        <a href="#" class="hover:text-slate-900 dark:hover:text-white transition-colors underline underline-offset-4 decoration-dotted">NPM</a>
+      </div>
+    </footer>
   </div>
-  <router-outlet />
-
-  <!-- Footer -->
-  <footer class="z-50 fixed bottom-0 inset-x-0 py-3 md:py-4 flex flex-col md:flex-row items-center justify-center gap-1 md:gap-4 text-[10px] md:text-xs text-slate-600 dark:text-white/70 tracking-wide backdrop-blur-sm bg-white/5 dark:bg-black/10 p-2 md:p-0">
-    <span>Built by <strong class="font-bold">WanderleeDev</strong></span>
-    <div class="flex items-center gap-3">
-      <a href="#" class="hover:text-slate-900 dark:hover:text-white transition-colors underline underline-offset-2 decoration-dotted">Docs</a>
-      <span class="opacity-40 hidden md:inline">·</span>
-      <a href="#" class="hover:text-slate-900 dark:hover:text-white transition-colors underline underline-offset-2 decoration-dotted">GitHub</a>
-      <span class="opacity-40 hidden md:inline">·</span>
-      <a href="#" class="hover:text-slate-900 dark:hover:text-white transition-colors underline underline-offset-2 decoration-dotted">NPM</a>
-    </div>
-  </footer>
 </main>
