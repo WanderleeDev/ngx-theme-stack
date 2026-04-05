@@ -1,6 +1,6 @@
 {
   "name": "ngx-theme-stack",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A stack of themes for Angular applications.",
   "scripts": {
     "build": "tsc -p tsconfig.schematics.json",
