@@ -2,7 +2,7 @@ import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CoreThemeService } from './core-theme.service';
 import { NgConfig } from '../types';
-import { NGX_THEME_STACK_CONFIG } from '../services/theme-stack.config';
+import { NGX_THEME_STACK_CONFIG } from '../config';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 

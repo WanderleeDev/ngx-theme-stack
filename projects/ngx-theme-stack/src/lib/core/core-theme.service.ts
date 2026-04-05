@@ -9,7 +9,7 @@ import {
   PLATFORM_ID,
   signal,
 } from '@angular/core';
-import { NGX_THEME_STACK_CONFIG } from '../services/theme-stack.config';
+import { NGX_THEME_STACK_CONFIG } from '../config';
 import { NgTheme, NgSystemTheme } from '../types';
 
 
