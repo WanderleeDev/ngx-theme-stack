@@ -1,7 +1,7 @@
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ThemeSelectService } from './theme-select.service';
-import { NGX_THEME_STACK_CONFIG } from './theme-stack.config';
+import { NGX_THEME_STACK_CONFIG } from '../config';
 import { CoreThemeService } from '../core/core-theme.service';
 import { NgConfig } from '../types';
 
