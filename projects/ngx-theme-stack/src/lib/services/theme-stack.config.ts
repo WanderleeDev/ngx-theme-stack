@@ -25,11 +25,16 @@ export const NGX_THEME_STACK_CONFIG = new InjectionToken<NgConfig>('NGX_THEME_ST
  * Helper function to provide Theme Stack configuration.
  */
 export function provideThemeStack(config: Partial<NgConfig> = {}) {
+  const themes = config.themes
+    ? Array.from(new Set([...DEFAULT_NG_CONFIG.themes, ...config.themes]))
+    : DEFAULT_NG_CONFIG.themes;
+
   return {
     provide: NGX_THEME_STACK_CONFIG,
     useValue: {
       ...DEFAULT_NG_CONFIG,
       ...config,
+      themes,
     } satisfies NgConfig,
   };
 }
