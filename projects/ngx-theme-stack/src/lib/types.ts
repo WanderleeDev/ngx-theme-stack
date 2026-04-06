@@ -1,15 +1,53 @@
-/** Built-in themes. All other values are considered custom themes. */
+/**
+ * Runtime list of built-in themes.
+ *
+ * Lives here (and not in config/index.ts) because it defines a type:
+ * config/index.ts already imports from types.ts, so placing DEFAULT_THEMES
+ * here avoids any circular dependency.
+ *
+ * ⚠ KEEP IN SYNC with the duplicate in:
+ * projects/ngx-theme-stack/schematics/ng-add/constants.ts → DEFAULT_THEMES
+ *
+ * Schematics compile to CommonJS and cannot import from this ESM file,
+ * so the values are intentionally duplicated. Change both at the same time.
+ */
 export const DEFAULT_THEMES = ['system', 'light', 'dark'] as const;
 
-/** String union with autocompletion for defaults + any string support for customization. */
-export type NgTheme = (typeof DEFAULT_THEMES)[number] | (string & {});
+/** Literal union of built-in themes: `'system' | 'light' | 'dark'`. */
+export type DefaultNgTheme = (typeof DEFAULT_THEMES)[number];
 
-export type NgSystemTheme = Exclude<NgTheme, 'system'>;
+/**
+ * Theme type.
+ *
+ * - **Without** `T`: open union — accepts any `string` with IDE autocomplete
+ *   hints for the built-in themes (`'system' | 'light' | 'dark'`).
+ * - **With** `T`: closed union — exactly `DefaultNgTheme | T`, enabling
+ *   full type-safety for custom theme sets.
+ *
+ * @example
+ * NgTheme            // 'system' | 'light' | 'dark' | (string & {})
+ * NgTheme<'sepia'>   // 'system' | 'light' | 'dark' | 'sepia'
+ */
+export type NgTheme<T extends string = string & {}> = DefaultNgTheme | T;
+
+/**
+ * Resolved theme — always `'light'` or `'dark'`, never `'system'`.
+ * Represents the value that comes from `matchMedia`, not user selection.
+ */
+export type NgSystemTheme = Exclude<DefaultNgTheme, 'system'>;
+
 export type NgMode = 'attribute' | 'class' | 'both';
 
-export interface NgConfig {
-  theme: NgTheme;
+/**
+ * Library configuration.
+ *
+ * @typeParam T - Custom theme literals. Defaults to open `string`, preserving
+ * backwards compatibility. Pass specific literals (e.g. `'sepia' | 'ocean'`)
+ * via {@link provideThemeStack} to get a closed, type-safe theme union.
+ */
+export interface NgConfig<T extends string = string & {}> {
+  defaultTheme: NgTheme<T>;
   storageKey: string;
   mode: NgMode;
-  themes: NgTheme[];
+  themes: NgTheme<T>[];
 }
