@@ -3,6 +3,7 @@ import { Schema } from './schema';
 import { DEFAULT_THEMES, DEFAULTS } from './constants';
 import { createRl, ask, askList, buildProvideCall } from './utils';
 import { patchAppConfig } from './app-config';
+import { patchIndexHtml } from './anti-flash';
 
 /**
  * Interactively prompts the user for custom configuration options using readline.
@@ -61,9 +62,16 @@ export function ngAdd(options: Schema): Rule {
     context.logger.info('');
 
     let provideCall: string;
+    let scriptOptions: { storageKey: string; defaultTheme: string; mode: string; themes: string[] };
 
     if (options.mode === 'quick') {
       provideCall = 'provideThemeStack()';
+      scriptOptions = {
+        storageKey: DEFAULTS.storageKey,
+        defaultTheme: DEFAULTS.defaultTheme,
+        mode: DEFAULTS.mode,
+        themes: [...DEFAULTS.themes],
+      };
       context.logger.info('⚡ Quick setup — defaults applied by the library (DEFAULT_NG_CONFIG).');
     } else {
       context.logger.info('🛠  Custom setup — answer the prompts below:');
@@ -77,11 +85,13 @@ export function ngAdd(options: Schema): Rule {
       context.logger.info(`   mode         : ${mode}`);
 
       provideCall = buildProvideCall(defaultTheme, storageKey, mode, themes);
+      scriptOptions = { storageKey, defaultTheme, mode, themes };
     }
 
     return chain([
       (t: Tree, ctx: SchematicContext) => {
         patchAppConfig(t, ctx, provideCall);
+        patchIndexHtml(t, ctx, scriptOptions);
         ctx.logger.info('');
         ctx.logger.info('✅  Done! Run `ng serve` to see ngx-theme-stack in action.');
         ctx.logger.info('');
