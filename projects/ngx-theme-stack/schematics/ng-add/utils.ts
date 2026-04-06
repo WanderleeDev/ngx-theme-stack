@@ -38,17 +38,17 @@ export async function askList(
  * minimal call string (omitting properties that match defaults).
  */
 export function buildProvideCall(
-  theme: string,
+  defaultTheme: string,
   storageKey: string,
   mode: string,
   themes: string[],
 ): string {
-  const defaultThemes = [...DEFAULT_THEMES] as string[];
+  const defaultThemesList = [...DEFAULT_THEMES] as string[];
   const isDefaultThemes =
-    themes.length === defaultThemes.length && themes.every((t, i) => t === defaultThemes[i]);
+    themes.length === defaultThemesList.length && themes.every((t, i) => t === defaultThemesList[i]);
 
   const isAllDefault =
-    theme === DEFAULTS.theme &&
+    defaultTheme === DEFAULTS.defaultTheme &&
     storageKey === DEFAULTS.storageKey &&
     mode === DEFAULTS.mode &&
     isDefaultThemes;
@@ -56,7 +56,7 @@ export function buildProvideCall(
   if (isAllDefault) return `provideThemeStack()`;
 
   const parts: string[] = [];
-  if (theme !== DEFAULTS.theme) parts.push(`theme: '${theme}'`);
+  if (defaultTheme !== DEFAULTS.defaultTheme) parts.push(`defaultTheme: '${defaultTheme}'`);
   if (storageKey !== DEFAULTS.storageKey) parts.push(`storageKey: '${storageKey}'`);
   if (mode !== DEFAULTS.mode) parts.push(`mode: '${mode}'`);
   if (!isDefaultThemes) {

@@ -12,7 +12,7 @@ import { patchAppConfig } from './app-config';
  * @returns A promise resolving to the user's selected configuration options.
  */
 async function collectCustomOptions(): Promise<{
-  theme: string;
+  defaultTheme: string;
   storageKey: string;
   mode: string;
   themes: string[];
@@ -31,7 +31,7 @@ async function collectCustomOptions(): Promise<{
       : [];
     const allThemes = [...DEFAULT_THEMES, ...customThemes];
 
-    const theme = await askList(rl, 'Default theme:', allThemes, 0);
+    const defaultTheme = await askList(rl, 'Default theme:', allThemes, 0);
 
     const rawKey = await ask(rl, `  localStorage key [${DEFAULTS.storageKey}]: `);
     const storageKey = rawKey || DEFAULTS.storageKey;
@@ -40,7 +40,7 @@ async function collectCustomOptions(): Promise<{
     const mode = await askList(rl, 'How to apply theme on <html>:', MODES, 0);
 
     process.stdout.write('\n');
-    return { theme, storageKey, mode, themes: allThemes };
+    return { defaultTheme, storageKey, mode, themes: allThemes };
   } finally {
     rl.close();
   }
@@ -68,15 +68,15 @@ export function ngAdd(options: Schema): Rule {
     } else {
       context.logger.info('🛠  Custom setup — answer the prompts below:');
       const opts = await collectCustomOptions();
-      const { theme, storageKey, mode, themes } = opts;
+      const { defaultTheme, storageKey, mode, themes } = opts;
 
       context.logger.info('   Applying your configuration:');
-      context.logger.info(`   theme      : ${theme}`);
-      context.logger.info(`   themes     : [${themes.join(', ')}]`);
-      context.logger.info(`   storageKey : ${storageKey}`);
-      context.logger.info(`   mode       : ${mode}`);
+      context.logger.info(`   defaultTheme : ${defaultTheme}`);
+      context.logger.info(`   themes       : [${themes.join(', ')}]`);
+      context.logger.info(`   storageKey   : ${storageKey}`);
+      context.logger.info(`   mode         : ${mode}`);
 
-      provideCall = buildProvideCall(theme, storageKey, mode, themes);
+      provideCall = buildProvideCall(defaultTheme, storageKey, mode, themes);
     }
 
     return chain([
