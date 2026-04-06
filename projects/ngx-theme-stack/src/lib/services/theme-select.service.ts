@@ -2,7 +2,6 @@ import { inject, Injectable } from '@angular/core';
 import { CoreThemeService } from '../core/core-theme.service';
 import { NgTheme } from '../types';
 
-
 /**
  * Convenience service for selecting a theme from a list.
  *
@@ -11,7 +10,6 @@ import { NgTheme } from '../types';
  */
 @Injectable({ providedIn: 'root' })
 export class ThemeSelectService {
-
   readonly #core = inject(CoreThemeService);
 
   /** List of all configured themes. Defaults to ['light', 'dark', 'system']. */
@@ -21,13 +19,16 @@ export class ThemeSelectService {
   readonly selectedTheme = this.#core.selectedTheme;
 
   /** Resolved theme applied to the DOM. Always concrete — never `'system'`. */
-  readonly userTheme = this.#core.userTheme;
+  readonly resolvedTheme = this.#core.resolvedTheme;
 
   /** Whether the currently applied theme is dark. */
   readonly isDark = this.#core.isDark;
 
   /** Whether the currently applied theme is light. */
   readonly isLight = this.#core.isLight;
+
+  /** Whether the currently applied theme is system. */
+  readonly isSystem = this.#core.isSystem;
 
   /**
    * Applies the given theme.
