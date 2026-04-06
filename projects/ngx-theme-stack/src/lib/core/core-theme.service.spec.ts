@@ -32,7 +32,7 @@ function setup(
   vi.stubGlobal('matchMedia', vi.fn().mockReturnValue(matchMediaMock));
 
   const fullConfig: NgConfig = {
-    theme: 'system',
+    defaultTheme: 'system',
     storageKey: 'ngx-theme-stack-theme',
     mode: 'class',
     themes: ['light', 'dark', 'system'],
@@ -68,17 +68,17 @@ describe('CoreThemeService', () => {
   it('should resolve system preference to dark when OS prefers dark', () => {
     const { service } = setup({}, {}, true);
     expect(service.isDark()).toBe(true);
-    expect(service.userTheme()).toBe('dark');
+    expect(service.resolvedTheme()).toBe('dark');
   });
 
   it('should resolve system preference to light when OS prefers light', () => {
     const { service } = setup({}, {}, false);
     expect(service.isLight()).toBe(true);
-    expect(service.userTheme()).toBe('light');
+    expect(service.resolvedTheme()).toBe('light');
   });
 
   it('should default selectedTheme to config.theme', () => {
-    const { service } = setup({ theme: 'dark' });
+    const { service } = setup({ defaultTheme: 'dark' });
     expect(service.selectedTheme()).toBe('dark');
   });
 
@@ -112,11 +112,11 @@ describe('CoreThemeService', () => {
 
   // ── setTheme ──
 
-  it('should update selectedTheme and userTheme when setTheme is called', () => {
+  it('should update selectedTheme and resolvedTheme when setTheme is called', () => {
     const { service } = setup();
     service.setTheme('dark');
     expect(service.selectedTheme()).toBe('dark');
-    expect(service.userTheme()).toBe('dark');
+    expect(service.resolvedTheme()).toBe('dark');
     expect(service.isDark()).toBe(true);
   });
 
@@ -149,7 +149,7 @@ describe('CoreThemeService', () => {
   });
 
   it('should register system listener when switching to system', () => {
-    const { service } = setup({ theme: 'dark' });
+    const { service } = setup({ defaultTheme: 'dark' });
     matchMediaMock.addEventListener.mockClear();
     service.setTheme('system');
     expect(matchMediaMock.addEventListener).toHaveBeenCalledWith('change', expect.any(Function));
@@ -169,7 +169,7 @@ describe('CoreThemeService', () => {
     });
     service.setTheme('sepia');
     expect(service.selectedTheme()).toBe('sepia');
-    expect(service.userTheme()).toBe('sepia');
+    expect(service.resolvedTheme()).toBe('sepia');
     expect(service.isDark()).toBe(false);
     expect(service.isLight()).toBe(false);
   });
@@ -183,20 +183,25 @@ describe('CoreThemeService', () => {
 
   // ── SSR safety ──
 
-  it('should not touch DOM or localStorage in SSR', () => {
+  it('should not touch DOM or localStorage in SSR for valid themes', () => {
     const { service } = setup({}, {}, false, 'server');
 
     // selectedTheme defaults to config value
     expect(service.selectedTheme()).toBe('system');
 
-    // setTheme is a no-op in SSR
+    // setTheme with a valid theme is a no-op for DOM/localStorage in SSR
     service.setTheme('dark');
     expect(service.selectedTheme()).toBe('system');
     expect(store['ngx-theme-stack-theme']).toBeUndefined();
   });
 
-  it('should resolve userTheme to config.theme in SSR (never system)', () => {
-    const { service } = setup({ theme: 'dark' }, {}, false, 'server');
-    expect(service.userTheme()).toBe('dark');
+  it('should throw on invalid theme even in SSR', () => {
+    const { service } = setup({}, {}, false, 'server');
+    expect(() => service.setTheme('nope')).toThrow('[ngx-theme-stack]');
+  });
+
+  it('should resolve resolvedTheme to config.theme in SSR (never system)', () => {
+    const { service } = setup({ defaultTheme: 'dark' }, {}, false, 'server');
+    expect(service.resolvedTheme()).toBe('dark');
   });
 });

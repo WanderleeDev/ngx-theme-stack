@@ -21,7 +21,7 @@ function setup(config: Partial<NgConfig> = {}) {
   }));
 
   const fullConfig: NgConfig = {
-    theme: 'system',
+    defaultTheme: 'system',
     storageKey: 'ngx-theme-stack-theme',
     mode: 'class',
     themes: ['light', 'dark', 'system'],
@@ -89,10 +89,10 @@ describe('ThemeCycleService', () => {
     expect(service.selectedTheme()).toBe('dark');
   });
 
-  it('should expose userTheme signal', () => {
+  it('should expose resolvedTheme signal', () => {
     const { service, core } = setup();
     core.setTheme('dark');
-    expect(service.userTheme()).toBe('dark');
+    expect(service.resolvedTheme()).toBe('dark');
   });
 
   it('should expose isDark and isLight signals', () => {

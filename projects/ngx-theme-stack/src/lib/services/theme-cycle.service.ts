@@ -4,14 +4,13 @@ import { CoreThemeService } from '../core/core-theme.service';
 /**
  * Convenience service for cycling through themes in a fixed order.
  *
- * Default cycle: `'light'` → `'dark'` → `'system'` → `'light'` → ...
+ * Default cycle: `'system'` → `'light'` → `'dark'` → `'system'` → ...
  *
  * Use this when you want to offer users a single button that rotates
  * through all available theme options.
  */
 @Injectable({ providedIn: 'root' })
 export class ThemeCycleService {
-
   readonly #core = inject(CoreThemeService);
 
   /** List of all configured themes for cycling. Defaults to ['light', 'dark', 'system']. */
@@ -21,13 +20,16 @@ export class ThemeCycleService {
   readonly selectedTheme = this.#core.selectedTheme;
 
   /** Resolved theme applied to the DOM. Always concrete — never `'system'`. */
-  readonly userTheme = this.#core.userTheme;
+  readonly resolvedTheme = this.#core.resolvedTheme;
 
   /** Whether the currently applied theme is dark. */
   readonly isDark = this.#core.isDark;
 
   /** Whether the currently applied theme is light. */
   readonly isLight = this.#core.isLight;
+
+  /** Whether the currently applied theme is system. */
+  readonly isSystem = this.#core.isSystem;
 
   /**
    * Advances to the next theme in the cycle.

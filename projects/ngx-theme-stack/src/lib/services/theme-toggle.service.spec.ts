@@ -1,27 +1,34 @@
 import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { ThemeToggleService } from './theme-toggle.service';
 import { NGX_THEME_STACK_CONFIG } from '../config';
 import { CoreThemeService } from '../core/core-theme.service';
 import { NgConfig } from '../types';
+import { ThemeToggleService } from './theme-toggle.service';
 
 function setup(systemPrefersDark = false) {
   let store: Record<string, string> = {};
 
   vi.stubGlobal('localStorage', {
     getItem: (key: string) => store[key] ?? null,
-    setItem: (key: string, value: string) => { store[key] = value; },
-    clear: () => { store = {}; },
+    setItem: (key: string, value: string) => {
+      store[key] = value;
+    },
+    clear: () => {
+      store = {};
+    },
   });
 
-  vi.stubGlobal('matchMedia', vi.fn().mockReturnValue({
-    matches: systemPrefersDark,
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-  }));
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn().mockReturnValue({
+      matches: systemPrefersDark,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    }),
+  );
 
   const config: NgConfig = {
-    theme: 'system',
+    defaultTheme: 'system',
     storageKey: 'ngx-theme-stack-theme',
     mode: 'class',
     themes: ['light', 'dark', 'system'],
@@ -50,9 +57,9 @@ describe('ThemeToggleService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should expose userTheme signal', () => {
+  it('should expose resolvedTheme signal', () => {
     const { service } = setup(false);
-    expect(service.userTheme()).toBe('light');
+    expect(service.resolvedTheme()).toBe('light');
   });
 
   it('should toggle from light to dark', () => {
@@ -62,7 +69,7 @@ describe('ThemeToggleService', () => {
 
     service.toggle();
     expect(service.isDark()).toBe(true);
-    expect(service.userTheme()).toBe('dark');
+    expect(service.resolvedTheme()).toBe('dark');
   });
 
   it('should toggle from dark to light', () => {
@@ -72,12 +79,11 @@ describe('ThemeToggleService', () => {
 
     service.toggle();
     expect(service.isLight()).toBe(true);
-    expect(service.userTheme()).toBe('light');
+    expect(service.resolvedTheme()).toBe('light');
   });
 
   it('should toggle from system to dark', () => {
     const { service } = setup(false);
-    // system resolves to light, toggle should go to dark
     service.toggle();
     expect(service.isDark()).toBe(true);
   });

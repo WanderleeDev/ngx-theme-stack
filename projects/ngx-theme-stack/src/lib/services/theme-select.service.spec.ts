@@ -21,7 +21,7 @@ function setup(config: Partial<NgConfig> = {}) {
   }));
 
   const fullConfig: NgConfig = {
-    theme: 'system',
+    defaultTheme: 'system',
     storageKey: 'ngx-theme-stack-theme',
     mode: 'class',
     themes: ['light', 'dark', 'system'],
@@ -61,7 +61,7 @@ describe('ThemeSelectService', () => {
     const { service } = setup();
     service.select('dark');
     expect(service.selectedTheme()).toBe('dark');
-    expect(service.userTheme()).toBe('dark');
+    expect(service.resolvedTheme()).toBe('dark');
     expect(service.isDark()).toBe(true);
   });
 
@@ -71,7 +71,7 @@ describe('ThemeSelectService', () => {
     });
     service.select('ocean');
     expect(service.selectedTheme()).toBe('ocean');
-    expect(service.userTheme()).toBe('ocean');
+    expect(service.resolvedTheme()).toBe('ocean');
   });
 
   it('should throw on invalid theme selection', () => {
@@ -83,7 +83,7 @@ describe('ThemeSelectService', () => {
     const { service } = setup();
     service.select('system');
     expect(service.selectedTheme()).toBe('system');
-    // userTheme should be resolved (light since matchMedia matches=false)
-    expect(service.userTheme()).toBe('light');
+    // resolvedTheme should be resolved (light since matchMedia matches=false)
+    expect(service.resolvedTheme()).toBe('light');
   });
 });

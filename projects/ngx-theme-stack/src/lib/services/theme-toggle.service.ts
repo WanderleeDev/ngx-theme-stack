@@ -9,17 +9,21 @@ import { CoreThemeService } from '../core/core-theme.service';
  */
 @Injectable({ providedIn: 'root' })
 export class ThemeToggleService {
-
   readonly #core = inject(CoreThemeService);
 
   /** Resolved theme applied to the DOM. Always concrete — never `'system'`. */
-  readonly userTheme = this.#core.userTheme;
+  readonly resolvedTheme = this.#core.resolvedTheme;
+
+  readonly selectedTheme = this.#core.selectedTheme;
 
   /** Whether the currently applied theme is dark. */
   readonly isDark = this.#core.isDark;
 
   /** Whether the currently applied theme is light. */
   readonly isLight = this.#core.isLight;
+
+  /** Whether the currently applied theme is system. */
+  readonly isSystem = this.#core.isSystem;
 
   /**
    * Toggles between `'dark'` and `'light'`.
@@ -28,7 +32,7 @@ export class ThemeToggleService {
    * Otherwise (including `'system'`), switches to `'dark'`.
    */
   toggle(): void {
-    const next = this.#core.selectedTheme() === 'dark' ? 'light' : 'dark';
+    const next = this.#core.resolvedTheme() === 'dark' ? 'light' : 'dark';
     this.#core.setTheme(next);
   }
 }

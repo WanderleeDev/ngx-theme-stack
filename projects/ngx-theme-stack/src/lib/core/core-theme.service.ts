@@ -10,8 +10,7 @@ import {
   signal,
 } from '@angular/core';
 import { NGX_THEME_STACK_CONFIG } from '../config';
-import { NgTheme, NgSystemTheme } from '../types';
-
+import { NgSystemTheme, NgTheme } from '../types';
 
 /**
  * Core service for managing the application's color theme.
@@ -30,7 +29,7 @@ export class CoreThemeService {
 
   // ── Theme configuration ───────────────────────────────────────────────────
 
-  /** List of available themes for Select/Cycle services. Defaults to ['light', 'dark', 'system']. */
+  /** List of available themes for Select/Cycle services. Defaults to ['system', 'light', 'dark']. */
   readonly availableThemes = this.#config.themes;
 
   /** Internal Set for O(1) existence checks. */
@@ -53,16 +52,19 @@ export class CoreThemeService {
   readonly selectedTheme = this.#selectedTheme.asReadonly();
 
   /** Resolved theme applied to the DOM. Always `'dark'` or `'light'` (or custom) — never `'system'`. */
-  readonly userTheme = computed(() => {
+  readonly resolvedTheme = computed(() => {
     const theme = this.#selectedTheme();
     return theme === 'system' ? this.#systemPreference() : theme;
   });
 
   /** Whether the currently applied theme is dark. */
-  readonly isDark = computed(() => this.userTheme() === 'dark');
+  readonly isDark = computed(() => this.resolvedTheme() === 'dark');
 
   /** Whether the currently applied theme is light. */
-  readonly isLight = computed(() => this.userTheme() === 'light');
+  readonly isLight = computed(() => this.resolvedTheme() === 'light');
+
+  /** Whether the currently applied theme is system. */
+  readonly isSystem = computed(() => this.selectedTheme() === 'system');
 
   // ── Event handler ─────────────────────────────────────────────────────────
 
@@ -76,7 +78,7 @@ export class CoreThemeService {
       this.startSystemThemeListener();
     }
 
-    effect(() => this.applyThemeToDOM(this.userTheme()));
+    effect(() => this.applyThemeToDOM(this.resolvedTheme()));
 
     this.#destroyRef.onDestroy(() => this.stopSystemThemeListener());
   }
@@ -87,20 +89,20 @@ export class CoreThemeService {
    * Changes the active theme.
    *
    * Persists the choice explicitly so that switching e.g. from `'system'` to
-   * `'light'` is saved even when the resolved `userTheme` did not change
+   * `'light'` is saved even when the resolved theme did not change
    * (system preference was already `'light'`).
    *
    * @param theme - The theme to apply: `'dark'`, `'light'`, `'system'`, or a custom theme name.
    * @throws If `theme` is not a valid theme according to library configuration.
    */
   public setTheme(theme: NgTheme): void {
-    if (!this.#isBrowser) return;
-
     if (!this.#validThemes.has(theme)) {
       throw new Error(
         `[ngx-theme-stack] Invalid theme: "${theme}". Valid values are: ${[...this.#validThemes].join(', ')}.`,
       );
     }
+
+    if (!this.#isBrowser) return;
 
     if (theme === 'system') {
       this.#systemPreference.set(this.resolveSystemPreference());
@@ -120,8 +122,8 @@ export class CoreThemeService {
   }
 
   private resolveInitialTheme(): NgTheme {
-    if (!this.#isBrowser) return this.#config.theme;
-    return this.readStoredTheme() ?? this.#config.theme;
+    if (!this.#isBrowser) return this.#config.defaultTheme;
+    return this.readStoredTheme() ?? this.#config.defaultTheme;
   }
 
   private startSystemThemeListener(): void {
@@ -134,21 +136,21 @@ export class CoreThemeService {
     this.#mediaQuery?.removeEventListener('change', this.#onSystemPreferenceChange);
   }
 
-  private applyThemeToDOM(userTheme: NgTheme): void {
+  private applyThemeToDOM(theme: NgTheme): void {
     if (!this.#isBrowser) return;
 
     const host = this.#document.documentElement;
     const { mode } = this.#config;
 
     if (mode === 'attribute' || mode === 'both') {
-      this.applyThemeAttribute(host, userTheme);
+      this.applyThemeAttribute(host, theme);
     }
 
     if (mode === 'class' || mode === 'both') {
-      this.applyThemeClasses(host, userTheme);
+      this.applyThemeClasses(host, theme);
     }
 
-    this.applyColorSchemeHint(host, userTheme);
+    this.applyColorSchemeHint(host, theme);
   }
 
   private applyThemeAttribute(host: HTMLElement, theme: NgTheme): void {
