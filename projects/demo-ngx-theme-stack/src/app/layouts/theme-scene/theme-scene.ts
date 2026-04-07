@@ -1,11 +1,12 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ThemeSwitcherComponent } from '../../components/theme-switcher/theme-switcher';
+import { ThemeBrandingComponent } from '../../components/theme-branding/theme-branding';
 import { CLOUDS, STARS } from './theme-scene.data';
 
 @Component({
   selector: 'app-theme-scene',
-  imports: [RouterOutlet, ThemeSwitcherComponent],
+  imports: [RouterOutlet, ThemeSwitcherComponent, ThemeBrandingComponent],
   templateUrl: './theme-scene.html',
 })
 export class ThemeSceneComponent {
