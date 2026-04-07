@@ -50,19 +50,21 @@ function buildAntiFlashScript(options: {
  * - The script tag is already present (idempotent).
  *
  * Detection strategy (in order):
- * 1. `src/index.html` — standard Angular project layout.
- * 2. `public/index.html` — alternative layouts (e.g. Vite-based).
+ * 1. `${sourceRoot}/index.html` — standard project layout.
+ * 2. `public/index.html` — project-level public folder (e.g. Vite-based).
  *
  * @param tree The virtual file tree of the Angular project.
  * @param context The schematic's execution context for logging.
+ * @param sourceRoot The source root for the project.
  * @param options The configuration options collected from the prompt.
  */
 export function patchIndexHtml(
   tree: Tree,
   context: SchematicContext,
+  sourceRoot: string,
   options: { storageKey: string; defaultTheme: string; mode: string; themes: string[] },
 ): void {
-  const candidates = ['src/index.html', 'public/index.html'];
+  const candidates = [`${sourceRoot}/index.html`, 'public/index.html'].map(p => p.startsWith('/') ? p.slice(1) : p);
 
   for (const path of candidates) {
     if (!tree.exists(path)) continue;

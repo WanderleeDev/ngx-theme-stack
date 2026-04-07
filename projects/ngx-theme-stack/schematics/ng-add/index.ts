@@ -56,9 +56,27 @@ async function collectCustomOptions(): Promise<{
  * @returns A rule that modifies the project's setup.
  */
 export function ngAdd(options: Schema): Rule {
-  return async (_tree: Tree, context: SchematicContext) => {
+  return async (tree: Tree, context: SchematicContext) => {
+    // ── Workspace Resolution ──────────────────────────────────────────────────
+    // In a monorepo, we must find the project's actual root and sourceRoot.
+    const workspaceConfig = tree.read('/angular.json');
+    if (!workspaceConfig) {
+      throw new Error('Could not find angular.json. Are you in an Angular workspace?');
+    }
+
+    const workspace = JSON.parse(workspaceConfig.toString());
+    const projectName = options.project || workspace.defaultProject;
+    const project = workspace.projects[projectName];
+
+    if (!project) {
+      throw new Error(`Project "${projectName}" not found in angular.json.`);
+    }
+
+    const projectRoot = project.root || '';
+    const projectSourceRoot = project.sourceRoot || `${projectRoot}/src`;
+
     context.logger.info('');
-    context.logger.info('🎨  ngx-theme-stack — setup');
+    context.logger.info(`🎨  ngx-theme-stack — setup [project: ${projectName}]`);
     context.logger.info('');
 
     let provideCall: string;
@@ -90,8 +108,8 @@ export function ngAdd(options: Schema): Rule {
 
     return chain([
       (t: Tree, ctx: SchematicContext) => {
-        patchAppConfig(t, ctx, provideCall);
-        patchIndexHtml(t, ctx, scriptOptions);
+        patchAppConfig(t, ctx, projectSourceRoot, provideCall);
+        patchIndexHtml(t, ctx, projectSourceRoot, scriptOptions);
         ctx.logger.info('');
         ctx.logger.info('✅  Done! Run `ng serve` to see ngx-theme-stack in action.');
         ctx.logger.info('');
