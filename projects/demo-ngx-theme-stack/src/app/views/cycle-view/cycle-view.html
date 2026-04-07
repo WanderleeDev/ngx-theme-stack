@@ -3,13 +3,7 @@
     <h1 class="text-4xl md:text-5xl font-black tracking-tighter text-slate-900 dark:text-white transition-colors duration-300 leading-none">
       Sequence
     </h1>
-    <div class="flex items-center justify-center gap-2 text-slate-600 dark:text-purple-200/60 font-semibold text-sm transition-colors duration-300 uppercase">
-      Active
-      <span class="w-1 h-1 rounded-full bg-current opacity-30"></span>
-      <span class="text-[10px] font-bold tracking-widest text-slate-800 dark:text-white">
-        {{ themeService.selectedTheme() }}
-      </span>
-    </div>
+    <app-theme-status [resolved]="resolvedTheme()" [selected]="selectedTheme()" />
   </div>
 
   <button
