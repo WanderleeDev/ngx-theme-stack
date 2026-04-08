@@ -26,6 +26,14 @@ export class ThemeToggleService {
   readonly isSystem = this.#core.isSystem;
 
   /**
+   * Whether the service has completed client-side initialization.
+   * `false` during SSR. Becomes `true` after the first browser render.
+   * Guard any template logic that shows `selectedTheme` or `resolvedTheme`
+   * behind this signal to avoid a hydration-mismatch flash.
+   */
+  readonly isHydrated = this.#core.isHydrated.asReadonly();
+
+  /**
    * Toggles between `'dark'` and `'light'`.
    *
    * If the selected theme is explicitly `'dark'`, switches to `'light'`.

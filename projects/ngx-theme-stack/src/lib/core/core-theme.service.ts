@@ -1,5 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import {
+  afterNextRender,
   computed,
   DestroyRef,
   DOCUMENT,
@@ -10,6 +11,7 @@ import {
   signal,
 } from '@angular/core';
 import { NGX_THEME_STACK_CONFIG } from '../config';
+import { NgxThemeStackError } from '../errors';
 import { NgSystemTheme, NgTheme } from '../types';
 
 /**
@@ -66,6 +68,25 @@ export class CoreThemeService {
   /** Whether the currently applied theme is system. */
   readonly isSystem = computed(() => this.selectedTheme() === 'system');
 
+  /**
+   * Whether the service has completed client-side initialization.
+   *
+   * `false` during SSR and on the very first render pass. Becomes `true`
+   * immediately after the first browser render, once the real persisted theme
+   * has been read from `localStorage`.
+   *
+   * Use this to guard any template logic that depends on `selectedTheme` or
+   * `resolvedTheme` to avoid an SSR hydration-mismatch flash: the server
+   * renders the default (`'system'`) while the browser may have a different
+   * value stored.
+   *
+   * @example
+   * ```html
+   * {{ themeService.isHydrated() ? selectedTheme() : '—' }}
+   * ```
+   */
+  readonly isHydrated = signal(false);
+
   // ── Event handler ─────────────────────────────────────────────────────────
 
   readonly #onSystemPreferenceChange = () =>
@@ -79,7 +100,7 @@ export class CoreThemeService {
     }
 
     effect(() => this.applyThemeToDOM(this.resolvedTheme()));
-
+    afterNextRender(() => this.isHydrated.set(true));
     this.#destroyRef.onDestroy(() => this.stopSystemThemeListener());
   }
 
@@ -97,8 +118,8 @@ export class CoreThemeService {
    */
   public setTheme(theme: NgTheme): void {
     if (!this.#validThemes.has(theme)) {
-      throw new Error(
-        `[ngx-theme-stack] Invalid theme: "${theme}". Valid values are: ${[...this.#validThemes].join(', ')}.`,
+      throw new NgxThemeStackError(
+        `Invalid theme: "${theme}". Valid values are: ${[...this.#validThemes].join(', ')}.`,
       );
     }
 
