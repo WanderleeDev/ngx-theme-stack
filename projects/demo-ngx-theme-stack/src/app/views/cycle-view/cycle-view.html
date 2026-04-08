@@ -1,9 +1,15 @@
 <app-theme-card-wrapper>
   <div header class="space-y-4">
-    <h1 class="text-4xl md:text-5xl font-black tracking-tighter text-slate-900 dark:text-white transition-colors duration-300 leading-none">
+    <h1
+      class="text-4xl md:text-5xl font-black tracking-tighter text-slate-900 dark:text-white transition-colors duration-300 leading-none"
+    >
       Sequence
     </h1>
-    <app-theme-status [resolved]="resolvedTheme()" [selected]="selectedTheme()" />
+    <app-theme-status
+      [resolved]="resolvedTheme()"
+      [selected]="selectedTheme()"
+      [isHydrated]="themeService.isHydrated()"
+    />
   </div>
 
   <button
@@ -11,7 +17,9 @@
     aria-label="Cycle to next theme"
     class="group relative flex items-center justify-center w-20 h-20 bg-slate-900 dark:bg-white text-white dark:text-slate-950 rounded-full transition-all duration-200 active:scale-95 hover:shadow-[0_0_40px_-5px_rgba(0,0,0,0.4)] dark:hover:shadow-[0_0_40px_-5px_rgba(255,255,255,0.4)] cursor-pointer"
   >
-    <span class="material-symbols-outlined text-4xl transition-transform duration-500 group-hover:rotate-180">
+    <span
+      class="material-symbols-outlined text-4xl transition-transform duration-500 group-hover:rotate-180"
+    >
       sync
     </span>
   </button>

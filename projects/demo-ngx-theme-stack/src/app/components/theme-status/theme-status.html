@@ -1,36 +1,43 @@
-<div class="flex flex-col gap-2">
-  <div
-    class="relative group/info flex items-center justify-center gap-2 text-slate-600 dark:text-purple-200/60 font-semibold text-sm transition-colors duration-300"
-  >
-    Selected Theme
-    <span
-      class="material-symbols-outlined text-[10px] scale-90 cursor-help text-amber-500 dark:text-amber-400 opacity-70 hover:opacity-100 transition-opacity"
-      title="The theme preference stored in local storage (can be 'system', 'dark', or 'light')."
+@if (isHydrated()) {
+  <div class="flex flex-col gap-2">
+    <div
+      class="relative group/info flex items-center justify-center gap-2 text-slate-600 dark:text-purple-200/60 font-semibold text-sm transition-colors duration-300"
     >
-      help
-    </span>
-    <span class="w-1 h-1 rounded-full bg-current opacity-30"></span>
-    <span
-      class="text-[10px] font-bold uppercase tracking-widest text-slate-800 dark:text-white transition-colors"
+      Selected Theme
+      <span
+        class="material-symbols-outlined text-[10px] scale-90 cursor-help text-amber-500 dark:text-amber-400 opacity-70 hover:opacity-100 transition-opacity"
+        title="The theme preference stored in local storage (can be 'system', 'dark', or 'light')."
+      >
+        help
+      </span>
+      <span class="w-1 h-1 rounded-full bg-current opacity-30"></span>
+      <span
+        class="text-[10px] font-bold uppercase tracking-widest text-slate-800 dark:text-white transition-colors"
+      >
+        {{ selected() }}
+      </span>
+    </div>
+    <div
+      class="relative group/info flex items-center justify-center gap-2 text-slate-600 dark:text-purple-200/60 font-semibold text-sm transition-colors duration-300"
     >
-      {{ selected() }}
-    </span>
+      Resolved Theme
+      <span
+        class="material-symbols-outlined text-[10px] scale-90 cursor-help text-amber-500 dark:text-amber-400 opacity-70 hover:opacity-100 transition-opacity"
+        title="The actual theme applied to the document (e.g., if 'system' resolves to 'dark')."
+      >
+        help
+      </span>
+      <span class="w-1 h-1 rounded-full bg-current opacity-30"></span>
+      <span
+        class="text-[10px] font-bold uppercase tracking-widest text-slate-800 dark:text-white transition-colors"
+      >
+        {{ resolved() }}
+      </span>
+    </div>
   </div>
-  <div
-    class="relative group/info flex items-center justify-center gap-2 text-slate-600 dark:text-purple-200/60 font-semibold text-sm transition-colors duration-300"
-  >
-    Resolved Theme
-    <span
-      class="material-symbols-outlined text-[10px] scale-90 cursor-help text-amber-500 dark:text-amber-400 opacity-70 hover:opacity-100 transition-opacity"
-      title="The actual theme applied to the document (e.g., if 'system' resolves to 'dark')."
-    >
-      help
-    </span>
-    <span class="w-1 h-1 rounded-full bg-current opacity-30"></span>
-    <span
-      class="text-[10px] font-bold uppercase tracking-widest text-slate-800 dark:text-white transition-colors"
-    >
-      {{ resolved() }}
-    </span>
+} @else {
+  <div class="flex flex-col gap-6 items-center animate-pulse">
+    <div class="h-4 w-36 bg-black/10 dark:bg-white/10 rounded-full"></div>
+    <div class="h-4 w-36 bg-black/10 dark:bg-white/10 rounded-full"></div>
   </div>
-</div>
+}

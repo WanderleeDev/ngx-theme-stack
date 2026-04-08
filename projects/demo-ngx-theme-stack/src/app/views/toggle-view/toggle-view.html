@@ -3,10 +3,13 @@
     <h1
       class="text-4xl md:text-5xl font-black tracking-tighter text-slate-900 dark:text-white transition-colors duration-300 leading-none"
     >
-      {{ themeService.isDark() ? 'Midnight' : 'Daylight' }}
+      Toggle
     </h1>
-
-    <app-theme-status [resolved]="resolvedTheme()" [selected]="selectedTheme()" />
+    <app-theme-status
+      [resolved]="resolvedTheme()"
+      [selected]="selectedTheme()"
+      [isHydrated]="themeService.isHydrated()"
+    />
   </div>
 
   <button
