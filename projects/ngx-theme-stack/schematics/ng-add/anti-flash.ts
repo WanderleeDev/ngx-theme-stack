@@ -4,25 +4,35 @@ import { SchematicContext, Tree } from '@angular-devkit/schematics';
  * Generates a minimal blocking inline script that applies the stored theme
  * to `<html>` before the browser paints.
  *
- * This script is agnostic of the configured themes or mode. In KISS fashion,
- * it simply reads localStorage and applies it. The CoreThemeService will
- * later sanitize the DOM and apply the correct configuration.
+ * This is the single source of truth for the anti-flash script logic.
+ * Schematics compile to CommonJS (Node.js) and cannot import from the
+ * library's ESM build, so this logic lives here — close to its only consumer.
+ *
+ * The generated script:
+ * 1. Reads `localStorage` for the stored theme key.
+ * 2. Validates the value against the allowed themes list.
+ * 3. Falls back to `defaultTheme`; resolves `'system'` via `matchMedia`.
+ * 4. Applies the theme via class, data-attribute, or both on `<html>`.
+ * 5. Sets the `color-scheme` CSS property for native browser adaptation.
  */
 function buildAntiFlashScript(options: {
   storageKey: string;
   defaultTheme: string;
+  mode: string;
 }): string {
-  const { storageKey, defaultTheme } = options;
+  const { storageKey, defaultTheme, mode } = options;
 
   return (
     `(function(){try{` +
     `var k=${JSON.stringify(storageKey)},` +
     `d=${JSON.stringify(defaultTheme)},` +
+    `m=${JSON.stringify(mode)},` +
     `t=localStorage.getItem(k)||d,` +
     `e=document.documentElement;` +
+    `if(!/^[a-zA-Z0-9_-]+$/.test(t))t=d;` +
     `if(t==='system')t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';` +
-    `e.classList.add(t);` +
-    `e.setAttribute('data-theme',t);` +
+    `if(m==='class'||m==='both')e.classList.add(t);` +
+    `if(m==='attribute'||m==='both')e.setAttribute('data-theme',t);` +
     `if(t==='dark'||t==='light')e.style.setProperty('color-scheme',t);` +
     `}catch(x){}})();`
   );
@@ -50,7 +60,7 @@ export function patchIndexHtml(
   tree: Tree,
   context: SchematicContext,
   sourceRoot: string,
-  options: { storageKey: string; defaultTheme: string },
+  options: { storageKey: string; defaultTheme: string; mode: string },
 ): void {
   const candidates = [`${sourceRoot}/index.html`, 'public/index.html'].map((p) =>
     p.startsWith('/') ? p.slice(1) : p,
@@ -73,6 +83,7 @@ export function patchIndexHtml(
     const script = buildAntiFlashScript({
       storageKey: options.storageKey,
       defaultTheme: options.defaultTheme,
+      mode: options.mode,
     });
 
     // ── CSP Detection ────────────────────────────────────────────────────────
