@@ -80,15 +80,13 @@ export function ngAdd(options: Schema): Rule {
     context.logger.info('');
 
     let provideCall: string;
-    let scriptOptions: { storageKey: string; defaultTheme: string; mode: string; themes: string[] };
+    let scriptOptions: { storageKey: string; defaultTheme: string };
 
     if (options.mode === 'quick') {
       provideCall = 'provideThemeStack()';
       scriptOptions = {
         storageKey: DEFAULTS.storageKey,
         defaultTheme: DEFAULTS.defaultTheme,
-        mode: DEFAULTS.mode,
-        themes: [...DEFAULTS.themes],
       };
       context.logger.info('⚡ Quick setup — defaults applied by the library (DEFAULT_NG_CONFIG).');
     } else {
@@ -103,7 +101,7 @@ export function ngAdd(options: Schema): Rule {
       context.logger.info(`   mode         : ${mode}`);
 
       provideCall = buildProvideCall(defaultTheme, storageKey, mode, themes);
-      scriptOptions = { storageKey, defaultTheme, mode, themes };
+      scriptOptions = { storageKey, defaultTheme };
     }
 
     return chain([
