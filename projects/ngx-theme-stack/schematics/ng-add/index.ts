@@ -1,9 +1,9 @@
-import { Rule, SchematicContext, Tree, chain } from '@angular-devkit/schematics';
-import { Schema } from './schema';
-import { DEFAULT_THEMES, DEFAULTS } from './constants';
-import { createRl, ask, askList, buildProvideCall } from './utils';
-import { patchAppConfig } from './app-config';
+import { chain, Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 import { patchIndexHtml } from './anti-flash';
+import { patchAppConfig } from './app-config';
+import { DEFAULT_THEMES, DEFAULTS } from './constants';
+import { Schema } from './schema';
+import { ask, askList, buildProvideCall, createRl } from './utils';
 
 /**
  * Interactively prompts the user for custom configuration options using readline.

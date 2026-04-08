@@ -64,7 +64,9 @@ export function patchIndexHtml(
   sourceRoot: string,
   options: { storageKey: string; defaultTheme: string; mode: string; themes: string[] },
 ): void {
-  const candidates = [`${sourceRoot}/index.html`, 'public/index.html'].map(p => p.startsWith('/') ? p.slice(1) : p);
+  const candidates = [`${sourceRoot}/index.html`, 'public/index.html'].map((p) =>
+    p.startsWith('/') ? p.slice(1) : p,
+  );
 
   for (const path of candidates) {
     if (!tree.exists(path)) continue;
@@ -72,7 +74,10 @@ export function patchIndexHtml(
     const content = tree.readText(path);
 
     // Guard: idempotent — skip if script is already present
-    if (content.includes('ngx-theme-stack-theme') || content.includes('ngx-theme-stack anti-flash')) {
+    if (
+      content.includes('ngx-theme-stack-theme') ||
+      content.includes('ngx-theme-stack anti-flash')
+    ) {
       context.logger.info(`✔ Anti-flash script already present in ${path} — skipping.`);
       return;
     }
@@ -84,8 +89,7 @@ export function patchIndexHtml(
     // are blocked by default unless 'unsafe-inline' or a nonce is allowed.
     // We warn here; the user must add a nonce manually or adjust their CSP.
     const hasCspMeta =
-      content.includes('Content-Security-Policy') ||
-      content.includes('content-security-policy');
+      content.includes('Content-Security-Policy') || content.includes('content-security-policy');
 
     if (hasCspMeta) {
       context.logger.warn(
@@ -107,9 +111,7 @@ export function patchIndexHtml(
     tree.overwrite(path, updated);
     context.logger.info(`✔ Anti-flash script injected into ${path}`);
     if (hasCspMeta) {
-      context.logger.warn(
-        `  → Remember to allow the inline script in your CSP before deploying.`,
-      );
+      context.logger.warn(`  → Remember to allow the inline script in your CSP before deploying.`);
     }
     return;
   }
