@@ -163,12 +163,25 @@ export class CoreThemeService {
     const host = this.#document.documentElement;
     const { mode } = this.#config;
 
+    // 1. Generic cleanup: remove whatever class was applied via data-theme attribute.
+    // This catches orphans from the generic anti-flash script or manual edits.
+    const prevTheme = host.getAttribute('data-theme');
+    if (prevTheme) {
+      host.classList.remove(prevTheme);
+    }
+
+    // 2. Comprehensive cleanup of all themes in configuration.
+    this.removeThemeClasses(host);
+
+    // 3. Apply according to mode.
     if (mode === 'attribute' || mode === 'both') {
-      this.applyThemeAttribute(host, theme);
+      host.setAttribute('data-theme', theme);
+    } else {
+      host.removeAttribute('data-theme');
     }
 
     if (mode === 'class' || mode === 'both') {
-      this.applyThemeClasses(host, theme);
+      host.classList.add(theme);
     }
 
     this.applyColorSchemeHint(host, theme);
@@ -179,11 +192,14 @@ export class CoreThemeService {
   }
 
   private applyThemeClasses(host: HTMLElement, theme: NgTheme): void {
+    this.removeThemeClasses(host);
+    host.classList.add(theme);
+  }
+
+  private removeThemeClasses(host: HTMLElement): void {
     for (const t of this.availableThemes) {
       host.classList.remove(t);
     }
-
-    host.classList.add(theme);
   }
 
   private applyColorSchemeHint(host: HTMLElement, theme: NgTheme): void {
