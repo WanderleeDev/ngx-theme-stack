@@ -1,6 +1,8 @@
 # ngx-theme-stack 🎨
 
-A complete and lightweight solution for managing themes (light, dark, system, and custom) in **Angular** applications. Built with performance, accessibility, and SSR (Server-Side Rendering) support in mind.
+![ngx-theme-stack banner](./banner.png)
+
+A simple and powerful headless theme manager for **Angular**. Built for performance and SSR support.
 
 ## 🚀 Features
 
@@ -10,6 +12,7 @@ A complete and lightweight solution for managing themes (light, dark, system, an
 - 🛠️ **Highly Customizable**: Support for custom themes, class prefixes, and configurable storage.
 - 🧱 **Modern Architecture**: Powered by Angular Signals for maximum reactivity and performance.
 - 🌍 **SSR Ready**: Safe to use in Server-Side Rendering environments.
+- 🚫 **Zero Flicker**: Includes an optimized anti-flash script to prevent theme jumps on load.
 
 ## 📦 Installation
 
@@ -62,9 +65,9 @@ For common use cases, we include three services with predefined logic:
 
 ## 🛠️ Basic Usage
 
-### CoreThemeService
+### CoreThemeService API
 
-This is the main service managing the theme state.
+The foundational service managing the theme state. It exposes pure Angular Signals and a solid minimal API.
 
 ```typescript
 import { inject } from '@angular/core';
@@ -72,14 +75,29 @@ import { CoreThemeService } from 'ngx-theme-stack';
 
 @Component({ ... })
 export class MyComponent {
-  private themeService = inject(CoreThemeService);
+  themeService = inject(CoreThemeService);
 
-  // Reactive signals
-  isDark = this.themeService.isDark; // boolean (true/false)
-  selectedTheme = this.themeService.selectedTheme; // 'light' | 'dark' | 'system' | ...
+  /* --- 📊 Reactive Signals --- */
+  
+  // The exact theme chosen by the user ('dark', 'light', 'system', etc.)
+  selectedTheme = this.themeService.selectedTheme; 
+  
+  // The theme finally applied to the DOM (resolves 'system' to 'dark' or 'light')
+  resolvedTheme = this.themeService.resolvedTheme; 
+  
+  // Helper boolean signals evaluating the applied theme
+  isDark = this.themeService.isDark;   
+  isLight = this.themeService.isLight;
+  isSystem = this.themeService.isSystem; 
 
-  changeTheme(theme: string) {
-    this.themeService.setTheme(theme);
+  // True after the first browser render. Great for preventing SSR flickering!
+  isHydrated = this.themeService.isHydrated;
+
+  /* --- 🛠️ Methods --- */
+
+  changeTheme(newTheme: string) {
+    // Validates, applies to the DOM, and saves to localStorage
+    this.themeService.setTheme(newTheme); 
   }
 }
 ```
