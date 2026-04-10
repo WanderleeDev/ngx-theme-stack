@@ -10,9 +10,9 @@ import { SchematicContext, Tree } from '@angular-devkit/schematics';
  *
  * The generated script:
  * 1. Reads `localStorage` for the stored theme key.
- * 2. Validates the value against the allowed themes list.
+ * 2. Validates the value using a Regex to prevent injections.
  * 3. Falls back to `defaultTheme`; resolves `'system'` via `matchMedia`.
- * 4. Applies the theme via class, data-attribute, or both on `<html>`.
+ * 4. Applies the theme according to the configured `mode` (class, attribute, or both).
  * 5. Sets the `color-scheme` CSS property for native browser adaptation.
  */
 function buildAntiFlashScript(options: {
@@ -29,7 +29,7 @@ function buildAntiFlashScript(options: {
     `m=${JSON.stringify(mode)},` +
     `t=localStorage.getItem(k)||d,` +
     `e=document.documentElement;` +
-    `if(!/^[a-zA-Z0-9_-]+$/.test(t))t=d;` +
+    `if(!/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(t))t=d;` +
     `if(t==='system')t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';` +
     `if(m==='class'||m==='both')e.classList.add(t);` +
     `if(m==='attribute'||m==='both')e.setAttribute('data-theme',t);` +

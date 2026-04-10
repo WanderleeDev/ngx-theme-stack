@@ -31,11 +31,20 @@ export class CoreThemeService {
 
   // ── Theme configuration ───────────────────────────────────────────────────
 
+  /**
+   * The initial stored theme read from localStorage.
+   * This is used to determine the initial theme of the application.
+   */
+  readonly #initialStoredTheme = this.readStoredTheme();
+
   /** List of available themes for Select/Cycle services. Defaults to ['system', 'light', 'dark']. */
   readonly availableThemes = this.#config.themes;
 
   /** Internal Set for O(1) existence checks. */
   readonly #validThemes = new Set<NgTheme>(this.availableThemes);
+
+  /** The anti-flash class to remove from the host element. */
+  #antiFlashClass: string | null = null;
 
   // ── System preference ─────────────────────────────────────────────────────
 
@@ -95,6 +104,8 @@ export class CoreThemeService {
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
   constructor() {
+    this.captureAntiFlashClass();
+
     if (this.#isBrowser && this.#selectedTheme() === 'system') {
       this.startSystemThemeListener();
     }
@@ -122,9 +133,8 @@ export class CoreThemeService {
         `Invalid theme: "${theme}". Valid values are: ${[...this.#validThemes].join(', ')}.`,
       );
     }
-
     if (!this.#isBrowser) return;
-
+    if (theme === this.#selectedTheme()) return;
     if (theme === 'system') {
       this.#systemPreference.set(this.resolveSystemPreference());
       this.startSystemThemeListener();
@@ -143,8 +153,11 @@ export class CoreThemeService {
   }
 
   private resolveInitialTheme(): NgTheme {
-    if (!this.#isBrowser) return this.#config.defaultTheme;
-    return this.readStoredTheme() ?? this.#config.defaultTheme;
+    const theme = this.#initialStoredTheme;
+    if (theme && this.#validThemes.has(theme as NgTheme)) {
+      return theme as NgTheme;
+    }
+    return this.#config.defaultTheme;
   }
 
   private startSystemThemeListener(): void {
@@ -161,27 +174,20 @@ export class CoreThemeService {
     if (!this.#isBrowser) return;
 
     const host = this.#document.documentElement;
-    const { mode } = this.#config;
 
-    // 1. Generic cleanup: remove whatever class was applied via data-theme attribute.
-    // This catches orphans from the generic anti-flash script or manual edits.
-    const prevTheme = host.getAttribute('data-theme');
-    if (prevTheme) {
-      host.classList.remove(prevTheme);
+    if (this.#antiFlashClass) {
+      host.classList.remove(this.#antiFlashClass);
+      this.#antiFlashClass = null;
     }
 
-    // 2. Comprehensive cleanup of all themes in configuration.
-    this.removeThemeClasses(host);
+    const { mode } = this.#config;
 
-    // 3. Apply according to mode.
     if (mode === 'attribute' || mode === 'both') {
-      host.setAttribute('data-theme', theme);
-    } else {
-      host.removeAttribute('data-theme');
+      this.applyThemeAttribute(host, theme);
     }
 
     if (mode === 'class' || mode === 'both') {
-      host.classList.add(theme);
+      this.applyThemeClasses(host, theme);
     }
 
     this.applyColorSchemeHint(host, theme);
@@ -192,14 +198,8 @@ export class CoreThemeService {
   }
 
   private applyThemeClasses(host: HTMLElement, theme: NgTheme): void {
-    this.removeThemeClasses(host);
+    host.classList.remove(...this.availableThemes);
     host.classList.add(theme);
-  }
-
-  private removeThemeClasses(host: HTMLElement): void {
-    for (const t of this.availableThemes) {
-      host.classList.remove(t);
-    }
   }
 
   private applyColorSchemeHint(host: HTMLElement, theme: NgTheme): void {
@@ -211,13 +211,27 @@ export class CoreThemeService {
     host.style.removeProperty('color-scheme');
   }
 
-  private readStoredTheme(): NgTheme | null {
+  private captureAntiFlashClass(): void {
+    if (!this.#isBrowser || !this.#initialStoredTheme) return;
+
+    if (!/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(this.#initialStoredTheme)) {
+      this.#antiFlashClass = null;
+      return;
+    }
+
+    if (this.#initialStoredTheme === 'system') {
+      this.#antiFlashClass = this.resolveSystemPreference();
+      return;
+    }
+
+    this.#antiFlashClass = this.#initialStoredTheme;
+  }
+
+  private readStoredTheme(): string | null {
+    if (!this.#isBrowser) return null;
+
     try {
-      const stored = localStorage.getItem(this.#config.storageKey);
-      if (stored && this.#validThemes.has(stored as NgTheme)) {
-        return stored as NgTheme;
-      }
-      return null;
+      return localStorage.getItem(this.#config.storageKey);
     } catch (e) {
       console.warn('[ngx-theme-stack] Could not read theme from localStorage.', e);
       return null;
@@ -225,6 +239,8 @@ export class CoreThemeService {
   }
 
   private saveTheme(theme: NgTheme): void {
+    if (!this.#isBrowser) return;
+
     try {
       localStorage.setItem(this.#config.storageKey, theme);
     } catch (e) {
