@@ -34,6 +34,19 @@
       }
     </div>
   } @else {
-    cargando...
+    <div class="grid grid-cols-2 gap-4 w-full px-4 animate-pulse">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <button
+          class="flex flex-col items-center justify-center p-4 rounded-3xl border-2 border-transparent bg-black/5 dark:bg-white/5 cursor-wait"
+        >
+          <span class="material-symbols-outlined text-2xl mb-1 opacity-20">
+            palette
+          </span>
+          <span class="text-[10px] font-black uppercase tracking-widest bg-black/10 dark:bg-white/10 text-transparent rounded">
+            loading
+          </span>
+        </button>
+      }
+    </div>
   }
 </app-theme-card-wrapper>
