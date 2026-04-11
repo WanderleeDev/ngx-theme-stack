@@ -17,6 +17,6 @@
   },
   "hooks": {
     "before:init": "pnpm lint && pnpm test",
-    "after:bump": "cd projects/ngx-theme-stack && pnpm version ${version} --no-git-tag-version"
+    "after:bump": "pnpm version ${version} --filter ngx-theme-stack --no-git-tag-version"
   }
 }
