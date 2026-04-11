@@ -67,12 +67,9 @@
               "projects/demo-ngx-theme-stack/src/styles.css"
             ],
             "server": "projects/demo-ngx-theme-stack/src/main.server.ts",
-            "outputMode": "server",
+            "outputMode": "static",
             "security": {
               "allowedHosts": []
-            },
-            "ssr": {
-              "entry": "projects/demo-ngx-theme-stack/src/server.ts"
             }
           },
           "configurations": {
