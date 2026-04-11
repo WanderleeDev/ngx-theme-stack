@@ -1,5 +1,1 @@
-# 1. SEO: Redirigir de pages.dev al dominio personalizado
-https://demo-ngx-theme-stack.pages.dev/* https://demo-ngx-theme-stack.wanderlee.site/:splat 301
-
-# 2. SPA Fallback: redirige todo al archivo físico index.csr.html (Rewrite)
-/* /index.csr.html 200
+/ /index.csr 200
