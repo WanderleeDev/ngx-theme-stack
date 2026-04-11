@@ -15,6 +15,7 @@
   --color-nav-active: var(--nav-active);
   --color-btn-bg: var(--btn-bg);
   --color-btn-text: var(--btn-text);
+  --color-info-icon: var(--info-icon);
 
   /* Backgrounds */
   --background-image-scene-gradient: linear-gradient(var(--bg-dir), var(--bg-from), var(--bg-via), var(--bg-to));
@@ -31,7 +32,7 @@
   }
 }
 
-:root {
+:root, .light {
   /* Scene Background Gradient */
   --bg-dir: to right;
   --bg-from: var(--color-sky-200);
@@ -59,6 +60,7 @@
   --btn-bg: var(--color-slate-900);
   --btn-text: var(--color-white);
   --btn-shadow: rgba(0, 0, 0, 0.4);
+  --info-icon: var(--color-slate-400);
 }
 
 .dark {
@@ -89,6 +91,7 @@
   --btn-bg: var(--color-white);
   --btn-text: var(--color-slate-950);
   --btn-shadow: rgba(255, 255, 255, 0.4);
+  --info-icon: var(--color-amber-500);
 }
 
 .sunset {
@@ -116,4 +119,5 @@
   --btn-bg: var(--color-white);
   --btn-text: var(--color-orange-950);
   --btn-shadow: rgba(255, 165, 0, 0.4);
+  --info-icon: var(--color-white);
 }

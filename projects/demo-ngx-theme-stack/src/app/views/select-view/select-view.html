@@ -1,7 +1,7 @@
 <app-theme-card-wrapper>
   <div header class="space-y-4">
     <h1
-      class="text-4xl md:text-5xl font-black tracking-tighter text-text-main transition-colors duration-300 leading-none"
+      class="text-4xl md:text-5xl font-black tracking-tighter text-text-main transition-colors leading-none"
     >
       Select
     </h1>
@@ -23,9 +23,7 @@
           [class.border-transparent]="theme !== themeService.selectedTheme()"
           [class.bg-tag-bg]="theme !== themeService.selectedTheme()"
         >
-          <span class="material-symbols-outlined text-2xl mb-1 opacity-60">
-            palette
-          </span>
+          <span class="material-symbols-outlined text-2xl mb-1 opacity-60"> palette </span>
           <span class="text-[10px] font-black uppercase tracking-widest text-text-main">
             {{ theme }}
           </span>
@@ -38,10 +36,10 @@
         <button
           class="flex flex-col items-center justify-center p-4 rounded-3xl border-2 border-transparent bg-tag-bg cursor-wait"
         >
-          <span class="material-symbols-outlined text-2xl mb-1 opacity-20">
-            palette
-          </span>
-          <span class="text-[10px] font-black uppercase tracking-widest bg-divider text-transparent rounded">
+          <span class="material-symbols-outlined text-2xl mb-1 opacity-20"> palette </span>
+          <span
+            class="text-[10px] font-black uppercase tracking-widest bg-divider text-transparent rounded"
+          >
             loading
           </span>
         </button>
