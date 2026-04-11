@@ -1,0 +1,22 @@
+{
+  "github": {
+    "release": true
+  },
+  "git": {
+    "tagName": "v${version}",
+    "commitMessage": "chore: release v${version}"
+  },
+  "npm": {
+    "publish": false
+  },
+  "plugins": {
+    "@release-it/conventional-changelog": {
+      "preset": "angular",
+      "infile": "CHANGELOG.md"
+    }
+  },
+  "hooks": {
+    "before:init": "pnpm lint && pnpm test",
+    "after:bump": "cd projects/ngx-theme-stack && pnpm version ${version} --no-git-tag-version"
+  }
+}

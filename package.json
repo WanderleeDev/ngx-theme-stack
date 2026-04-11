@@ -10,6 +10,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",
+    "release": "release-it",
     "serve:ssr:demo-ngx-theme-stack": "node dist/demo-ngx-theme-stack/server/server.mjs"
   },
   "prettier": {
