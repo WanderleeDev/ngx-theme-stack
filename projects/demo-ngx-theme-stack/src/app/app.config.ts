@@ -17,6 +17,7 @@ export const appConfig: ApplicationConfig = {
     provideClientHydration(withEventReplay()),
     provideThemeStack({
       themes: ['sunset'],
+      mode: 'attribute',
     }),
   ],
 };

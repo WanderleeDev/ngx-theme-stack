@@ -1,7 +1,7 @@
 <app-theme-card-wrapper>
   <div header class="space-y-4">
     <h1
-      class="text-4xl md:text-5xl font-black tracking-tighter text-slate-900 dark:text-white transition-colors duration-300 leading-none"
+      class="text-4xl md:text-5xl font-black tracking-tighter text-text-main transition-colors duration-300 leading-none"
     >
       Select
     </h1>
@@ -18,16 +18,15 @@
           (click)="selectTheme(theme)"
           [attr.aria-label]="'Select theme ' + theme"
           class="group flex flex-col items-center justify-center p-4 rounded-3xl transition-all duration-300 active:scale-95 border-2 cursor-pointer"
-          [class.bg-white/20]="theme === themeService.selectedTheme()"
-          [class.border-white/40]="theme === themeService.selectedTheme()"
+          [class.bg-nav-active]="theme === themeService.selectedTheme()"
+          [class.border-card-border]="theme === themeService.selectedTheme()"
           [class.border-transparent]="theme !== themeService.selectedTheme()"
-          [class.bg-black/5]="theme !== themeService.selectedTheme() && !themeService.isDark()"
-          [class.bg-white/5]="theme !== themeService.selectedTheme() && themeService.isDark()"
+          [class.bg-tag-bg]="theme !== themeService.selectedTheme()"
         >
-          <span class="material-symbols-outlined text-2xl mb-1 opacity-60 dark:opacity-40">
+          <span class="material-symbols-outlined text-2xl mb-1 opacity-60">
             palette
           </span>
-          <span class="text-[10px] font-black uppercase tracking-widest">
+          <span class="text-[10px] font-black uppercase tracking-widest text-text-main">
             {{ theme }}
           </span>
         </button>
@@ -37,12 +36,12 @@
     <div class="grid grid-cols-2 gap-4 w-full px-4 animate-pulse">
       @for (i of [1, 2, 3, 4]; track i) {
         <button
-          class="flex flex-col items-center justify-center p-4 rounded-3xl border-2 border-transparent bg-black/5 dark:bg-white/5 cursor-wait"
+          class="flex flex-col items-center justify-center p-4 rounded-3xl border-2 border-transparent bg-tag-bg cursor-wait"
         >
           <span class="material-symbols-outlined text-2xl mb-1 opacity-20">
             palette
           </span>
-          <span class="text-[10px] font-black uppercase tracking-widest bg-black/10 dark:bg-white/10 text-transparent rounded">
+          <span class="text-[10px] font-black uppercase tracking-widest bg-divider text-transparent rounded">
             loading
           </span>
         </button>

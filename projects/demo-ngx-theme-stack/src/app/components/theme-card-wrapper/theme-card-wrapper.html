@@ -1,23 +1,23 @@
 <div
-  class="z-10 bg-white/10 dark:bg-black/20 backdrop-blur-3xl border border-white/20 dark:border-white/10 p-10 md:p-12 rounded-[3.5rem] md:rounded-[4.5rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.4)] flex flex-col items-center gap-10 text-center max-w-sm w-full mx-4 transition-all duration-500 ease-out"
+  class="z-10 bg-card-bg backdrop-blur-3xl border border-card-border p-10 md:p-12 rounded-[3.5rem] md:rounded-[4.5rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.4)] flex flex-col items-center gap-10 text-center max-w-sm w-full mx-4 transition-all duration-500 ease-out"
 >
   <div
-    class="flex flex-col items-center gap-4 w-full border-b border-black/5 dark:border-white/5 pb-8 mb-2"
+    class="flex flex-col items-center gap-4 w-full border-b border-divider pb-8 mb-2"
   >
     <ng-content select="[header]" />
   </div>
-
+ 
   <div class="flex items-center justify-center w-full min-h-[80px]">
     <ng-content />
   </div>
-
+ 
   <div
-    class="pt-8 border-t border-black/5 dark:border-white/5 w-full flex flex-col items-center gap-5 transition-all duration-300"
+    class="pt-8 border-t border-divider w-full flex flex-col items-center gap-5 transition-all duration-300"
   >
     <div class="flex flex-wrap justify-center gap-1.5">
       @for (tag of libraryTags; track tag) {
         <span
-          class="px-3 py-1 bg-black/5 dark:bg-white/5 rounded-full text-[9px] font-bold text-slate-500 dark:text-purple-300 transition-all duration-300 border border-white/5 uppercase tracking-wider"
+          class="px-3 py-1 bg-tag-bg rounded-full text-[9px] font-bold text-tag-text transition-all duration-300 border border-white/5 uppercase tracking-wider"
         >
           {{ tag }}
         </span>

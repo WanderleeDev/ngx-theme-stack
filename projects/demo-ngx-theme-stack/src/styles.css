@@ -1,14 +1,120 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
 
-@custom-variant dark (&:where(.dark, .dark *));
+/* @custom-variant dark (&:where(.dark, .dark *)); */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
-@keyframes twinkle {
-  0%, 100% { opacity: 0.2; transform: scale(0.5); }
-  50% { opacity: 1; transform: scale(1.1); }
+@theme {
+  /* Semantic Colors */
+  --color-card-bg: var(--card-bg);
+  --color-card-border: var(--card-border);
+  --color-divider: var(--divider);
+  --color-tag-bg: var(--tag-bg);
+  --color-tag-text: var(--tag-text);
+  --color-text-main: var(--text-main);
+  --color-text-muted: var(--text-muted);
+  --color-nav-bg: var(--nav-bg);
+  --color-nav-active: var(--nav-active);
+  --color-btn-bg: var(--btn-bg);
+  --color-btn-text: var(--btn-text);
+
+  /* Backgrounds */
+  --background-image-scene-gradient: linear-gradient(var(--bg-dir), var(--bg-from), var(--bg-via), var(--bg-to));
+
+  /* Shadows */
+  --shadow-btn: 0 0 40px -5px var(--btn-shadow);
+
+  /* Animations */
+  --animate-twinkle: twinkle linear infinite;
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; transform: scale(0.5); }
+    50% { opacity: 1; transform: scale(1.1); }
+  }
 }
 
-.animate-twinkle {
-  animation: twinkle linear infinite;
+:root {
+  /* Scene Background Gradient */
+  --bg-dir: to right;
+  --bg-from: var(--color-sky-200);
+  --bg-via: var(--color-sky-200);
+  --bg-to: var(--color-sky-200);
+
+  /* Element Transitions */
+  --sun-transform: translateY(0);
+  --sun-opacity: 1;
+  --moon-transform: translateY(10rem);
+  --moon-opacity: 0;
+  --stars-opacity: 0;
+  --clouds-opacity: 1;
+
+  /* UI Tokens */
+  --card-bg: rgba(255, 255, 255, 0.1);
+  --card-border: rgba(255, 255, 255, 0.2);
+  --divider: rgba(0, 0, 0, 0.05);
+  --tag-bg: rgba(0, 0, 0, 0.05);
+  --tag-text: var(--color-slate-500);
+  --text-main: var(--color-slate-900);
+  --text-muted: var(--color-slate-600);
+  --nav-bg: rgba(255, 255, 255, 0.4); /* Restored transparency */
+  --nav-active: rgba(255, 255, 255, 0.2);
+  --btn-bg: var(--color-slate-900);
+  --btn-text: var(--color-white);
+  --btn-shadow: rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] {
+  /* Scene Background Gradient (Restored Vividness) */
+  --bg-dir: to right;
+  --bg-from: #020617;
+  --bg-via: #1e3a8a;
+  --bg-to: #020617;
+
+  /* Element Transitions */
+  --sun-transform: translateY(-10rem);
+  --sun-opacity: 0;
+  --moon-transform: translateY(0);
+  --moon-opacity: 1;
+  --stars-opacity: 1;
+  --clouds-opacity: 0;
+
+  /* UI Tokens */
+  --card-bg: rgba(0, 0, 0, 0.2);
+  --card-border: rgba(255, 255, 255, 0.1);
+  --divider: rgba(255, 255, 255, 0.05);
+  --tag-bg: rgba(255, 255, 255, 0.05);
+  --tag-text: var(--color-purple-300);
+  --text-main: var(--color-white);
+  --text-muted: rgba(255, 255, 255, 0.6);
+  --nav-bg: rgba(2, 6, 23, 0.8); /* Restored slate-950/80 feel */
+  --nav-active: rgba(255, 255, 255, 0.15);
+  --btn-bg: var(--color-white);
+  --btn-text: var(--color-slate-950);
+  --btn-shadow: rgba(255, 255, 255, 0.4);
+}
+
+[data-theme="sunset"] {
+  --bg-dir: to bottom;
+  --bg-from: #fdba74;
+  --bg-via: #f97316;
+  --bg-to: #7c2d12;
+
+  --sun-transform: translateY(4rem);
+  --sun-opacity: 1;
+  --moon-transform: translateY(10rem);
+  --moon-opacity: 0;
+  --stars-opacity: 0;
+  --clouds-opacity: 0.5;
+
+  --card-bg: rgba(255, 255, 255, 0.15);
+  --card-border: rgba(255, 255, 255, 0.3);
+  --divider: rgba(255, 255, 255, 0.1);
+  --tag-bg: rgba(255, 255, 255, 0.15);
+  --tag-text: var(--color-orange-200);
+  --text-main: var(--color-white);
+  --text-muted: rgba(255, 255, 255, 0.8);
+  --nav-bg: rgba(124, 45, 18, 0.6);
+  --nav-active: rgba(255, 255, 255, 0.25);
+  --btn-bg: var(--color-white);
+  --btn-text: var(--color-orange-950);
+  --btn-shadow: rgba(255, 165, 0, 0.4);
 }
