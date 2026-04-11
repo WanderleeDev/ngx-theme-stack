@@ -67,13 +67,7 @@
   <div
     class="relative z-50 min-h-screen flex flex-col items-center justify-between py-12 px-4 gap-12 overflow-x-hidden"
   >
-    @if (!isHome()) {
-      <header class="w-full flex justify-center">
-        <div class="scale-90 md:scale-100">
-          <app-theme-switcher />
-        </div>
-      </header>
-    }
+    <ng-content select="[top-nav]" />
 
     <!-- Center Content (Cards) -->
     <section class="flex-1 w-full flex items-center justify-center">
@@ -86,15 +80,25 @@
     >
       <span>Built by <strong class="font-bold">WanderleeDev</strong></span>
       <div class="flex items-center gap-3">
-        <a href="#" class="hover:text-text-main transition-colors underline underline-offset-4 decoration-dotted">Docs</a>
+        <a
+          href="#"
+          class="hover:text-text-main transition-colors underline underline-offset-4 decoration-dotted"
+          >Docs</a
+        >
         <span class="opacity-30 hidden md:inline">·</span>
-        <a href="https://github.com/WanderleeDev/ngx-theme-stack" 
-           target="_blank"
-           class="hover:text-text-main transition-colors underline underline-offset-4 decoration-dotted">GitHub</a>
+        <a
+          href="https://github.com/WanderleeDev/ngx-theme-stack"
+          target="_blank"
+          class="hover:text-text-main transition-colors underline underline-offset-4 decoration-dotted"
+          >GitHub</a
+        >
         <span class="opacity-30 hidden md:inline">·</span>
-        <a href="https://www.npmjs.com/package/ngx-theme-stack" 
-           target="_blank"
-           class="hover:text-text-main transition-colors underline underline-offset-4 decoration-dotted">NPM</a>
+        <a
+          href="https://www.npmjs.com/package/ngx-theme-stack"
+          target="_blank"
+          class="hover:text-text-main transition-colors underline underline-offset-4 decoration-dotted"
+          >NPM</a
+        >
       </div>
     </footer>
   </div>

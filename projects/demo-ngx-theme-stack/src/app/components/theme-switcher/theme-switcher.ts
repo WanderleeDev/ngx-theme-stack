@@ -5,7 +5,6 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
   selector: 'app-theme-switcher',
   imports: [RouterLink, RouterLinkActive],
   templateUrl: './theme-switcher.html',
-  styles: ``,
 })
 export class ThemeSwitcherComponent {
   protected readonly modes = [
