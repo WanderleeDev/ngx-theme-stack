@@ -1,7 +1,6 @@
 @import 'tailwindcss';
 
-/* @custom-variant dark (&:where(.dark, .dark *)); */
-@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+@custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
   /* Semantic Colors */
@@ -62,7 +61,7 @@
   --btn-shadow: rgba(0, 0, 0, 0.4);
 }
 
-[data-theme="dark"] {
+.dark {
   /* Scene Background Gradient (Restored Vividness) */
   --bg-dir: to right;
   --bg-from: #020617;
@@ -92,7 +91,7 @@
   --btn-shadow: rgba(255, 255, 255, 0.4);
 }
 
-[data-theme="sunset"] {
+.sunset {
   --bg-dir: to bottom;
   --bg-from: #fdba74;
   --bg-via: #f97316;
