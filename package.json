@@ -6,6 +6,7 @@
     "start:demo": "ng serve -o demo-ngx-theme-stack",
     "build": "ng build",
     "build:lib": "ng build ngx-theme-stack && cd projects/ngx-theme-stack/ && pnpm run build",
+    "build:demo": "ng build demo-ngx-theme-stack",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",

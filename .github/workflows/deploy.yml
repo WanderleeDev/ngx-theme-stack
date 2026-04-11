@@ -32,7 +32,7 @@ jobs:
         run: pnpm run build:lib
 
       - name: Build demo application
-        run: pnpm run build -- demo-ngx-theme-stack
+        run: pnpm run build:demo
 
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
