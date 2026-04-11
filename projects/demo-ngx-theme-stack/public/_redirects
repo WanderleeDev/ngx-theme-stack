@@ -1,1 +1,4 @@
-/ /toggle 200
+# Consolidar todo el tráfico en el dominio principal (SEO)
+https://demo-ngx-theme-stack.pages.dev/* https://demo-ngx-theme-stack.wanderlee.site/:splat 301
+
+# El soporte de SPA se maneja automáticamente mediante index.html y 404.html en el despliegue

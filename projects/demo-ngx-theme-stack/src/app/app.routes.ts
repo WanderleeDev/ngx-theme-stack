@@ -7,6 +7,11 @@ export const routes: Routes = [
     component: ThemeSceneComponent,
     children: [
       {
+        path: '',
+        title: 'NgxThemeStack - The Core of Your Themes',
+        loadComponent: () => import('./views/home-view/home-view'),
+      },
+      {
         path: 'toggle',
         title: 'NgxThemeStack - Toggle Demo',
         loadComponent: () => import('./views/toggle-view/toggle-view'),
@@ -21,7 +26,6 @@ export const routes: Routes = [
         title: 'NgxThemeStack - Select Demo',
         loadComponent: () => import('./views/select-view/select-view'),
       },
-      { path: '', redirectTo: 'toggle', pathMatch: 'full' },
     ],
   },
   { path: '**', redirectTo: '' },
