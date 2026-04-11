@@ -3,7 +3,7 @@ import { ThemeSceneComponent } from './layouts/theme-scene/theme-scene';
 
 export const routes: Routes = [
   {
-    path: 'ngx-theme-stack',
+    path: '',
     component: ThemeSceneComponent,
     children: [
       {
@@ -22,9 +22,7 @@ export const routes: Routes = [
         loadComponent: () => import('./views/select-view/select-view'),
       },
       { path: '', redirectTo: 'toggle', pathMatch: 'full' },
-      { path: '**', redirectTo: 'toggle' },
     ],
   },
-  { path: '', redirectTo: 'ngx-theme-stack', pathMatch: 'full' },
-  { path: '**', redirectTo: 'ngx-theme-stack' },
+  { path: '**', redirectTo: '' },
 ];
