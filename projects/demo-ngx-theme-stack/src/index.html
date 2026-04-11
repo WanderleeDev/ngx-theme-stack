@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- ngx-theme-stack anti-flash -->
+    <script>
+      (function () {
+        try {
+          var k = 'ngx-theme-stack-theme',
+            d = 'system',
+            m = 'class',
+            t = localStorage.getItem(k) || d,
+            e = document.documentElement;
+          if (!/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(t)) t = d;
+          if (t === 'system')
+            t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+          if (m === 'class' || m === 'both') e.classList.add(t);
+          if (m === 'attribute' || m === 'both') e.setAttribute('data-theme', t);
+          if (t === 'dark' || t === 'light') e.style.setProperty('color-scheme', t);
+        } catch (x) {}
+      })();
+    </script>
+    <meta charset="utf-8" />
+    <title>ngx-theme-stack — Powerful Angular Theme Management</title>
+    <base href="/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- SEO & Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="ngx-theme-stack — Powerful Angular Theme Management" />
+    <meta property="og:description" content="Seamlessly manage light, dark, and custom themes in Angular with Zero-Flash performance and Tailwind CSS v4 support." />
+    <meta property="og:image" content="banner.png" />
+    
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ngx-theme-stack — Powerful Angular Theme Management" />
+    <meta name="twitter:description" content="Seamlessly manage light, dark, and custom themes in Angular with Zero-Flash performance and Tailwind CSS v4 support." />
+    <meta name="twitter:image" content="banner.png" />
+    <link rel="icon" type="image/webp" href="favicon.webp" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+    />
+  </head>
+  <body>
+    <app-root></app-root>
+  </body>
+</html>

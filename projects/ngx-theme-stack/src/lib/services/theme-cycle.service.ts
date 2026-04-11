@@ -32,6 +32,12 @@ export class ThemeCycleService {
   readonly isSystem = this.#core.isSystem;
 
   /**
+   * Whether the service has completed client-side initialization.
+   * `false` during SSR. Becomes `true` after the first browser render.
+   */
+  readonly isHydrated = this.#core.isHydrated.asReadonly();
+
+  /**
    * Advances to the next theme in the cycle.
    *
    * Cycle order is determined by the configured `themes` property in `NgConfig`.

@@ -1,0 +1,25 @@
+<div
+  class="flex items-center bg-nav-bg backdrop-blur-md rounded-2xl p-1 gap-1 border border-card-border shadow-lg"
+>
+  @for (mode of modes; track mode.path) {
+    <a
+      [id]="'nav-' + mode.id"
+      [routerLink]="mode.path"
+      routerLinkActive="bg-nav-active text-text-main shadow-sm"
+      #rla="routerLinkActive"
+      class="flex items-center gap-2 px-3 md:px-6 py-2 md:py-2.5 rounded-xl transition-all duration-300 text-sm font-bold tracking-tight cursor-pointer"
+      [class.hover:scale-105]="!rla.isActive"
+      [class.bg-nav-active]="rla.isActive"
+      [class.shadow-sm]="rla.isActive"
+      [class.text-text-main]="rla.isActive"
+      [class.text-text-muted]="!rla.isActive"
+      [class.hover:bg-nav-active]="!rla.isActive"
+      [class.hover:text-text-main]="!rla.isActive"
+    >
+      <span class="material-symbols-outlined text-[20px]">
+        {{ mode.icon }}
+      </span>
+      <span class="hidden md:inline">{{ mode.label }}</span>
+    </a>
+  }
+</div>

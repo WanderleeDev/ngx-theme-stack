@@ -2,15 +2,20 @@ import { SchematicContext, Tree } from '@angular-devkit/schematics';
 
 /**
  * Attempts to automatically locate and update the application configuration files.
- * It searches for standard Angular file paths like 'app.config.ts', 'main.ts',
- * and 'app.module.ts', injecting the proper import and provider call.
+ * It searches for standard Angular file paths relative to the project's source root.
  *
  * @param tree The virtual file tree of the project.
  * @param context The schematic's execution context.
+ * @param sourceRoot The source root for the project (e.g. 'projects/demo-ngx-theme-stack/src').
  * @param provideCall The pre-formatted code string for provideThemeStack().
  */
-export function patchAppConfig(tree: Tree, context: SchematicContext, provideCall: string): void {
-  const candidates = ['src/app/app.config.ts', 'src/main.ts', 'src/app/app.module.ts'];
+export function patchAppConfig(
+  tree: Tree,
+  context: SchematicContext,
+  sourceRoot: string,
+  provideCall: string,
+): void {
+  const candidates = [`${sourceRoot}/app/app.config.ts`, `${sourceRoot}/main.ts`, `${sourceRoot}/app/app.module.ts`].map(p => p.startsWith('/') ? p.slice(1) : p);
 
   for (const filePath of candidates) {
     if (!tree.exists(filePath)) continue;

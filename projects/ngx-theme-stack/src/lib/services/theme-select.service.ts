@@ -31,6 +31,12 @@ export class ThemeSelectService {
   readonly isSystem = this.#core.isSystem;
 
   /**
+   * Whether the service has completed client-side initialization.
+   * `false` during SSR. Becomes `true` after the first browser render.
+   */
+  readonly isHydrated = this.#core.isHydrated.asReadonly();
+
+  /**
    * Applies the given theme.
    *
    * @param theme - The theme to apply: `'dark'`, `'light'`, `'system'`, or custom.

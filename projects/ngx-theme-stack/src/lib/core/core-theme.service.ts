@@ -1,5 +1,6 @@
 import { isPlatformBrowser } from '@angular/common';
 import {
+  afterNextRender,
   computed,
   DestroyRef,
   DOCUMENT,
@@ -10,6 +11,7 @@ import {
   signal,
 } from '@angular/core';
 import { NGX_THEME_STACK_CONFIG } from '../config';
+import { NgxThemeStackError } from '../errors';
 import { NgSystemTheme, NgTheme } from '../types';
 
 /**
@@ -29,11 +31,20 @@ export class CoreThemeService {
 
   // ── Theme configuration ───────────────────────────────────────────────────
 
+  /**
+   * The initial stored theme read from localStorage.
+   * This is used to determine the initial theme of the application.
+   */
+  readonly #initialStoredTheme = this.readStoredTheme();
+
   /** List of available themes for Select/Cycle services. Defaults to ['system', 'light', 'dark']. */
   readonly availableThemes = this.#config.themes;
 
   /** Internal Set for O(1) existence checks. */
   readonly #validThemes = new Set<NgTheme>(this.availableThemes);
+
+  /** The anti-flash class to remove from the host element. */
+  #antiFlashClass: string | null = null;
 
   // ── System preference ─────────────────────────────────────────────────────
 
@@ -66,6 +77,25 @@ export class CoreThemeService {
   /** Whether the currently applied theme is system. */
   readonly isSystem = computed(() => this.selectedTheme() === 'system');
 
+  /**
+   * Whether the service has completed client-side initialization.
+   *
+   * `false` during SSR and on the very first render pass. Becomes `true`
+   * immediately after the first browser render, once the real persisted theme
+   * has been read from `localStorage`.
+   *
+   * Use this to guard any template logic that depends on `selectedTheme` or
+   * `resolvedTheme` to avoid an SSR hydration-mismatch flash: the server
+   * renders the default (`'system'`) while the browser may have a different
+   * value stored.
+   *
+   * @example
+   * ```html
+   * {{ themeService.isHydrated() ? selectedTheme() : '—' }}
+   * ```
+   */
+  readonly isHydrated = signal(false);
+
   // ── Event handler ─────────────────────────────────────────────────────────
 
   readonly #onSystemPreferenceChange = () =>
@@ -74,12 +104,14 @@ export class CoreThemeService {
   // ── Lifecycle ─────────────────────────────────────────────────────────────
 
   constructor() {
+    this.captureAntiFlashClass();
+
     if (this.#isBrowser && this.#selectedTheme() === 'system') {
       this.startSystemThemeListener();
     }
 
     effect(() => this.applyThemeToDOM(this.resolvedTheme()));
-
+    afterNextRender(() => this.isHydrated.set(true));
     this.#destroyRef.onDestroy(() => this.stopSystemThemeListener());
   }
 
@@ -97,13 +129,12 @@ export class CoreThemeService {
    */
   public setTheme(theme: NgTheme): void {
     if (!this.#validThemes.has(theme)) {
-      throw new Error(
-        `[ngx-theme-stack] Invalid theme: "${theme}". Valid values are: ${[...this.#validThemes].join(', ')}.`,
+      throw new NgxThemeStackError(
+        `Invalid theme: "${theme}". Valid values are: ${[...this.#validThemes].join(', ')}.`,
       );
     }
-
     if (!this.#isBrowser) return;
-
+    if (theme === this.#selectedTheme()) return;
     if (theme === 'system') {
       this.#systemPreference.set(this.resolveSystemPreference());
       this.startSystemThemeListener();
@@ -122,8 +153,11 @@ export class CoreThemeService {
   }
 
   private resolveInitialTheme(): NgTheme {
-    if (!this.#isBrowser) return this.#config.defaultTheme;
-    return this.readStoredTheme() ?? this.#config.defaultTheme;
+    const theme = this.#initialStoredTheme;
+    if (theme && this.#validThemes.has(theme as NgTheme)) {
+      return theme as NgTheme;
+    }
+    return this.#config.defaultTheme;
   }
 
   private startSystemThemeListener(): void {
@@ -140,6 +174,12 @@ export class CoreThemeService {
     if (!this.#isBrowser) return;
 
     const host = this.#document.documentElement;
+
+    if (this.#antiFlashClass) {
+      host.classList.remove(this.#antiFlashClass);
+      this.#antiFlashClass = null;
+    }
+
     const { mode } = this.#config;
 
     if (mode === 'attribute' || mode === 'both') {
@@ -158,10 +198,7 @@ export class CoreThemeService {
   }
 
   private applyThemeClasses(host: HTMLElement, theme: NgTheme): void {
-    for (const t of this.availableThemes) {
-      host.classList.remove(t);
-    }
-
+    host.classList.remove(...this.availableThemes);
     host.classList.add(theme);
   }
 
@@ -174,13 +211,27 @@ export class CoreThemeService {
     host.style.removeProperty('color-scheme');
   }
 
-  private readStoredTheme(): NgTheme | null {
+  private captureAntiFlashClass(): void {
+    if (!this.#isBrowser || !this.#initialStoredTheme) return;
+
+    if (!/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(this.#initialStoredTheme)) {
+      this.#antiFlashClass = null;
+      return;
+    }
+
+    if (this.#initialStoredTheme === 'system') {
+      this.#antiFlashClass = this.resolveSystemPreference();
+      return;
+    }
+
+    this.#antiFlashClass = this.#initialStoredTheme;
+  }
+
+  private readStoredTheme(): string | null {
+    if (!this.#isBrowser) return null;
+
     try {
-      const stored = localStorage.getItem(this.#config.storageKey);
-      if (stored && this.#validThemes.has(stored as NgTheme)) {
-        return stored as NgTheme;
-      }
-      return null;
+      return localStorage.getItem(this.#config.storageKey);
     } catch (e) {
       console.warn('[ngx-theme-stack] Could not read theme from localStorage.', e);
       return null;
@@ -188,6 +239,8 @@ export class CoreThemeService {
   }
 
   private saveTheme(theme: NgTheme): void {
+    if (!this.#isBrowser) return;
+
     try {
       localStorage.setItem(this.#config.storageKey, theme);
     } catch (e) {

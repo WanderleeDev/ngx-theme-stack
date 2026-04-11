@@ -33,6 +33,12 @@
     },
     {
       "path": "./projects/ngx-theme-stack/tsconfig.spec.json"
+    },
+    {
+      "path": "./projects/demo-ngx-theme-stack/tsconfig.app.json"
+    },
+    {
+      "path": "./projects/demo-ngx-theme-stack/tsconfig.spec.json"
     }
   ]
 }

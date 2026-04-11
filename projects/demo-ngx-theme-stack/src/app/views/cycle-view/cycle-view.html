@@ -1,0 +1,26 @@
+<app-theme-card-wrapper>
+  <div header class="space-y-4">
+    <h1
+      class="text-4xl md:text-5xl font-black tracking-tighter text-text-main transition-colors leading-none"
+    >
+      Sequence
+    </h1>
+    <app-theme-status
+      [resolved]="resolvedTheme()"
+      [selected]="selectedTheme()"
+      [isHydrated]="themeService.isHydrated()"
+    />
+  </div>
+
+  <button
+    (click)="nextTheme()"
+    aria-label="Cycle to next theme"
+    class="group relative flex items-center justify-center w-20 h-20 bg-btn-bg text-btn-text rounded-full transition-all duration-200 active:scale-95 shadow-btn cursor-pointer"
+  >
+    <span
+      class="material-symbols-outlined text-4xl transition-transform duration-500 group-hover:rotate-180"
+    >
+      sync
+    </span>
+  </button>
+</app-theme-card-wrapper>

@@ -10,33 +10,31 @@ import { SchematicContext, Tree } from '@angular-devkit/schematics';
  *
  * The generated script:
  * 1. Reads `localStorage` for the stored theme key.
- * 2. Validates the value against the allowed themes list.
+ * 2. Validates the value using a Regex to prevent injections.
  * 3. Falls back to `defaultTheme`; resolves `'system'` via `matchMedia`.
- * 4. Applies the theme via class, data-attribute, or both on `<html>`.
+ * 4. Applies the theme according to the configured `mode` (class, attribute, or both).
  * 5. Sets the `color-scheme` CSS property for native browser adaptation.
  */
 function buildAntiFlashScript(options: {
   storageKey: string;
   defaultTheme: string;
   mode: string;
-  themes: string[];
 }): string {
-  const { storageKey, defaultTheme, mode, themes } = options;
+  const { storageKey, defaultTheme, mode } = options;
 
   return (
     `(function(){try{` +
     `var k=${JSON.stringify(storageKey)},` +
     `d=${JSON.stringify(defaultTheme)},` +
     `m=${JSON.stringify(mode)},` +
-    `v=${JSON.stringify(themes)};` +
-    `var t=localStorage.getItem(k);` +
-    `if(!t||v.indexOf(t)===-1)t=d;` +
+    `t=localStorage.getItem(k)||d,` +
+    `e=document.documentElement;` +
+    `if(!/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(t))t=d;` +
     `if(t==='system')t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';` +
-    `var e=document.documentElement;` +
-    `if(m==='class'||m==='both'){v.forEach(function(x){e.classList.remove(x)});e.classList.add(t)}` +
+    `if(m==='class'||m==='both')e.classList.add(t);` +
     `if(m==='attribute'||m==='both')e.setAttribute('data-theme',t);` +
     `if(t==='dark'||t==='light')e.style.setProperty('color-scheme',t);` +
-    `}catch(e){}})();`
+    `}catch(x){}})();`
   );
 }
 
@@ -50,19 +48,23 @@ function buildAntiFlashScript(options: {
  * - The script tag is already present (idempotent).
  *
  * Detection strategy (in order):
- * 1. `src/index.html` — standard Angular project layout.
- * 2. `public/index.html` — alternative layouts (e.g. Vite-based).
+ * 1. `${sourceRoot}/index.html` — standard project layout.
+ * 2. `public/index.html` — project-level public folder (e.g. Vite-based).
  *
  * @param tree The virtual file tree of the Angular project.
  * @param context The schematic's execution context for logging.
+ * @param sourceRoot The source root for the project.
  * @param options The configuration options collected from the prompt.
  */
 export function patchIndexHtml(
   tree: Tree,
   context: SchematicContext,
-  options: { storageKey: string; defaultTheme: string; mode: string; themes: string[] },
+  sourceRoot: string,
+  options: { storageKey: string; defaultTheme: string; mode: string },
 ): void {
-  const candidates = ['src/index.html', 'public/index.html'];
+  const candidates = [`${sourceRoot}/index.html`, 'public/index.html'].map((p) =>
+    p.startsWith('/') ? p.slice(1) : p,
+  );
 
   for (const path of candidates) {
     if (!tree.exists(path)) continue;
@@ -70,20 +72,26 @@ export function patchIndexHtml(
     const content = tree.readText(path);
 
     // Guard: idempotent — skip if script is already present
-    if (content.includes('ngx-theme-stack-theme') || content.includes('ngx-theme-stack anti-flash')) {
+    if (
+      content.includes('ngx-theme-stack-theme') ||
+      content.includes('ngx-theme-stack anti-flash')
+    ) {
       context.logger.info(`✔ Anti-flash script already present in ${path} — skipping.`);
       return;
     }
 
-    const script = buildAntiFlashScript(options);
+    const script = buildAntiFlashScript({
+      storageKey: options.storageKey,
+      defaultTheme: options.defaultTheme,
+      mode: options.mode,
+    });
 
     // ── CSP Detection ────────────────────────────────────────────────────────
     // If the project uses a Content-Security-Policy meta tag, inline scripts
     // are blocked by default unless 'unsafe-inline' or a nonce is allowed.
     // We warn here; the user must add a nonce manually or adjust their CSP.
     const hasCspMeta =
-      content.includes('Content-Security-Policy') ||
-      content.includes('content-security-policy');
+      content.includes('Content-Security-Policy') || content.includes('content-security-policy');
 
     if (hasCspMeta) {
       context.logger.warn(
@@ -105,9 +113,7 @@ export function patchIndexHtml(
     tree.overwrite(path, updated);
     context.logger.info(`✔ Anti-flash script injected into ${path}`);
     if (hasCspMeta) {
-      context.logger.warn(
-        `  → Remember to allow the inline script in your CSP before deploying.`,
-      );
+      context.logger.warn(`  → Remember to allow the inline script in your CSP before deploying.`);
     }
     return;
   }

@@ -8,3 +8,4 @@ export * from './lib/services/theme-cycle.service';
 export * from './lib/services/theme-select.service';
 export * from './lib/services/theme-toggle.service';
 export * from './lib/types';
+export * from './lib/errors';

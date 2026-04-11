@@ -1,0 +1,49 @@
+<app-theme-card-wrapper>
+  <div header class="space-y-4">
+    <h1
+      class="text-4xl md:text-5xl font-black tracking-tighter text-text-main transition-colors leading-none"
+    >
+      Select
+    </h1>
+    <app-theme-status
+      [resolved]="resolvedTheme()"
+      [selected]="selectedTheme()"
+      [isHydrated]="themeService.isHydrated()"
+    />
+  </div>
+  @if (themeService.isHydrated()) {
+    <div class="grid grid-cols-2 gap-4 w-full px-4">
+      @for (theme of themeService.availableThemes; track theme) {
+        <button
+          (click)="selectTheme(theme)"
+          [attr.aria-label]="'Select theme ' + theme"
+          class="group flex flex-col items-center justify-center p-4 rounded-3xl transition-all duration-300 active:scale-95 border-2 cursor-pointer"
+          [class.bg-nav-active]="theme === themeService.selectedTheme()"
+          [class.border-card-border]="theme === themeService.selectedTheme()"
+          [class.border-transparent]="theme !== themeService.selectedTheme()"
+          [class.bg-tag-bg]="theme !== themeService.selectedTheme()"
+        >
+          <span class="material-symbols-outlined text-2xl mb-1 opacity-60"> palette </span>
+          <span class="text-[10px] font-black uppercase tracking-widest text-text-main">
+            {{ theme }}
+          </span>
+        </button>
+      }
+    </div>
+  } @else {
+    <div class="grid grid-cols-2 gap-4 w-full px-4 animate-pulse">
+      @for (i of [1, 2, 3, 4]; track i) {
+        <button
+          class="flex flex-col items-center justify-center p-4 rounded-3xl border-2 border-transparent bg-tag-bg cursor-wait"
+        >
+          <span class="material-symbols-outlined text-2xl mb-1 opacity-20"> palette </span>
+          <span
+            class="text-[10px] font-black uppercase tracking-widest bg-divider text-transparent rounded"
+          >
+            loading
+          </span>
+        </button>
+      }
+    </div>
+  }
+</app-theme-card-wrapper>

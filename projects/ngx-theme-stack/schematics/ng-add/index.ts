@@ -1,9 +1,9 @@
-import { Rule, SchematicContext, Tree, chain } from '@angular-devkit/schematics';
-import { Schema } from './schema';
-import { DEFAULT_THEMES, DEFAULTS } from './constants';
-import { createRl, ask, askList, buildProvideCall } from './utils';
-import { patchAppConfig } from './app-config';
+import { chain, Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 import { patchIndexHtml } from './anti-flash';
+import { patchAppConfig } from './app-config';
+import { DEFAULT_THEMES, DEFAULTS } from './constants';
+import { Schema } from './schema';
+import { ask, askList, buildProvideCall, createRl } from './utils';
 
 /**
  * Interactively prompts the user for custom configuration options using readline.
@@ -56,13 +56,31 @@ async function collectCustomOptions(): Promise<{
  * @returns A rule that modifies the project's setup.
  */
 export function ngAdd(options: Schema): Rule {
-  return async (_tree: Tree, context: SchematicContext) => {
+  return async (tree: Tree, context: SchematicContext) => {
+    // ── Workspace Resolution ──────────────────────────────────────────────────
+    // In a monorepo, we must find the project's actual root and sourceRoot.
+    const workspaceConfig = tree.read('/angular.json');
+    if (!workspaceConfig) {
+      throw new Error('Could not find angular.json. Are you in an Angular workspace?');
+    }
+
+    const workspace = JSON.parse(workspaceConfig.toString());
+    const projectName = options.project || workspace.defaultProject;
+    const project = workspace.projects[projectName];
+
+    if (!project) {
+      throw new Error(`Project "${projectName}" not found in angular.json.`);
+    }
+
+    const projectRoot = project.root || '';
+    const projectSourceRoot = project.sourceRoot || `${projectRoot}/src`;
+
     context.logger.info('');
-    context.logger.info('🎨  ngx-theme-stack — setup');
+    context.logger.info(`🎨  ngx-theme-stack — setup [project: ${projectName}]`);
     context.logger.info('');
 
     let provideCall: string;
-    let scriptOptions: { storageKey: string; defaultTheme: string; mode: string; themes: string[] };
+    let scriptOptions: { storageKey: string; defaultTheme: string; mode: string };
 
     if (options.mode === 'quick') {
       provideCall = 'provideThemeStack()';
@@ -70,7 +88,6 @@ export function ngAdd(options: Schema): Rule {
         storageKey: DEFAULTS.storageKey,
         defaultTheme: DEFAULTS.defaultTheme,
         mode: DEFAULTS.mode,
-        themes: [...DEFAULTS.themes],
       };
       context.logger.info('⚡ Quick setup — defaults applied by the library (DEFAULT_NG_CONFIG).');
     } else {
@@ -85,13 +102,13 @@ export function ngAdd(options: Schema): Rule {
       context.logger.info(`   mode         : ${mode}`);
 
       provideCall = buildProvideCall(defaultTheme, storageKey, mode, themes);
-      scriptOptions = { storageKey, defaultTheme, mode, themes };
+      scriptOptions = { storageKey, defaultTheme, mode };
     }
 
     return chain([
       (t: Tree, ctx: SchematicContext) => {
-        patchAppConfig(t, ctx, provideCall);
-        patchIndexHtml(t, ctx, scriptOptions);
+        patchAppConfig(t, ctx, projectSourceRoot, provideCall);
+        patchIndexHtml(t, ctx, projectSourceRoot, scriptOptions);
         ctx.logger.info('');
         ctx.logger.info('✅  Done! Run `ng serve` to see ngx-theme-stack in action.');
         ctx.logger.info('');

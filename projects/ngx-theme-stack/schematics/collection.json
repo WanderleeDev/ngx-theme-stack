@@ -2,9 +2,14 @@
   "$schema": "../../../node_modules/@angular-devkit/schematics/collection-schema.json",
   "schematics": {
     "ng-add": {
-      "description": "Add my library to the project.",
+      "description": "Add and configure ngx-theme-stack in an Angular project.",
       "factory": "./ng-add/index#ngAdd",
       "schema": "./ng-add/schema.json"
+    },
+    "sync": {
+      "description": "Re-sync the anti-flash script in index.html with the current provideThemeStack() configuration.",
+      "factory": "./sync/index#sync",
+      "schema": "./sync/schema.json"
     }
   }
 }
