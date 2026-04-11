@@ -12,15 +12,19 @@
     />
   </div>
 
-  <button
-    (click)="toggleTheme()"
-    [attr.aria-label]="'Toggle theme to ' + (themeService.isDark() ? 'light' : 'dark')"
-    class="group relative flex items-center justify-center w-20 h-20 bg-btn-bg text-btn-text rounded-full transition-all duration-200 active:scale-95 shadow-btn cursor-pointer"
-  >
-    <span
-      class="material-symbols-outlined text-4xl transition-transform duration-200 group-hover:rotate-45"
+  @if (themeService.isHydrated()) {
+    <button
+      (click)="toggleTheme()"
+      [attr.aria-label]="'Toggle theme to ' + (themeService.isDark() ? 'light' : 'dark')"
+      class="group relative flex items-center justify-center w-20 h-20 bg-btn-bg text-btn-text rounded-full transition-all duration-200 active:scale-95 shadow-btn cursor-pointer"
     >
-      {{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}
-    </span>
-  </button>
+      <span
+        class="material-symbols-outlined text-4xl transition-transform duration-200 group-hover:rotate-45"
+      >
+        {{ themeService.isDark() ? 'light_mode' : 'dark_mode' }}
+      </span>
+    </button>
+  } @else {
+    <div class="w-20 h-20 bg-btn-bg/50 rounded-full animate-pulse shadow-btn"></div>
+  }
 </app-theme-card-wrapper>
