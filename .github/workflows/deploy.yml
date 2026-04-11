@@ -39,4 +39,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy dist/demo-ngx-theme-stack/browser --project-name=ngx-theme-stack-demo
+          command: pages deploy dist/demo-ngx-theme-stack/browser --project-name=demo-ngx-theme-stack
