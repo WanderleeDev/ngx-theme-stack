@@ -15,6 +15,6 @@
   },
   "hooks": {
     "before:init": "pnpm lint && pnpm test",
-    "after:bump": "pnpm version ${version} --no-git-tag-version && pnpm version ${version} --filter ngx-theme-stack --no-git-tag-version"
+    "after:bump": "node -e \"const fs=require('fs'); [ './package.json', './projects/ngx-theme-stack/package.json' ].forEach(f => { const p=JSON.parse(fs.readFileSync(f, 'utf8')); p.version='${version}'; fs.writeFileSync(f, JSON.stringify(p, null, 2) + '\\n'); })\""
   }
 }
