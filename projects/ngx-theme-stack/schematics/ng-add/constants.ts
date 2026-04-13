@@ -14,5 +14,6 @@ export const DEFAULTS = {
   defaultTheme: 'system',
   storageKey: 'ngx-theme-stack-theme',
   mode: 'class',
+  strategy: 'critters',
   themes: [...DEFAULT_THEMES],
 } as const;

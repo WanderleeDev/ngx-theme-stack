@@ -26,6 +26,8 @@ const OPTION_KEY_RE = /storageKey\s*:\s*['"]([^'"]+)['"]/;
 
 /** Extracts "defaultTheme" value from the captured options string. */
 const OPTION_DEFAULT_THEME_RE = /defaultTheme\s*:\s*['"]([^'"]+)['"]/;
+const OPTION_STRATEGY_RE = /strategy\s*:\s*['"]([^'"]+)['"]/;
+
 
 /**
  * Extracts the themes array from the options string.
@@ -50,6 +52,7 @@ interface ExtractedConfig {
   storageKey: string;
   defaultTheme: string;
   mode: string;
+  strategy?: string;
   themes: string[];
 }
 
@@ -90,6 +93,7 @@ function extractConfig(
     const mode = OPTION_MODE_RE.exec(opts)?.[1] ?? DEFAULTS.mode;
     const storageKey = OPTION_KEY_RE.exec(opts)?.[1] ?? DEFAULTS.storageKey;
     const defaultTheme = OPTION_DEFAULT_THEME_RE.exec(opts)?.[1] ?? DEFAULTS.defaultTheme;
+    const strategy = OPTION_STRATEGY_RE.exec(opts)?.[1] ?? undefined;
 
     // Extract themes array: ['light', 'dark', 'sunset'] → ['light', 'dark', 'sunset']
     const themesRaw = OPTION_THEMES_RE.exec(opts)?.[1] ?? '';
@@ -101,11 +105,12 @@ function extractConfig(
       : [...DEFAULTS.themes];
 
     context.logger.info(`   Detected mode         : ${mode}`);
+    context.logger.info(`   Detected strategy     : ${strategy ?? '(not in code, using auto-detect)'}`);
     context.logger.info(`   Detected storageKey   : ${storageKey}`);
     context.logger.info(`   Detected defaultTheme : ${defaultTheme}`);
     context.logger.info(`   Detected themes       : [${themes.join(', ')}]`);
 
-    return { mode, storageKey, defaultTheme, themes };
+    return { mode, strategy, storageKey, defaultTheme, themes };
   }
 
   // Fallback to defaults if no config file found
@@ -374,13 +379,13 @@ export function sync(options: Schema): Rule {
     }
 
     const sourceRoot: string = project.sourceRoot || `${project.root ?? ''}/src`;
-    const strategy = detectStrategy(tree, sourceRoot, options.strategy);
+    const config = extractConfig(tree, sourceRoot, context);
+    const strategy = (options.strategy || config.strategy || detectStrategy(tree, sourceRoot)) as 'critters' | 'blocking';
 
     context.logger.info('');
     context.logger.info(`🔄  ngx-theme-stack sync [project: ${projectName}, strategy: ${strategy}]`);
     context.logger.info('');
 
-    const config = extractConfig(tree, sourceRoot, context);
     syncIndexHtml(tree, context, sourceRoot, config, strategy);
     syncAngularJson(tree, context, projectName, strategy);
 
