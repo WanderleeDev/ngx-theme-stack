@@ -12,7 +12,7 @@ A simple and powerful headless theme manager for **Angular**. Built for performa
 - 🛠️ **Highly Customizable**: Support for custom themes, class prefixes, and configurable storage.
 - 🧱 **Modern Architecture**: Powered by Angular Signals for maximum reactivity and performance.
 - 🌍 **SSR Ready**: Safe to use in Server-Side Rendering environments.
-- 🚫 **Zero Flicker**: Includes an optimized anti-flash script to prevent theme jumps on load.
+- 🚫 **Zero Flicker**: Includes an optimized anti-flash script and the **Critters Trick** strategy to prevent theme jumps and network requests on load.
 
 ## 📦 Installation
 
@@ -31,12 +31,14 @@ When running `ng add`, you will be presented with two configuration options:
     - Initial theme: `system`.
     - Apply mode: `class` (adds the theme class to the `<html>` element).
     - Available themes: `['light', 'dark', 'system']`.
+    - **Strategy**: `critters` (Zero-flash via CSS inlining).
 
 2.  **Custom Mode**:
     - Choose which themes to include (e.g., if you have a `blue` or `high-contrast` theme).
     - Configure the default theme upon app startup.
     - Change the `localStorage` key where the theme choice is saved.
     - Decide how to apply themes: via classes (`class`), attributes (`data-theme`), or both.
+    - **Pick your strategy**: `critters` for modern SSR/SSG apps or `blocking` for standard CSS loading.
 
 ## 🏗️ Architecture & Extensibility
 
@@ -123,25 +125,90 @@ export class ThemeToggleComponent {
 
 ## 🎨 Styling
 
-By default, the library adds the theme name as a class or attribute to the `<html>` element. Use this in your global styles:
+The `ng add` command automatically creates a **`src/themes.css`** file in your project. This is where you should define your theme-specific CSS variables.
+
+The library targets the `<html>` element. Based on your configured `mode`, you should define your variables like this:
 
 ```css
-/* Using Classes (Default) */
-html.dark {
-  background-color: #121212;
-  color: white;
+/* src/themes.css */
+
+/* Using Classes (Default Mode) */
+:root,
+.light {
+  --bg-color: #ffffff;
+  --text-color: #333333;
 }
 
-html.light {
-  background-color: #ffffff;
-  color: #333;
+.dark {
+  --bg-color: #121212;
+  --text-color: #ffffff;
 }
 
-/* Using Attributes */
-[data-theme='blue'] {
-  --primary-color: #0000ff;
+/* Using Attributes (Attribute Mode) */
+[data-theme='sunset'] {
+  --bg-color: #ff5f6d;
+  --text-color: #ffffff;
+}
+
+/* Base styles using the variables */
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease;
 }
 ```
+
+## 🌪️ Tailwind CSS v4 Integration
+
+If you are using **Tailwind CSS v4**, you can achieve a much cleaner HTML by mapping your `themes.css` variables to your Tailwind theme. This avoids cluttering your components with `dark:` variants.
+
+### 1. Configure Custom Variants
+
+In your main `styles.css`, define how Tailwind should detect your themes:
+
+```css
+/* src/styles.css */
+@import 'tailwindcss';
+
+/* If using Class mode */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* If using Attribute mode */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+```
+
+### 2. Map Semantic Variables
+
+Extend your Tailwind theme using the variables defined in `themes.css`:
+
+```css
+@theme {
+  --color-main-bg: var(--bg-color);
+  --color-main-text: var(--text-color);
+  --color-card-bg: var(--card-bg);
+}
+```
+
+### 3. Usage in Components
+
+Now, instead of writing `<div class="bg-white dark:bg-black">`, you simply write:
+
+```html
+<div class="bg-main-bg text-main-text shadow-xl">
+  <!-- This automatically changes colors based on the active theme -->
+</div>
+```
+
+This approach keeps your UI code clean, semantic, and fully synchronized with `ngx-theme-stack`.
+
+## ⚡ Performance Strategies
+
+`ngx-theme-stack` offers two ways to handle the initial theme application to prevent that annoying white flash:
+
+1.  **Critters (Default)**: Best for SSR/Static sites. It uses hidden markers to trick the Angular builder into inlining all your theme CSS variables directly in the HTML `<head>`. Result: **Zero network requests for CSS variables.**
+2.  **Blocking**: Best for standard SPAs. It loads the `themes.css` file as a traditional blocking resource.
+
+The `ng-add` schematic helps you configure the right one automatically.
 
 ## 📄 License
 
