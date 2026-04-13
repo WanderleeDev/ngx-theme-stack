@@ -75,5 +75,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Build Library (required for schematics)
+        run: pnpm run build:lib
+
       - name: Build Demo
         run: pnpm run build:demo
