@@ -6,12 +6,14 @@
     "start:demo": "ng serve -o demo-ngx-theme-stack",
     "build": "ng build",
     "build:lib": "ng build ngx-theme-stack && cd projects/ngx-theme-stack/ && pnpm run build",
+    "prebuild:demo": "ng generate ./dist/ngx-theme-stack/schematics/collection.json:sync --project demo-ngx-theme-stack",
     "build:demo": "ng build demo-ngx-theme-stack",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",
     "release": "release-it",
-    "serve:ssr:demo-ngx-theme-stack": "node dist/demo-ngx-theme-stack/server/server.mjs"
+    "serve:ssr:demo-ngx-theme-stack": "node dist/demo-ngx-theme-stack/server/server.mjs",
+    "prebuild": "ng generate ngx-theme-stack:sync --project demo-ngx-theme-stack"
   },
   "prettier": {
     "printWidth": 100,
@@ -47,6 +49,7 @@
     "@angular/cli": "^21.0.1",
     "@angular/compiler-cli": "^21.0.0",
     "@eslint/js": "^10.0.1",
+    "@release-it/conventional-changelog": "^10.0.1",
     "@schematics/angular": "^21.2.6",
     "@tailwindcss/postcss": "^4.1.12",
     "@types/express": "^5.0.1",
@@ -56,13 +59,13 @@
     "eslint": "^10.0.3",
     "jsdom": "^28.0.0",
     "ng-packagr": "^21.2.0",
+    "ngx-theme-stack": "file:dist/ngx-theme-stack",
     "postcss": "^8.5.3",
+    "release-it": "^18.1.2",
     "tailwindcss": "^4.1.12",
     "typescript": "~5.9.2",
     "typescript-eslint": "8.56.1",
-    "vitest": "^4.0.8",
-    "release-it": "^18.1.2",
-    "@release-it/conventional-changelog": "^10.0.1"
+    "vitest": "^4.0.8"
   },
   "version": "2.0.0"
 }
