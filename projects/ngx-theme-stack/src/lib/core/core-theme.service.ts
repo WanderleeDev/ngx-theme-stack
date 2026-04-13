@@ -43,7 +43,11 @@ export class CoreThemeService {
   /** Internal Set for O(1) existence checks. */
   readonly #validThemes = new Set<NgTheme>(this.availableThemes);
 
-  /** The anti-flash class to remove from the host element. */
+  /**
+   * The anti-flash class to remove from the host element.
+   * Internal mechanism to bridge the gap between the blocking script's
+   * initial DOM state and Angular's first effect run.
+   */
   #antiFlashClass: string | null = null;
 
   // ── System preference ─────────────────────────────────────────────────────
@@ -80,18 +84,17 @@ export class CoreThemeService {
   /**
    * Whether the service has completed client-side initialization.
    *
-   * `false` during SSR and on the very first render pass. Becomes `true`
-   * immediately after the first browser render, once the real persisted theme
-   * has been read from `localStorage`.
+   * `false` during SSR and on the very first render pass before the initial theme
+   * is resolved from `localStorage`. Becomes `true` immediately after the
+   * first browser render pass.
    *
-   * Use this to guard any template logic that depends on `selectedTheme` or
-   * `resolvedTheme` to avoid an SSR hydration-mismatch flash: the server
-   * renders the default (`'system'`) while the browser may have a different
-   * value stored.
+   * **Important:** Guard template elements that display `selectedTheme()` or
+   * `resolvedTheme()` behind this signal to prevent hydration-mismatch flashes
+   * (e.g. if the server renders the default 'system' but the user has 'dark' stored).
    *
    * @example
    * ```html
-   * {{ themeService.isHydrated() ? selectedTheme() : '—' }}
+   * {{ theme.isHydrated() ? theme.selectedTheme() : '...' }}
    * ```
    */
   readonly isHydrated = signal(false);

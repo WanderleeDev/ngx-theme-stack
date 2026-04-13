@@ -36,7 +36,20 @@ export type NgTheme<T extends string = string & {}> = DefaultNgTheme | T;
  */
 export type NgSystemTheme = Exclude<DefaultNgTheme, 'system'>;
 
+/**
+ * Theme application mode.
+ * - `'attribute'`: sets `data-theme` attribute on `<html>`
+ * - `'class'`: adds theme class to `<html>`
+ * - `'both'`: uses both attribute and class
+ */
 export type NgMode = 'attribute' | 'class' | 'both';
+
+/**
+ * Theme application strategy.
+ * - `'blocking'`: theme CSS is loaded synchronously before rendering
+ * - `'critters'`: theme CSS is inlined using Critters for SSR/SSG
+ */
+export type NgStrategy = 'blocking' | 'critters';
 
 /**
  * Library configuration.
@@ -46,8 +59,25 @@ export type NgMode = 'attribute' | 'class' | 'both';
  * via {@link provideThemeStack} to get a closed, type-safe theme union.
  */
 export interface NgConfig<T extends string = string & {}> {
+  /** The theme to use on first visit or when no preference is saved. Default: 'system'. */
   defaultTheme: NgTheme<T>;
+
+  /** Key used to persist theme preference in localStorage. Default: 'ngx-theme-stack-theme'. */
   storageKey: string;
+
+  /** 
+   * How the theme should be applied to the document (via class, attribute or both). 
+   * Default: 'class'.
+   */
   mode: NgMode;
+
+  /** 
+   * Performance strategy for anti-flash. 
+   * Use 'critters' for SSG/SSR builds with inlined CSS, 'blocking' for standard CSS files.
+   * Default: 'critters'.
+   */
+  strategy: NgStrategy;
+
+  /** List of supported theme identifiers. Default: ['light', 'dark', 'system']. */
   themes: NgTheme<T>[];
 }

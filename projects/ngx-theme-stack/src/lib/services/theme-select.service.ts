@@ -12,27 +12,27 @@ import { NgTheme } from '../types';
 export class ThemeSelectService {
   readonly #core = inject(CoreThemeService);
 
-  /** List of all configured themes. Defaults to ['light', 'dark', 'system']. */
+  /** List of all configured themes. Defaults to `['light', 'dark', 'system']`. */
   readonly availableThemes = this.#core.availableThemes;
 
   /** The theme explicitly selected by the user. May be `'system'`. */
   readonly selectedTheme = this.#core.selectedTheme;
 
-  /** Resolved theme applied to the DOM. Always concrete — never `'system'`. */
+  /** Resolved theme currently applied to the DOM. Always concrete — never `'system'`. */
   readonly resolvedTheme = this.#core.resolvedTheme;
 
-  /** Whether the currently applied theme is dark. */
+  /** Whether the currently applied theme is `'dark'`. */
   readonly isDark = this.#core.isDark;
 
-  /** Whether the currently applied theme is light. */
+  /** Whether the currently applied theme is `'light'`. */
   readonly isLight = this.#core.isLight;
 
-  /** Whether the currently applied theme is system. */
+  /** Whether the user has explicitly selected `'system'` preference. */
   readonly isSystem = this.#core.isSystem;
 
   /**
-   * Whether the service has completed client-side initialization.
-   * `false` during SSR. Becomes `true` after the first browser render.
+   * Whether the service has completed client-side initialization and 
+   * resolved the real persisted theme. Use to prevent hydration flashes.
    */
   readonly isHydrated = this.#core.isHydrated.asReadonly();
 

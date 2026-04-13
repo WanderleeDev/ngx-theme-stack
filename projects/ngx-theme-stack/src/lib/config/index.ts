@@ -19,6 +19,7 @@ export const DEFAULT_NG_CONFIG = {
   defaultTheme: 'system',
   storageKey: 'ngx-theme-stack-theme',
   mode: 'class',
+  strategy: 'critters',
   themes: [...DEFAULT_THEMES],
 } satisfies NgConfig;
 
@@ -43,6 +44,8 @@ export const NGX_THEME_STACK_CONFIG = new InjectionToken<NgConfig<string>>(
  * - `defaultTheme`: `'system'`
  * - `storageKey`: `'ngx-theme-stack-theme'`
  * - `mode`: `'class'`
+ * - `strategy`: `'critters'`
+
  *
  * The type parameter `T` is **inferred automatically** from the `themes` array
  * when passed as a `const` — no need to specify it manually.
@@ -62,6 +65,13 @@ export const NGX_THEME_STACK_CONFIG = new InjectionToken<NgConfig<string>>(
  * provideThemeStack()
  *
  * @example
+ * // SSR/SSG Optimization — uses Critters inlining strategy
+ * provideThemeStack({
+ *   strategy: 'critters',
+ *   mode: 'class',
+ * })
+ *
+ * @example
  * // Closed union: TypeScript infers 'sepia' | 'ocean' from the array
  * provideThemeStack({
  *   themes: ['sepia', 'ocean'] as const,
@@ -73,7 +83,7 @@ export const NGX_THEME_STACK_CONFIG = new InjectionToken<NgConfig<string>>(
  * // Custom storage key and mode
  * provideThemeStack({
  *   storageKey: 'my-app-theme',
- *   mode: 'class',
+ *   mode: 'attribute',
  * })
  */
 export function provideThemeStack<const T extends string = DefaultNgTheme>(
