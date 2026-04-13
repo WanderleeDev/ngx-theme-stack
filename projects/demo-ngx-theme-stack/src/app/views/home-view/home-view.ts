@@ -43,7 +43,7 @@ import { RouterLink } from '@angular/router';
               [style.background-color]="service.color + '1a'"
             >
               <span
-                class="material-icons text-3xl transform transition-transform group-hover/card:scale-110"
+                class="material-symbols-outlined text-3xl transform transition-transform group-hover/card:scale-110"
                 [style.color]="service.color"
               >
                 {{ service.icon }}
