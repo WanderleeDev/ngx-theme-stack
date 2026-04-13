@@ -64,6 +64,7 @@
               }
             ],
             "styles": [
+              "projects/demo-ngx-theme-stack/src/themes.css",
               "projects/demo-ngx-theme-stack/src/styles.css"
             ],
             "server": "projects/demo-ngx-theme-stack/src/main.server.ts",
@@ -86,7 +87,12 @@
                   "maximumError": "8kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "optimization": {
+                "styles": {
+                  "inlineCritical": true
+                }
+              }
             },
             "development": {
               "optimization": false,
