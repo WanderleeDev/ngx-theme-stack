@@ -10,6 +10,11 @@
       "$default": {
         "$source": "projectName"
       }
+    },
+    "strategy": {
+      "type": "string",
+      "description": "The strategy to use (critters or blocking). Auto-detected if not provided.",
+      "enum": ["blocking", "critters"]
     }
   },
   "required": ["project"]

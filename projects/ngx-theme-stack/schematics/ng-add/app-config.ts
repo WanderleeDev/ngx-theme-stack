@@ -22,12 +22,14 @@ export function patchAppConfig(
 
     const content = tree.readText(filePath);
 
-    if (content.includes('provideThemeStack')) {
-      context.logger.info(`✔ ngx-theme-stack already configured in ${filePath}`);
+    let updated = content;
+
+    if (updated.includes('provideThemeStack')) {
+      updated = updated.replace(/provideThemeStack\s*\([\s\S]*?\)/, provideCall);
+      tree.overwrite(filePath, updated);
+      context.logger.info(`✔ Updated provideThemeStack configuration in ${filePath}`);
       return;
     }
-
-    let updated = content;
 
     // Add import if missing
     if (!updated.includes("from 'ngx-theme-stack'")) {

@@ -38,6 +38,12 @@ export const NGX_THEME_STACK_CONFIG = new InjectionToken<NgConfig<string>>(
  * Custom `themes` are **merged** with the built-in defaults
  * (`'light'`, `'dark'`, `'system'`), so you never lose the base themes.
  *
+ * **Defaults:**
+ * - `themes`: `['light', 'dark', 'system']`
+ * - `defaultTheme`: `'system'`
+ * - `storageKey`: `'ngx-theme-stack-theme'`
+ * - `mode`: `'class'`
+ *
  * The type parameter `T` is **inferred automatically** from the `themes` array
  * when passed as a `const` — no need to specify it manually.
  *

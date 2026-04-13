@@ -3,4 +3,6 @@ export interface Schema {
   project: string;
   /** 'quick' applies defaults silently. 'custom' prompts interactively. */
   mode: 'quick' | 'custom';
+  /** The strategy to prevent theme flicker. */
+  strategy: 'critters' | 'blocking';
 }

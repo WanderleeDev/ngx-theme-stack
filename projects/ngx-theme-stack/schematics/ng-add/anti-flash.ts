@@ -60,7 +60,13 @@ export function patchIndexHtml(
   tree: Tree,
   context: SchematicContext,
   sourceRoot: string,
-  options: { storageKey: string; defaultTheme: string; mode: string },
+  options: {
+    storageKey: string;
+    defaultTheme: string;
+    mode: string;
+    themes: string[];
+    strategy: 'critters' | 'blocking';
+  },
 ): void {
   const candidates = [`${sourceRoot}/index.html`, 'public/index.html'].map((p) =>
     p.startsWith('/') ? p.slice(1) : p,
@@ -71,25 +77,7 @@ export function patchIndexHtml(
 
     const content = tree.readText(path);
 
-    // Guard: idempotent — skip if script is already present
-    if (
-      content.includes('ngx-theme-stack-theme') ||
-      content.includes('ngx-theme-stack anti-flash')
-    ) {
-      context.logger.info(`✔ Anti-flash script already present in ${path} — skipping.`);
-      return;
-    }
-
-    const script = buildAntiFlashScript({
-      storageKey: options.storageKey,
-      defaultTheme: options.defaultTheme,
-      mode: options.mode,
-    });
-
     // ── CSP Detection ────────────────────────────────────────────────────────
-    // If the project uses a Content-Security-Policy meta tag, inline scripts
-    // are blocked by default unless 'unsafe-inline' or a nonce is allowed.
-    // We warn here; the user must add a nonce manually or adjust their CSP.
     const hasCspMeta =
       content.includes('Content-Security-Policy') || content.includes('content-security-policy');
 
@@ -105,13 +93,65 @@ export function patchIndexHtml(
       );
     }
 
-    // Inject immediately after <head> so it blocks rendering before any CSS.
-    // If your project uses CSP nonces, add nonce="<%= CSP_NONCE %>" to the tag.
-    const scriptTag = `\n  <!-- ngx-theme-stack anti-flash -->\n  <script>${script}</script>`;
-    const updated = content.replace('<head>', `<head>${scriptTag}`);
+    const scriptTag = `\n  <!-- ngx-theme-stack anti-flash -->\n  <script>${buildAntiFlashScript({
+      storageKey: options.storageKey,
+      defaultTheme: options.defaultTheme,
+      mode: options.mode,
+    })}</script>`;
+
+    let updated = content;
+
+    // ── 1. Update Anti-Flash Script ──────────────────────────────────────────
+    const SCRIPT_BLOCK_RE = /<!-- ngx-theme-stack anti-flash -->\s*<script>[\s\S]*?<\/script>/;
+    if (SCRIPT_BLOCK_RE.test(updated)) {
+      updated = updated.replace(SCRIPT_BLOCK_RE, scriptTag);
+      context.logger.info(`✔ Updated anti-flash script in ${path}`);
+    } else {
+      updated = updated.replace('<head>', `<head>${scriptTag}`);
+      context.logger.info(`✔ Injected anti-flash script into ${path}`);
+    }
+
+    // ── 2. Update Critters Trick ─────────────────────────────────────────────
+    const CRITTERS_BLOCK_RE =
+      /<!-- ngx-theme-stack critters-trick -->[\s\S]*?<!-- \/ngx-theme-stack critters-trick -->/;
+    const CRITTERS_ID_RE = /<div id="ngx-theme-stack-critters-trick"[\s\S]*?<\/div>/;
+
+    if (options.strategy === 'critters') {
+      const renderableThemes = options.themes.filter((t) => t !== 'system');
+      const innerDivs = renderableThemes
+        .map((theme) => {
+          if (options.mode === 'class') return `      <div class="${theme}"></div>`;
+          if (options.mode === 'attribute') return `      <div data-theme="${theme}"></div>`;
+          return `      <div class="${theme}" data-theme="${theme}"></div>`;
+        })
+        .join('\n');
+
+      const crittersBlock =
+        `<!-- ngx-theme-stack critters-trick -->\n` +
+        `    <div id="ngx-theme-stack-critters-trick" hidden aria-hidden="true" style="display: none; overflow: hidden; clip-path: inset(50%); position: absolute;">\n${innerDivs}\n    </div>\n` +
+        `    <!-- /ngx-theme-stack critters-trick -->`;
+
+      if (CRITTERS_BLOCK_RE.test(updated)) {
+        updated = updated.replace(CRITTERS_BLOCK_RE, crittersBlock);
+        context.logger.info(`✔ Updated Critters-trick block in ${path}`);
+      } else if (CRITTERS_ID_RE.test(updated)) {
+        updated = updated.replace(CRITTERS_ID_RE, crittersBlock);
+        context.logger.info(`✔ Wrapped existing Critters-trick div with markers in ${path}`);
+      } else {
+        updated = updated.replace('</body>', `  ${crittersBlock}\n  </body>`);
+        context.logger.info(`✔ Injected Critters-trick block before </body> in ${path}`);
+      }
+    } else {
+      // If switching to blocking strategy, remove existing trick
+      if (CRITTERS_BLOCK_RE.test(updated)) {
+        updated = updated.replace(CRITTERS_BLOCK_RE, '');
+      } else if (CRITTERS_ID_RE.test(updated)) {
+        updated = updated.replace(CRITTERS_ID_RE, '');
+      }
+      context.logger.info(`✔ Removed Critters-trick from ${path}`);
+    }
 
     tree.overwrite(path, updated);
-    context.logger.info(`✔ Anti-flash script injected into ${path}`);
     if (hasCspMeta) {
       context.logger.warn(`  → Remember to allow the inline script in your CSP before deploying.`);
     }

@@ -22,14 +22,19 @@
         "items": [
           {
             "value": "quick",
-            "label": "Quick  – apply defaults instantly (theme: system, mode: class)"
+            "label": "Quick  – apply defaults instantly (theme: system, mode: class, strategy: critters)"
           },
           {
             "value": "custom",
-            "label": "Custom – choose themes, default theme, storage key and apply mode"
+            "label": "Custom – choose themes, default theme, storage key and strategy"
           }
         ]
       }
+    },
+    "strategy": {
+      "type": "string",
+      "description": "The strategy to use for flash prevention (critters or blocking).",
+      "enum": ["blocking", "critters"]
     }
   },
   "required": ["project"]

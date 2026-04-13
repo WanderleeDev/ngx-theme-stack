@@ -1,5 +1,5 @@
 import * as readline from 'readline';
-import { DEFAULT_THEMES, DEFAULTS } from './constants';
+
 
 /**
  * Creates a readline interface using the system's standard input and output.
@@ -32,37 +32,19 @@ export async function askList(
   return isNaN(n) || n < 1 || n > items.length ? items[defaultIndex] : items[n - 1];
 }
 
-/**
- * Builds the 'provideThemeStack({...})' string representation.
- * It compares the selected values with library defaults to generate a 
- * minimal call string (omitting properties that match defaults).
- */
 export function buildProvideCall(
   defaultTheme: string,
   storageKey: string,
   mode: string,
   themes: string[],
 ): string {
-  const defaultThemesList = [...DEFAULT_THEMES] as string[];
-  const isDefaultThemes =
-    themes.length === defaultThemesList.length && themes.every((t, i) => t === defaultThemesList[i]);
-
-  const isAllDefault =
-    defaultTheme === DEFAULTS.defaultTheme &&
-    storageKey === DEFAULTS.storageKey &&
-    mode === DEFAULTS.mode &&
-    isDefaultThemes;
-
-  if (isAllDefault) return `provideThemeStack()`;
-
-  const parts: string[] = [];
-  if (defaultTheme !== DEFAULTS.defaultTheme) parts.push(`defaultTheme: '${defaultTheme}'`);
-  if (storageKey !== DEFAULTS.storageKey) parts.push(`storageKey: '${storageKey}'`);
-  if (mode !== DEFAULTS.mode) parts.push(`mode: '${mode}'`);
-  if (!isDefaultThemes) {
-    const arr = themes.map((t) => `'${t}'`).join(', ');
-    parts.push(`themes: [${arr}]`);
-  }
-
-  return `provideThemeStack({ ${parts.join(', ')} })`;
+  const themesArr = themes.map((t) => `'${t}'`).join(', ');
+  return [
+    'provideThemeStack({',
+    `      themes: [${themesArr}],`,
+    `      defaultTheme: '${defaultTheme}',`,
+    `      storageKey: '${storageKey}',`,
+    `      mode: '${mode}',`,
+    '    })',
+  ].join('\n');
 }
