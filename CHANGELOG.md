@@ -1,5 +1,20 @@
 # Changelog
 
+# [2.1.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v2.0.0...v2.1.0) (2026-04-13)
+
+
+### Features
+
+* **demo:** implement blocking strategy for Material Symbols ([5d57ebd](https://github.com/WanderleeDev/ngx-theme-stack/commit/5d57ebd0a44c5222a64dab20d0247db8d963dd20))
+* implement home view and update routing to support landing page navigation ([9348dca](https://github.com/WanderleeDev/ngx-theme-stack/commit/9348dca521bd3c1894fd88878dbd3ed75f9f940f))
+* implement TopNav component and refactor theme switcher layout using content projection ([b6afb70](https://github.com/WanderleeDev/ngx-theme-stack/commit/b6afb70baf33083530a14b0283092784a7153f31))
+* **schematics:** add support for critters-trick and optimized anti-flash ([29961cf](https://github.com/WanderleeDev/ngx-theme-stack/commit/29961cf801ca20e1e06a83e0402e68ef794ed5fe))
+
+
+### Performance Improvements
+
+* **demo:** enable inlineCritical CSS and critters-trick for SSR/SSG ([2189d6a](https://github.com/WanderleeDev/ngx-theme-stack/commit/2189d6a6456933c435e7ecf8917f401282d2a933))
+
 # [2.0.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v1.0.1...v2.0.0) (2026-04-11)
 
 
