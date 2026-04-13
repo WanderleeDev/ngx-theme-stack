@@ -18,8 +18,8 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
-    "copyfiles": "file:../../node_modules/copyfiles",
-    "typescript": "file:../../node_modules/typescript"
+    "copyfiles": "^2.4.1",
+    "typescript": "~5.5.0"
   },
   "sideEffects": false,
   "license": "MIT"
