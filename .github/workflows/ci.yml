@@ -7,21 +7,39 @@ on:
     branches: [ main ]
 
 jobs:
-  build_test_lint:
-    name: Build, Test, and Lint
+  # ── 1. Detección de Cambios ────────────────────────────────────────────────
+  changes:
     runs-on: ubuntu-latest
-
+    outputs:
+      lib: ${{ steps.filter.outputs.lib }}
+      demo: ${{ steps.filter.outputs.demo }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            lib:
+              - 'projects/ngx-theme-stack/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
+            demo:
+              - 'projects/demo-ngx-theme-stack/**'
+              - 'package.json'
+              - 'pnpm-lock.yaml'
 
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
+  # ── 2. Job para la Librería ────────────────────────────────────────────────
+  library:
+    needs: changes
+    if: ${{ needs.changes.outputs.lib == 'true' }}
+    name: Test & Build Library
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
         with:
           version: 10.30.3
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'pnpm'
@@ -37,3 +55,25 @@ jobs:
 
       - name: Build Library
         run: pnpm exec ng build ngx-theme-stack
+
+  # ── 3. Job para la Demo ───────────────────────────────────────────────────
+  demo:
+    needs: changes
+    if: ${{ needs.changes.outputs.demo == 'true' }}
+    name: Build Demo App
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.30.3
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build Demo
+        run: pnpm run build:demo
