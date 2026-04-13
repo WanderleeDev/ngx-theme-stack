@@ -25,6 +25,7 @@ function setup(config: Partial<NgConfig> = {}) {
     storageKey: 'ngx-theme-stack-theme',
     mode: 'class',
     themes: ['light', 'dark', 'system'],
+    strategy: 'critters',
     ...config,
   };
 
