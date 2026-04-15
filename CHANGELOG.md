@@ -1,5 +1,22 @@
 # Changelog
 
+# [3.0.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v2.1.1...v3.0.0) (2026-04-15)
+
+
+### Bug Fixes
+
+* **ci:** use pnpm workspace protocol and point tsconfig to source ([d1b496b](https://github.com/WanderleeDev/ngx-theme-stack/commit/d1b496bb85f3d79be78de767129962d9e1a425cd))
+
+
+### Features
+
+* **core:** update support to Angular 20+ ([8864686](https://github.com/WanderleeDev/ngx-theme-stack/commit/8864686a53cf9630033492b9a95cca1ce6ad39fa))
+
+
+### BREAKING CHANGES
+
+* **core:** dropped support for Angular versions below 20. The library now requires Angular 20 or higher.
+
 ## [2.1.1](https://github.com/WanderleeDev/ngx-theme-stack/compare/v2.1.0...v2.1.1) (2026-04-15)
 
 
