@@ -40,6 +40,17 @@ When running `ng add`, you will be presented with two configuration options:
     - Decide how to apply themes: via classes (`class`), attributes (`data-theme`), or both.
     - **Pick your strategy**: `critters` for modern SSR/SSG apps or `blocking` for standard CSS loading.
 
+## 🤖 What does `ng add` do for you?
+
+To provide a "Zero Config" experience, the installation command automates the following:
+
+1.  **`package.json`**: Adds a `"prebuild"` script that executes the synchronization automatically before every build.
+2.  **`angular.json`**: 
+    - Adds `src/themes.css` to the global styles list.
+    - Configures the `inlineCritical` optimization based on your selected strategy.
+3.  **`index.html`**: Injects the marker and the blocking anti-flash script into the `<head>`.
+4.  **`themes.css`**: Creates a base file with selectors ready for you to define your variables.
+
 ## 🏗️ Architecture & Extensibility
 
 The library is designed to be flexible. The **`CoreThemeService`** is the foundation:
@@ -98,7 +109,6 @@ export const appConfig: ApplicationConfig = {
 > Whenever you update these settings, run `ng generate ngx-theme-stack:sync` to ensure your `index.html` is updated with the correct anti-flash script.
 
 ## 🛠️ Basic Usage
-
 
 ### CoreThemeService API
 
@@ -253,7 +263,6 @@ The `ng-add` schematic helps you configure the right one automatically. You can 
 ```bash
 ng generate ngx-theme-stack:sync --project YOUR_PROJECT_NAME
 ```
-
 
 ## 📄 License
 
