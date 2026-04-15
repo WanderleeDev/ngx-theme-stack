@@ -74,8 +74,6 @@ For common use cases, we include three services with predefined logic:
 | :-------------- | :-------- |
 | **Angular 21**  | ✅ Stable |
 | **Angular 20**  | ✅ Stable |
-| **Angular 19**  | ✅ Stable |
-| **Angular 18**  | ✅ Stable |
 
 ## ⚙️ Configuration
 
