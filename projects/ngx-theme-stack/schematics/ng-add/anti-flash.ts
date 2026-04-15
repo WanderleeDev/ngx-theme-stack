@@ -77,21 +77,6 @@ export function patchIndexHtml(
 
     const content = tree.readText(path);
 
-    // ── CSP Detection ────────────────────────────────────────────────────────
-    const hasCspMeta =
-      content.includes('Content-Security-Policy') || content.includes('content-security-policy');
-
-    if (hasCspMeta) {
-      context.logger.warn(
-        `⚠ A Content-Security-Policy meta tag was detected in ${path}.\n` +
-          `  Inline scripts may be blocked by your CSP.\n` +
-          `  Options:\n` +
-          `    1. Add a nonce to the injected <script> tag and allow it in your CSP.\n` +
-          `    2. Add the script hash to your CSP: script-src 'sha256-<HASH>'.\n` +
-          `    3. Allow 'unsafe-inline' (not recommended for production).\n` +
-          `  See: https://angular.dev/guide/security#content-security-policy`,
-      );
-    }
 
     const scriptTag = `\n  <!-- ngx-theme-stack anti-flash -->\n  <script>${buildAntiFlashScript({
       storageKey: options.storageKey,
@@ -102,7 +87,7 @@ export function patchIndexHtml(
     let updated = content;
 
     // ── 1. Update Anti-Flash Script ──────────────────────────────────────────
-    const SCRIPT_BLOCK_RE = /<!-- ngx-theme-stack anti-flash -->\s*<script>[\s\S]*?<\/script>/;
+    const SCRIPT_BLOCK_RE = /<!--\s*ngx-theme-stack\s*anti-flash\s*-->\s*<script[^>]*>[\s\S]*?<\/script>/;
     if (SCRIPT_BLOCK_RE.test(updated)) {
       updated = updated.replace(SCRIPT_BLOCK_RE, scriptTag);
       context.logger.info(`✔ Updated anti-flash script in ${path}`);
@@ -152,15 +137,12 @@ export function patchIndexHtml(
     }
 
     tree.overwrite(path, updated);
-    if (hasCspMeta) {
-      context.logger.warn(`  → Remember to allow the inline script in your CSP before deploying.`);
-    }
+
     return;
   }
 
   context.logger.warn(
     `⚠ Could not find index.html (tried: ${candidates.join(', ')}).\n` +
-      `  Add the anti-flash script manually to the <head> of your index.html.\n` +
-      `  See: https://github.com/your-org/ngx-theme-stack#anti-flash`,
+      `  Add the anti-flash script manually to the <head> of your index.html.`,
   );
 }

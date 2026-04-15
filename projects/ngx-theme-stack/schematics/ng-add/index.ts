@@ -97,7 +97,7 @@ export function ngAdd(options: Schema): Rule {
       const themes = [...DEFAULT_THEMES];
       const { defaultTheme, storageKey, mode } = DEFAULTS;
       const strategy = 'critters'; // default for quick
-      provideCall = buildProvideCall(defaultTheme, storageKey, mode, themes);
+      provideCall = buildProvideCall(defaultTheme, storageKey, mode, themes, strategy);
       scriptOptions = { storageKey, defaultTheme, mode };
       finalThemes = themes;
       themesToScaffold = themes.filter((t) => t !== 'system');
@@ -115,7 +115,7 @@ export function ngAdd(options: Schema): Rule {
       context.logger.info(`   mode         : ${mode}`);
       context.logger.info(`   strategy     : ${strategy}`);
 
-      provideCall = buildProvideCall(defaultTheme, storageKey, mode, themes);
+      provideCall = buildProvideCall(defaultTheme, storageKey, mode, themes, strategy);
       scriptOptions = { storageKey, defaultTheme, mode };
       finalThemes = themes;
       themesToScaffold = themes.filter((t) => t !== 'system');

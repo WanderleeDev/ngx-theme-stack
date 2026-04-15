@@ -144,17 +144,25 @@ The library targets the `<html>` element. Based on your configured `mode`, you s
   --text-color: #ffffff;
 }
 
-/* Using Attributes (Attribute Mode) */
-[data-theme='sunset'] {
+.sunset {
   --bg-color: #ff5f6d;
   --text-color: #ffffff;
 }
 
-/* Base styles using the variables */
-body {
-  background-color: var(--bg-color);
-  color: var(--text-color);
-  transition: background-color 0.3s ease;
+/* Using Attributes (Attribute Mode) */
+[data-theme='light'] {
+  --bg-color: #ffffff;
+  --text-color: #333333;
+}
+
+[data-theme='dark'] {
+  --bg-color: #121212;
+  --text-color: #ffffff;
+}
+
+[data-theme='sunset'] {
+  --bg-color: #ff5f6d;
+  --text-color: #ffffff;
 }
 ```
 

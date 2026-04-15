@@ -36,8 +36,7 @@ const OPTION_STRATEGY_RE = /strategy\s*:\s*['"]([^'"]+)['"]/;
 const OPTION_THEMES_RE = /themes\s*:\s*\[([^\]]*)\]/;
 
 /** Matches the complete <script> anti-flash block (identified by its marker comment). */
-const SCRIPT_BLOCK_RE =
-  /<!-- ngx-theme-stack anti-flash -->\s*<script>[\s\S]*?<\/script>/;
+const SCRIPT_BLOCK_RE = /<!--\s*ngx-theme-stack\s*anti-flash\s*-->\s*<script[^>]*>[\s\S]*?<\/script>/;
 
 /** Marker injected by ng-add that delimits the Critters Trick zone in <body>. */
 const CRITTERS_MARKER = '<!-- ngx-theme-stack critters-trick -->';
@@ -103,12 +102,6 @@ function extractConfig(
           .map((t) => t.trim().replace(/^['"]|['"]$/g, ''))
           .filter(Boolean)
       : [...DEFAULTS.themes];
-
-    context.logger.info(`   Detected mode         : ${mode}`);
-    context.logger.info(`   Detected strategy     : ${strategy ?? '(not in code, using auto-detect)'}`);
-    context.logger.info(`   Detected storageKey   : ${storageKey}`);
-    context.logger.info(`   Detected defaultTheme : ${defaultTheme}`);
-    context.logger.info(`   Detected themes       : [${themes.join(', ')}]`);
 
     return { mode, strategy, storageKey, defaultTheme, themes };
   }
@@ -214,16 +207,21 @@ function syncIndexHtml(
     const newScriptBlock =
       `<!-- ngx-theme-stack anti-flash -->\n  <script>${buildScript(config)}</script>`;
 
-    const updatedScript = content.replace(SCRIPT_BLOCK_RE, newScriptBlock);
-
-    if (updatedScript === content) {
+    if (!SCRIPT_BLOCK_RE.test(content)) {
       context.logger.warn(
-        `⚠ Could not replace script block in ${path}. The format may have changed.`,
+        `⚠ Could not find a valid <script> block after the anti-flash marker in ${path}. The format may have changed.`,
       );
       return;
     }
-    content = updatedScript;
-    context.logger.info(`✔ Anti-flash script synced in ${path}`);
+
+    const updatedScript = content.replace(SCRIPT_BLOCK_RE, newScriptBlock);
+
+    if (updatedScript === content) {
+      context.logger.info(`ℹ Anti-flash script in ${path} is already up to date.`);
+    } else {
+      content = updatedScript;
+      context.logger.info(`✔ Anti-flash script synced in ${path}`);
+    }
 
     // ── 2. Sync the Critters Trick divs (only for 'critters' strategy) ─────
     if (strategy === 'critters') {
@@ -382,8 +380,14 @@ export function sync(options: Schema): Rule {
     const config = extractConfig(tree, sourceRoot, context);
     const strategy = (options.strategy || config.strategy || detectStrategy(tree, sourceRoot)) as 'critters' | 'blocking';
 
+    context.logger.info(`   Detected mode         : ${config.mode}`);
+    context.logger.info(`   Detected strategy     : ${strategy} ${config.strategy ? '(from code)' : '(auto-detected)'}`);
+    context.logger.info(`   Detected storageKey   : ${config.storageKey}`);
+    context.logger.info(`   Detected defaultTheme : ${config.defaultTheme}`);
+    context.logger.info(`   Detected themes       : [${config.themes.join(', ')}]`);
+
     context.logger.info('');
-    context.logger.info(`🔄  ngx-theme-stack sync [project: ${projectName}, strategy: ${strategy}]`);
+    context.logger.info(`🔄  ngx-theme-stack sync [project: ${projectName}]`);
     context.logger.info('');
 
     syncIndexHtml(tree, context, sourceRoot, config, strategy);

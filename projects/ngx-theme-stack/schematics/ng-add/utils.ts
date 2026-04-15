@@ -37,6 +37,7 @@ export function buildProvideCall(
   storageKey: string,
   mode: string,
   themes: string[],
+  strategy: string,
 ): string {
   const themesArr = themes.map((t) => `'${t}'`).join(', ');
   return [
@@ -45,6 +46,7 @@ export function buildProvideCall(
     `      defaultTheme: '${defaultTheme}',`,
     `      storageKey: '${storageKey}',`,
     `      mode: '${mode}',`,
+    `      strategy: '${strategy}',`,
     '    })',
   ].join('\n');
 }

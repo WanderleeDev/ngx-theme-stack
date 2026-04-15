@@ -20,6 +20,7 @@ export const appConfig: ApplicationConfig = {
       defaultTheme: 'sunset',
       storageKey: 'ngx-theme-stack-theme',
       mode: 'class',
+      strategy: 'blocking',
     }),
   ],
 };

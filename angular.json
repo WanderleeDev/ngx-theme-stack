@@ -90,7 +90,7 @@
               "outputHashing": "all",
               "optimization": {
                 "styles": {
-                  "inlineCritical": true
+                  "inlineCritical": false
                 }
               }
             },
