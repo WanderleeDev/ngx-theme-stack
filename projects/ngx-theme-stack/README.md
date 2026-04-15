@@ -66,7 +66,39 @@ For common use cases, we include three services with predefined logic:
 | **Angular 19**  | ✅ Stable |
 | **Angular 18**  | ✅ Stable |
 
+## ⚙️ Configuration
+
+The best way to configure the library is during installation, but you can also manually adjust the providers in your `app.config.ts`:
+
+```typescript
+import { provideThemeStack } from 'ngx-theme-stack';
+
+export const appConfig: ApplicationConfig = {
+  providers: [
+    provideThemeStack({
+      themes: ['light', 'dark', 'sunset'], // Your theme identifiers
+      defaultTheme: 'system',              // Initial fallback ('system' resolves via matchMedia)
+      mode: 'class',                       // 'class', 'attribute' or 'both'
+      strategy: 'critters',                // 'critters' (SSR) or 'blocking' (Standard SPA)
+      storageKey: 'ngx-theme-stack-theme'  // LocalStorage key
+    })
+  ]
+};
+```
+
+| Option | Type | Default | Description |
+| :--- | :--- | :--- | :--- |
+| `themes` | `string[]` | `['light', 'dark', 'system']` | List of supported theme identifiers. |
+| `defaultTheme` | `string` | `'system'` | Theme used on first visit or when no preference is saved. |
+| `mode` | `NgMode` | `'class'` | How the theme is applied: `class`, `attribute` (`data-theme`), or `both`. |
+| `strategy` | `NgStrategy`| `'critters'` | Anti-flash performance strategy: `critters` (inlined CSS) or `blocking`. |
+| `storageKey` | `string` | `'ngx-theme-stack-theme'` | Key used to persist theme preference in `localStorage`. |
+
+> [!IMPORTANT]
+> Whenever you update these settings, run `ng generate ngx-theme-stack:sync` to ensure your `index.html` is updated with the correct anti-flash script.
+
 ## 🛠️ Basic Usage
+
 
 ### CoreThemeService API
 
@@ -216,7 +248,12 @@ This approach keeps your UI code clean, semantic, and fully synchronized with `n
 1.  **Critters (Default)**: Best for SSR/Static sites. It uses hidden markers to trick the Angular builder into inlining all your theme CSS variables directly in the HTML `<head>`. Result: **Zero network requests for CSS variables.**
 2.  **Blocking**: Best for standard SPAs. It loads the `themes.css` file as a traditional blocking resource.
 
-The `ng-add` schematic helps you configure the right one automatically.
+The `ng-add` schematic helps you configure the right one automatically. You can always use the **Sync Command** to refresh your `index.html` if you change your configuration:
+
+```bash
+ng generate ngx-theme-stack:sync --project YOUR_PROJECT_NAME
+```
+
 
 ## 📄 License
 
