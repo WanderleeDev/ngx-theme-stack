@@ -25,6 +25,7 @@ jobs:
               - 'pnpm-lock.yaml'
             demo:
               - 'projects/demo-ngx-theme-stack/**'
+              - 'projects/ngx-theme-stack/**'
               - 'package.json'
               - 'pnpm-lock.yaml'
 
