@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.1](https://github.com/WanderleeDev/ngx-theme-stack/compare/v2.1.0...v2.1.1) (2026-04-15)
+
+
+### Bug Fixes
+
+* **lib:** remove CSP logic and improve anti-flash replacement regex ([8c7ebc1](https://github.com/WanderleeDev/ngx-theme-stack/commit/8c7ebc10c3c4bf0d0e529419e9c3851edb852dfe))
+
 # [2.1.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v2.0.0...v2.1.0) (2026-04-13)
 
 
