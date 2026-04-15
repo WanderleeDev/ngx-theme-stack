@@ -1,6 +1,6 @@
 # ngx-theme-stack 🎨
 
-![ngx-theme-stack banner](./banner.png)
+![ngx-theme-stack banner](https://raw.githubusercontent.com/WanderleeDev/ngx-theme-stack/main/projects/ngx-theme-stack/banner.png)
 
 A simple and powerful headless theme manager for **Angular**. Built for performance and SSR support.
 
