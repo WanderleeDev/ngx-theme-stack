@@ -9,7 +9,7 @@
     "noImplicitReturns": true,
     "paths": {
       "ngx-theme-stack": [
-        "./dist/ngx-theme-stack"
+        "./projects/ngx-theme-stack/src/public-api.ts"
       ]
     },
     "noFallthroughCasesInSwitch": true,
