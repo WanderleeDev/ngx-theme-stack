@@ -1,5 +1,12 @@
 # Changelog
 
+# [3.1.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.0.0...v3.1.0) (2026-04-16)
+
+
+### Features
+
+* **schematics:** enhance logging UX with colored changeset summary ([adcaf87](https://github.com/WanderleeDev/ngx-theme-stack/commit/adcaf87b9743451700b7caa5b54c0297ffc756da))
+
 # [3.0.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v2.1.1...v3.0.0) (2026-04-15)
 
 
