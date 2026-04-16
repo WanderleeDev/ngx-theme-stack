@@ -179,133 +179,7 @@ function buildCrittersDivs(themes: string[], mode: string): string {
 
 // ── index.html patching ───────────────────────────────────────────────────────
 
-function syncIndexHtml(
-  tree: Tree,
-  context: SchematicContext,
-  sourceRoot: string,
-  config: ExtractedConfig,
-  strategy: 'critters' | 'blocking',
-): void {
-  const candidates = [`${sourceRoot}/index.html`, 'public/index.html'].map((p) =>
-    p.startsWith('/') ? p.slice(1) : p,
-  );
 
-  for (const path of candidates) {
-    if (!tree.exists(path)) continue;
-
-    let content = tree.readText(path);
-
-    if (!content.includes('ngx-theme-stack anti-flash')) {
-      context.logger.warn(
-        `⚠ Anti-flash script marker not found in ${path}.\n` +
-          `  Run 'ng add ngx-theme-stack' first, or add the script manually.`,
-      );
-      return;
-    }
-
-    // ── 1. Sync the anti-flash JS script ───────────────────────────────────
-    const newScriptBlock =
-      `<!-- ngx-theme-stack anti-flash -->\n  <script>${buildScript(config)}</script>`;
-
-    if (!SCRIPT_BLOCK_RE.test(content)) {
-      context.logger.warn(
-        `⚠ Could not find a valid <script> block after the anti-flash marker in ${path}. The format may have changed.`,
-      );
-      return;
-    }
-
-    const updatedScript = content.replace(SCRIPT_BLOCK_RE, newScriptBlock);
-
-    if (updatedScript === content) {
-      context.logger.info(`ℹ Anti-flash script in ${path} is already up to date.`);
-    } else {
-      content = updatedScript;
-      context.logger.info(`✔ Anti-flash script synced in ${path}`);
-    }
-
-    // ── 2. Sync the Critters Trick divs (only for 'critters' strategy) ─────
-    if (strategy === 'critters') {
-      const crittersBlock = buildCrittersDivs(config.themes, config.mode);
-      const CRITTERS_ID_RE = /<div id="ngx-theme-stack-critters-trick"[\s\S]*?<\/div>/;
-
-      if (CRITTERS_BLOCK_RE.test(content)) {
-        content = content.replace(CRITTERS_BLOCK_RE, crittersBlock);
-        context.logger.info(`✔ Critters Trick block updated in ${path}`);
-      } else if (CRITTERS_ID_RE.test(content)) {
-        content = content.replace(CRITTERS_ID_RE, crittersBlock);
-        context.logger.info(`✔ Critters Trick div wrapped in ${path}`);
-      } else if (content.includes(CRITTERS_MARKER)) {
-        content = content.replace(CRITTERS_MARKER, crittersBlock);
-        context.logger.info(`✔ Critters Trick divs injected in ${path}`);
-      } else {
-        content = content.replace('</body>', `  ${crittersBlock}\n  </body>`);
-        context.logger.info(`✔ Critters Trick block added before </body> in ${path}`);
-      }
-    } else {
-      // blocking strategy: remove any existing Critters divs if present
-      if (CRITTERS_BLOCK_RE.test(content)) {
-        content = content.replace(CRITTERS_BLOCK_RE, '');
-        context.logger.info(`✔ Critters Trick divs removed (blocking strategy) in ${path}`);
-      }
-    }
-
-    tree.overwrite(path, content);
-    return;
-  }
-
-  context.logger.warn(
-    `⚠ Could not find index.html (tried: ${candidates.join(', ')}).`,
-  );
-}
-
-// ── angular.json patching ───────────────────────────────────────────────────
-
-function syncAngularJson(
-  tree: Tree,
-  context: SchematicContext,
-  projectName: string,
-  strategy: 'critters' | 'blocking',
-): void {
-  const content = tree.read('/angular.json');
-  if (!content) return;
-
-  const workspace = JSON.parse(content.toString());
-  const project = workspace.projects[projectName];
-  if (!project) return;
-
-  const buildTarget = project.architect?.build;
-  if (!buildTarget) return;
-
-  const prodConfig = buildTarget.configurations?.production;
-  if (!prodConfig) return;
-
-  if (strategy === 'blocking') {
-    // Disable inlineCritical for blocking strategy
-    if (typeof prodConfig.optimization === 'object') {
-      prodConfig.optimization.styles = prodConfig.optimization.styles || {};
-      if (prodConfig.optimization.styles.inlineCritical !== false) {
-        prodConfig.optimization.styles.inlineCritical = false;
-        context.logger.info(`✔ Disabled inlineCritical in angular.json projects/${projectName} (production).`);
-      }
-    } else {
-      // It's either boolean or undefined
-      prodConfig.optimization = {
-        styles: { inlineCritical: false },
-      };
-      context.logger.info(`✔ Disabled inlineCritical in angular.json projects/${projectName} (production).`);
-    }
-  } else {
-    // Enable inlineCritical (or revert to default) for critters strategy
-    if (typeof prodConfig.optimization === 'object' && prodConfig.optimization.styles) {
-      if (prodConfig.optimization.styles.inlineCritical === false) {
-        prodConfig.optimization.styles.inlineCritical = true;
-        context.logger.info(`✔ Re-enabled inlineCritical in angular.json projects/${projectName} (production).`);
-      }
-    }
-  }
-
-  tree.overwrite('/angular.json', JSON.stringify(workspace, null, 2));
-}
 
 // ── Schematic factory ─────────────────────────────────────────────────────────
 
@@ -379,25 +253,113 @@ export function sync(options: Schema): Rule {
     const sourceRoot: string = project.sourceRoot || `${project.root ?? ''}/src`;
     const config = extractConfig(tree, sourceRoot, context);
     const strategy = (options.strategy || config.strategy || detectStrategy(tree, sourceRoot)) as 'critters' | 'blocking';
-
-    context.logger.info(`   Detected mode         : ${config.mode}`);
-    context.logger.info(`   Detected strategy     : ${strategy} ${config.strategy ? '(from code)' : '(auto-detected)'}`);
-    context.logger.info(`   Detected storageKey   : ${config.storageKey}`);
-    context.logger.info(`   Detected defaultTheme : ${config.defaultTheme}`);
-    context.logger.info(`   Detected themes       : [${config.themes.join(', ')}]`);
+    const changeset: string[] = [];
 
     context.logger.info('');
-    context.logger.info(`🔄  ngx-theme-stack sync [project: ${projectName}]`);
+    context.logger.info(`🔄  ngx-theme-stack — sync [project: ${projectName}]`);
     context.logger.info('');
 
-    syncIndexHtml(tree, context, sourceRoot, config, strategy);
-    syncAngularJson(tree, context, projectName, strategy);
+    // ── 1. index.html ──
+    const candidates = [`${sourceRoot}/index.html`, 'public/index.html'].map((p) =>
+      p.startsWith('/') ? p.slice(1) : p,
+    );
 
-    context.logger.info('');
-    context.logger.info('✅  Done! The anti-flash setup is now in sync with your provider config.');
-    if (strategy === 'critters') {
-      context.logger.info('   Critters Trick: theme CSS will be automatically inlined at build time.');
+    for (const path of candidates) {
+      if (!tree.exists(path)) continue;
+
+      let content = tree.readText(path);
+      let changed = false;
+
+      if (content.includes('ngx-theme-stack anti-flash')) {
+        const newScriptBlock = `<!-- ngx-theme-stack anti-flash -->\n  <script>${buildScript(config)}</script>`;
+        if (SCRIPT_BLOCK_RE.test(content)) {
+          const updatedScript = content.replace(SCRIPT_BLOCK_RE, newScriptBlock);
+          if (updatedScript !== content) {
+            content = updatedScript;
+            changed = true;
+            changeset.push(` \u001b[32m✔\u001b[0m ${path} (anti-flash script)`);
+          }
+        }
+      }
+
+      if (strategy === 'critters') {
+        const crittersBlock = buildCrittersDivs(config.themes, config.mode);
+        const CRITTERS_ID_RE = /<div id="ngx-theme-stack-critters-trick"[\s\S]*?<\/div>/;
+
+        if (CRITTERS_BLOCK_RE.test(content)) {
+          const updated = content.replace(CRITTERS_BLOCK_RE, crittersBlock);
+          if (updated !== content) {
+            content = updated;
+            changed = true;
+            changeset.push(` \u001b[32m✔\u001b[0m ${path} (critters-trick divs updated)`);
+          }
+        } else if (CRITTERS_ID_RE.test(content)) {
+          content = content.replace(CRITTERS_ID_RE, crittersBlock);
+          changed = true;
+          changeset.push(` \u001b[32m✔\u001b[0m ${path} (critters-trick divs wrapped)`);
+        } else if (content.includes(CRITTERS_MARKER)) {
+          content = content.replace(CRITTERS_MARKER, crittersBlock);
+          changed = true;
+          changeset.push(` \u001b[32m✔\u001b[0m ${path} (critters-trick divs injected)`);
+        } else {
+          content = content.replace('</body>', `  ${crittersBlock}\n  </body>`);
+          changed = true;
+          changeset.push(` \u001b[32m✔\u001b[0m ${path} (critters-trick block added)`);
+        }
+      } else if (CRITTERS_BLOCK_RE.test(content)) {
+        content = content.replace(CRITTERS_BLOCK_RE, '');
+        changed = true;
+        changeset.push(` \u001b[32m✔\u001b[0m ${path} (critters-trick divs removed)`);
+      }
+
+      if (changed) {
+        tree.overwrite(path, content);
+      } else {
+        changeset.push(` \u001b[90mℹ\u001b[0m ${path} (already synced)`);
+      }
     }
+
+    // ── 2. angular.json ──
+    const angularJson = tree.read('/angular.json');
+    if (angularJson) {
+      const workspace = JSON.parse(angularJson.toString());
+      const project = workspace.projects[projectName];
+      const prodConfig = project.architect?.build?.configurations?.production;
+
+      if (prodConfig) {
+        let changed = false;
+        if (strategy === 'blocking') {
+          if (typeof prodConfig.optimization === 'object') {
+            prodConfig.optimization.styles = prodConfig.optimization.styles || {};
+            if (prodConfig.optimization.styles.inlineCritical !== false) {
+              prodConfig.optimization.styles.inlineCritical = false;
+              changed = true;
+            }
+          } else {
+            prodConfig.optimization = { styles: { inlineCritical: false } };
+            changed = true;
+          }
+        } else if (typeof prodConfig.optimization === 'object' && prodConfig.optimization.styles?.inlineCritical === false) {
+          prodConfig.optimization.styles.inlineCritical = true;
+          changed = true;
+        }
+
+        if (changed) {
+          tree.overwrite('/angular.json', JSON.stringify(workspace, null, 2));
+          changeset.push(' \u001b[33mM\u001b[0m angular.json (optimization synced)');
+        }
+      }
+    }
+
+    context.logger.info('\u001b[1mChangeset:\u001b[0m');
+    if (changeset.length === 0) {
+      context.logger.info('  (no changes needed)');
+    } else {
+      changeset.forEach((entry) => context.logger.info(entry));
+    }
+
+    context.logger.info('');
+    context.logger.info('\u001b[1m\u001b[32m🏁 Done.\u001b[0m');
     context.logger.info('');
   };
 }

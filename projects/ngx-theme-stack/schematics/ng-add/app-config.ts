@@ -27,7 +27,6 @@ export function patchAppConfig(
     if (updated.includes('provideThemeStack')) {
       updated = updated.replace(/provideThemeStack\s*\([\s\S]*?\)/, provideCall);
       tree.overwrite(filePath, updated);
-      context.logger.info(`✔ Updated provideThemeStack configuration in ${filePath}`);
       return;
     }
 
@@ -59,7 +58,6 @@ export function patchAppConfig(
     }
 
     tree.overwrite(filePath, updated);
-    context.logger.info(`✔ Added ${provideCall} to ${filePath}`);
     return;
   }
 

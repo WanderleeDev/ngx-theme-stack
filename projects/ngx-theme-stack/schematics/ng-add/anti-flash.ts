@@ -90,10 +90,8 @@ export function patchIndexHtml(
     const SCRIPT_BLOCK_RE = /<!--\s*ngx-theme-stack\s*anti-flash\s*-->\s*<script[^>]*>[\s\S]*?<\/script>/;
     if (SCRIPT_BLOCK_RE.test(updated)) {
       updated = updated.replace(SCRIPT_BLOCK_RE, scriptTag);
-      context.logger.info(`✔ Updated anti-flash script in ${path}`);
     } else {
       updated = updated.replace('<head>', `<head>${scriptTag}`);
-      context.logger.info(`✔ Injected anti-flash script into ${path}`);
     }
 
     // ── 2. Update Critters Trick ─────────────────────────────────────────────
@@ -118,13 +116,10 @@ export function patchIndexHtml(
 
       if (CRITTERS_BLOCK_RE.test(updated)) {
         updated = updated.replace(CRITTERS_BLOCK_RE, crittersBlock);
-        context.logger.info(`✔ Updated Critters-trick block in ${path}`);
       } else if (CRITTERS_ID_RE.test(updated)) {
         updated = updated.replace(CRITTERS_ID_RE, crittersBlock);
-        context.logger.info(`✔ Wrapped existing Critters-trick div with markers in ${path}`);
       } else {
         updated = updated.replace('</body>', `  ${crittersBlock}\n  </body>`);
-        context.logger.info(`✔ Injected Critters-trick block before </body> in ${path}`);
       }
     } else {
       // If switching to blocking strategy, remove existing trick
@@ -133,7 +128,6 @@ export function patchIndexHtml(
       } else if (CRITTERS_ID_RE.test(updated)) {
         updated = updated.replace(CRITTERS_ID_RE, '');
       }
-      context.logger.info(`✔ Removed Critters-trick from ${path}`);
     }
 
     tree.overwrite(path, updated);

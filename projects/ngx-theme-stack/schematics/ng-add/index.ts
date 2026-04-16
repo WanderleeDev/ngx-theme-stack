@@ -92,6 +92,7 @@ export function ngAdd(options: Schema): Rule {
     let finalThemes: string[];
     let themesToScaffold: string[];
     let finalStrategy: 'critters' | 'blocking';
+    const changeset: string[] = [];
 
     if (options.mode === 'quick') {
       const themes = [...DEFAULT_THEMES];
@@ -108,13 +109,6 @@ export function ngAdd(options: Schema): Rule {
       const opts = await collectCustomOptions();
       const { defaultTheme, storageKey, mode, themes, strategy } = opts;
 
-      context.logger.info('   Applying your configuration:');
-      context.logger.info(`   defaultTheme : ${defaultTheme}`);
-      context.logger.info(`   themes       : [${themes.join(', ')}]`);
-      context.logger.info(`   storageKey   : ${storageKey}`);
-      context.logger.info(`   mode         : ${mode}`);
-      context.logger.info(`   strategy     : ${strategy}`);
-
       provideCall = buildProvideCall(defaultTheme, storageKey, mode, themes, strategy);
       scriptOptions = { storageKey, defaultTheme, mode };
       finalThemes = themes;
@@ -123,7 +117,7 @@ export function ngAdd(options: Schema): Rule {
     }
 
     return chain([
-      (t: Tree, context: SchematicContext) => {
+      (t: Tree) => {
         const themesPath = `${projectSourceRoot}/themes.css`;
         if (!t.exists(themesPath)) {
           let content = '/* ngx-theme-stack tokens */\n\n';
@@ -140,16 +134,9 @@ export function ngAdd(options: Schema): Rule {
           });
 
           t.create(themesPath, content);
-          context.logger.info(`\n \u001b[36mResume :\u001b[0m \n`);
-          context.logger.info(`\u001b[32m✔ Created ${themesPath} with your theme selectors.\u001b[0m`);
+          changeset.push(` \u001b[36mA\u001b[0m ${themesPath.replace(/^\//, '')} (theme tokens)`);
         } else {
-          context.logger.info(`\n \u001b[36mResume :\u001b[0m \n`);
-          context.logger.info(
-            `\u001b[33mℹ ${themesPath} already exists. Skipping creation to preserve your styles.\u001b[0m`,
-          );
-          context.logger.info(
-            `  Tip: Make sure to manually add selectors (class or attribute) for any new themes.`,
-          );
+          changeset.push(` \u001b[90mℹ\u001b[0m ${themesPath.replace(/^\//, '')} (already exists)`);
         }
       },
       (t: Tree) => {
@@ -160,9 +147,10 @@ export function ngAdd(options: Schema): Rule {
           pkg.scripts = pkg.scripts || {};
           pkg.scripts.prebuild = `ng generate ngx-theme-stack:sync --project ${projectName}`;
           t.overwrite(pkgPath, JSON.stringify(pkg, null, 2));
+          changeset.push(' \u001b[33mM\u001b[0m package.json (prebuild script)');
         }
       },
-      (t: Tree, context: SchematicContext) => {
+      (t: Tree) => {
         const workspaceConfig = t.read('/angular.json');
         if (workspaceConfig) {
           const workspace = JSON.parse(workspaceConfig.toString());
@@ -186,21 +174,27 @@ export function ngAdd(options: Schema): Rule {
                 styles: { inlineCritical: false },
               };
             }
-            context.logger.info(`✔ Disabled inlineCritical in angular.json for blocking strategy.`);
           }
 
           t.overwrite('/angular.json', JSON.stringify(workspace, null, 2));
+          changeset.push(' \u001b[33mM\u001b[0m angular.json (styles & optimization)');
         }
       },
       (t: Tree, ctx: SchematicContext) => {
         patchAppConfig(t, ctx, projectSourceRoot, provideCall);
+        changeset.push(' \u001b[33mM\u001b[0m app.config.ts (provided theme stack)');
+
         patchIndexHtml(t, ctx, projectSourceRoot, {
           ...scriptOptions,
           themes: finalThemes,
           strategy: (options.strategy as 'critters' | 'blocking') || finalStrategy,
         });
+        changeset.push(' \u001b[33mM\u001b[0m index.html (injected anti-flash)');
+
+        ctx.logger.info('\u001b[1mChangeset:\u001b[0m');
+        changeset.forEach((entry) => ctx.logger.info(entry));
         ctx.logger.info('');
-        ctx.logger.info('✅  Done! ngx-theme-stack is ready with automatic sync on build.');
+        ctx.logger.info('\u001b[1m\u001b[32m🏁 Done.\u001b[0m');
         ctx.logger.info('');
       },
     ]);
