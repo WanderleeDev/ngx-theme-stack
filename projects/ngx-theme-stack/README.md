@@ -64,7 +64,7 @@ For common use cases, we include three services with predefined logic:
 
 1.  **`ThemeToggleService`**: A simple binary switch between `light` and `dark`.
 2.  **`ThemeSelectService`**: Exposes the full list of themes and methods to select them.
-3.  **`ThemeCycleService`**: A circular function to cycle through all available themes with a single click.
+3.  **`ThemeCycleService`**: A circular function to cycle through all available themes; exposes `upcoming`, `preceding`, and `cycleIndex` signals for UI feedback.
 
 ---
 
@@ -160,6 +160,49 @@ import { ThemeToggleService } from 'ngx-theme-stack';
 })
 export class ThemeToggleComponent {
   protected toggle = inject(ThemeToggleService);
+}
+```
+
+#### ThemeCycleService usage:
+
+Cycles through all available themes in a circular order. Perfect for a single-button rotation where you want to show what's coming next.
+
+```typescript
+import { ThemeCycleService } from 'ngx-theme-stack';
+
+@Component({
+  selector: 'app-theme-cycler',
+  template: `
+    <button (click)="theme.cycle()">
+       Next theme: {{ theme.upcoming() }}
+    </button>
+    <p>Step {{ theme.cycleIndex() + 1 }} of the cycle</p>
+  `,
+})
+export class ThemeCycleComponent {
+  protected theme = inject(ThemeCycleService);
+}
+```
+
+#### ThemeSelectService usage:
+
+Provides a full list of available themes for more complex selection interfaces like dropdowns.
+
+```typescript
+import { ThemeSelectService } from 'ngx-theme-stack';
+
+@Component({
+  selector: 'app-theme-selector',
+  template: `
+    <select [ngModel]="theme.selectedTheme()" (ngModelChange)="theme.select($event)">
+      @for (t of theme.availableThemes; track t) {
+        <option [value]="t">{{ t }}</option>
+      }
+    </select>
+  `,
+})
+export class ThemeSelectComponent {
+  protected theme = inject(ThemeSelectService);
 }
 ```
 
