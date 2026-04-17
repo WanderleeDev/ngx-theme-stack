@@ -19,6 +19,8 @@ export default class CycleView {
 
   protected readonly resolvedTheme = this.themeService.resolvedTheme;
   protected readonly selectedTheme = this.themeService.selectedTheme;
+  protected readonly upcomingTheme = this.themeService.upcoming;
+  protected readonly precedingTheme = this.themeService.preceding;
 
   public nextTheme() {
     this.themeService.cycle();
