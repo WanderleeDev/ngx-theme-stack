@@ -12,7 +12,7 @@ export const DEFAULT_THEMES = ['system', 'light', 'dark'] as const;
 
 export const DEFAULTS = {
   defaultTheme: 'system',
-  storageKey: 'ngx-theme-stack-theme',
+  storageKey: 'ngx-theme-stack',
   mode: 'class',
   strategy: 'critters',
   themes: [...DEFAULT_THEMES],

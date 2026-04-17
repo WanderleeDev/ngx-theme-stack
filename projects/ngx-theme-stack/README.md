@@ -89,7 +89,7 @@ export const appConfig: ApplicationConfig = {
       defaultTheme: 'system',              // Initial fallback ('system' resolves via matchMedia)
       mode: 'class',                       // 'class', 'attribute' or 'both'
       strategy: 'critters',                // 'critters' (SSR) or 'blocking' (Standard SPA)
-      storageKey: 'ngx-theme-stack-theme'  // LocalStorage key
+      storageKey: 'ngx-theme-stack'  // LocalStorage key
     })
   ]
 };
@@ -101,7 +101,7 @@ export const appConfig: ApplicationConfig = {
 | `defaultTheme` | `string` | `'system'` | Theme used on first visit or when no preference is saved. |
 | `mode` | `NgMode` | `'class'` | How the theme is applied: `class`, `attribute` (`data-theme`), or `both`. |
 | `strategy` | `NgStrategy`| `'critters'` | Anti-flash performance strategy: `critters` (inlined CSS) or `blocking`. |
-| `storageKey` | `string` | `'ngx-theme-stack-theme'` | Key used to persist theme preference in `localStorage`. |
+| `storageKey` | `string` | `'ngx-theme-stack'` | Key used to persist theme preference in `localStorage`. |
 
 > [!IMPORTANT]
 > Whenever you update these settings, run `ng generate ngx-theme-stack:sync` to ensure your `index.html` is updated with the correct anti-flash script.

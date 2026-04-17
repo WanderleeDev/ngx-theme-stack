@@ -29,7 +29,7 @@ function setup(systemPrefersDark = false) {
 
   const config: NgConfig = {
     defaultTheme: 'system',
-    storageKey: 'ngx-theme-stack-theme',
+    storageKey: 'ngx-theme-stack',
     mode: 'class',
     themes: ['light', 'dark', 'system'],
     strategy: 'critters',

@@ -33,7 +33,7 @@ function setup(
 
   const fullConfig: NgConfig = {
     defaultTheme: 'system',
-    storageKey: 'ngx-theme-stack-theme',
+    storageKey: 'ngx-theme-stack',
     mode: 'class',
     themes: ['light', 'dark', 'system'],
     strategy: 'critters',
@@ -86,13 +86,13 @@ describe('CoreThemeService', () => {
   // ── localStorage persistence ──
 
   it('should restore saved theme from localStorage', () => {
-    const { service } = setup({}, { 'ngx-theme-stack-theme': 'dark' });
+    const { service } = setup({}, { 'ngx-theme-stack': 'dark' });
     expect(service.selectedTheme()).toBe('dark');
     expect(service.isDark()).toBe(true);
   });
 
   it('should ignore invalid saved theme from localStorage', () => {
-    const { service } = setup({}, { 'ngx-theme-stack-theme': 'invalid-theme' });
+    const { service } = setup({}, { 'ngx-theme-stack': 'invalid-theme' });
     // Falls back to config.theme ('system')
     expect(service.selectedTheme()).toBe('system');
   });
@@ -100,7 +100,7 @@ describe('CoreThemeService', () => {
   it('should save theme to localStorage when setTheme is called', () => {
     const { service } = setup();
     service.setTheme('dark');
-    expect(store['ngx-theme-stack-theme']).toBe('dark');
+    expect(store['ngx-theme-stack']).toBe('dark');
   });
 
   it('should use custom storageKey from config', () => {
@@ -193,7 +193,7 @@ describe('CoreThemeService', () => {
     // setTheme with a valid theme is a no-op for DOM/localStorage in SSR
     service.setTheme('dark');
     expect(service.selectedTheme()).toBe('system');
-    expect(store['ngx-theme-stack-theme']).toBeUndefined();
+    expect(store['ngx-theme-stack']).toBeUndefined();
   });
 
   it('should throw on invalid theme even in SSR', () => {

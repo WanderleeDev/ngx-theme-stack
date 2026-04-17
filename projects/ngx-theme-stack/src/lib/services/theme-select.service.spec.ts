@@ -22,7 +22,7 @@ function setup(config: Partial<NgConfig> = {}) {
 
   const fullConfig: NgConfig = {
     defaultTheme: 'system',
-    storageKey: 'ngx-theme-stack-theme',
+    storageKey: 'ngx-theme-stack',
     mode: 'class',
     themes: ['light', 'dark', 'system'],
     strategy: 'critters',

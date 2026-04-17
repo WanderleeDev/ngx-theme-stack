@@ -18,9 +18,9 @@ export const appConfig: ApplicationConfig = {
     provideThemeStack({
       themes: ['system', 'light', 'dark', 'sunset'],
       defaultTheme: 'sunset',
-      storageKey: 'ngx-theme-stack-theme',
+      storageKey: 'ngx-theme-stack',
       mode: 'class',
-      strategy: 'blocking',
+      strategy: 'critters',
     }),
   ],
 };

@@ -17,7 +17,7 @@ import { DEFAULT_THEMES, DefaultNgTheme, NgConfig } from '../types';
 
 export const DEFAULT_NG_CONFIG = {
   defaultTheme: 'system',
-  storageKey: 'ngx-theme-stack-theme',
+  storageKey: 'ngx-theme-stack',
   mode: 'class',
   strategy: 'critters',
   themes: [...DEFAULT_THEMES],
