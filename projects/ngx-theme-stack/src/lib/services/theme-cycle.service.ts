@@ -1,4 +1,4 @@
-import { inject, Injectable } from '@angular/core';
+import { computed, inject, Injectable } from '@angular/core';
 import { CoreThemeService } from '../core/core-theme.service';
 
 /**
@@ -22,6 +22,24 @@ export class ThemeCycleService {
   /** Resolved theme currently applied to the DOM. Always concrete — never `'system'`. */
   readonly resolvedTheme = this.#core.resolvedTheme;
 
+  /** Index of the currently selected theme in the cycle. */
+  readonly cycleIndex = computed(() => {
+    return this.#cycle.indexOf(this.selectedTheme());
+  });
+
+  /** The theme that comes before the currently selected theme in the cycle. */
+  readonly preceding = computed(() => {
+    const index = this.cycleIndex();
+    const len = this.#cycle.length;
+    return this.#cycle[(index - 1 + len) % len];
+  });
+
+  /** The theme that comes after the currently selected theme in the cycle. */
+  readonly upcoming = computed(() => {
+    const index = this.cycleIndex();
+    return this.#cycle[(index + 1) % this.#cycle.length];
+  });
+
   /** Whether the currently applied theme is `'dark'`. */
   readonly isDark = this.#core.isDark;
 
@@ -32,7 +50,7 @@ export class ThemeCycleService {
   readonly isSystem = this.#core.isSystem;
 
   /**
-   * Whether the service has completed client-side initialization and 
+   * Whether the service has completed client-side initialization and
    * resolved the real persisted theme. Use to prevent hydration flashes.
    */
   readonly isHydrated = this.#core.isHydrated.asReadonly();
@@ -46,9 +64,6 @@ export class ThemeCycleService {
    * the cycle restarts from the first theme.
    */
   cycle(): void {
-    const current = this.#core.selectedTheme();
-    const index = this.#cycle.indexOf(current);
-    const next = this.#cycle[(index + 1) % this.#cycle.length];
-    this.#core.setTheme(next);
+    this.#core.setTheme(this.upcoming());
   }
 }
