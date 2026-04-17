@@ -6,7 +6,7 @@ import { Component } from '@angular/core';
 })
 export class ThemeCardWrapperComponent {
   protected readonly libraryTags = [
-    'Angular 18+',
+    'Angular 20+',
     'SSR Ready',
     'Signals Core',
     'Hydration Safe',
