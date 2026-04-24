@@ -1,5 +1,22 @@
 # Changelog
 
+# [3.2.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.1.0...v3.2.0) (2026-04-24)
+
+
+### Bug Fixes
+
+* **schematics:** implement smart AST injection and re-configuration support ([dbe8e8b](https://github.com/WanderleeDev/ngx-theme-stack/commit/dbe8e8bdea76b5978890a8e17fa2c77cde96bf18))
+
+
+### Features
+
+* **demo:** add hydration guards and skeleton loaders to cycle view ([7f515f8](https://github.com/WanderleeDev/ngx-theme-stack/commit/7f515f89a882d47f8da7873a696f50b8f6ec8f5a))
+* **demo:** enhance cycle view and update version tags ([f128bce](https://github.com/WanderleeDev/ngx-theme-stack/commit/f128bce742d93bcd951fb44eb2acc05baf193b3e))
+* **demo:** link branding logo to docs and use dynamic version ([05008ec](https://github.com/WanderleeDev/ngx-theme-stack/commit/05008ec5cc18fe9846cb01bce96ae7f5247cfaad))
+* **demo:** link cycle signals and update footer links ([e4dac90](https://github.com/WanderleeDev/ngx-theme-stack/commit/e4dac90d3445833920cb4c6f166669ddae8594da))
+* **demo:** restore modern branding with GitHub Star CTA ([b8ad257](https://github.com/WanderleeDev/ngx-theme-stack/commit/b8ad257fb50f25a5a25e5fcd9db84a0114b49da8))
+* **lib:** improve ThemeCycleService naming and add reactive signals ([316124a](https://github.com/WanderleeDev/ngx-theme-stack/commit/316124af0ddebd719ecba0e40c49f404d2d7c7b0))
+
 # [3.1.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.0.0...v3.1.0) (2026-04-16)
 
 
