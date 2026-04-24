@@ -14,7 +14,7 @@ export class ThemeCycleService {
   readonly #core = inject(CoreThemeService);
 
   /** List of all configured themes for cycling. Defaults to `['light', 'dark', 'system']`. */
-  readonly #cycle = this.#core.availableThemes;
+  readonly availableThemes = this.#core.availableThemes;
 
   /** The theme explicitly selected by the user. May be `'system'`. */
   readonly selectedTheme = this.#core.selectedTheme;
@@ -24,20 +24,20 @@ export class ThemeCycleService {
 
   /** Index of the currently selected theme in the cycle. */
   readonly cycleIndex = computed(() => {
-    return this.#cycle.indexOf(this.selectedTheme());
+    return this.availableThemes.indexOf(this.selectedTheme());
   });
 
   /** The theme that comes before the currently selected theme in the cycle. */
   readonly preceding = computed(() => {
     const index = this.cycleIndex();
-    const len = this.#cycle.length;
-    return this.#cycle[(index - 1 + len) % len];
+    const len = this.availableThemes.length;
+    return this.availableThemes[(index - 1 + len) % len];
   });
 
   /** The theme that comes after the currently selected theme in the cycle. */
   readonly upcoming = computed(() => {
     const index = this.cycleIndex();
-    return this.#cycle[(index + 1) % this.#cycle.length];
+    return this.availableThemes[(index + 1) % this.availableThemes.length];
   });
 
   /** Whether the currently applied theme is `'dark'`. */

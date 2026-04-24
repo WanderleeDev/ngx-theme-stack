@@ -42,7 +42,7 @@ export const NGX_THEME_STACK_CONFIG = new InjectionToken<NgConfig<string>>(
  * **Defaults:**
  * - `themes`: `['light', 'dark', 'system']`
  * - `defaultTheme`: `'system'`
- * - `storageKey`: `'ngx-theme-stack-theme'`
+ * - `storageKey`: `'ngx-theme-stack'`
  * - `mode`: `'class'`
  * - `strategy`: `'critters'`
 
