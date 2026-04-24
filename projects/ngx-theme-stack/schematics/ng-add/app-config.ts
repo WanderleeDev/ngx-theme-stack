@@ -64,6 +64,7 @@ async function applySmartPatch(
   context: SchematicContext,
   filePath: string,
   provideCall: string,
+  targetIdentifier?: string,
   visitedFiles = new Set<string>()
 ): Promise<boolean> {
   if (visitedFiles.has(filePath)) return false;
@@ -83,7 +84,17 @@ async function applySmartPatch(
     return true;
   }
 
-  // B. INJECT: Look for a providers array literal: providers: [ ... ]
+  // B. INJECT: If we have a targetIdentifier, look for its variable declaration
+  if (targetIdentifier) {
+    const variableDeclaration = findVariableDeclaration(sourceFile, targetIdentifier);
+    if (variableDeclaration && variableDeclaration.initializer && ts.isArrayLiteralExpression(variableDeclaration.initializer)) {
+      insertIntoArray(tree, filePath, variableDeclaration.initializer, provideCall);
+      ensureImport(tree, filePath, 'provideThemeStack', 'ngx-theme-stack');
+      return true;
+    }
+  }
+
+  // C. INJECT: Look for a providers array literal: providers: [ ... ]
   const arrayLiteral = findProvidersArrayLiteral(sourceFile);
   if (arrayLiteral) {
     insertIntoArray(tree, filePath, arrayLiteral, provideCall);
@@ -91,7 +102,7 @@ async function applySmartPatch(
     return true;
   }
 
-  // C. DELEGATION: Look for a delegated provider: providers: SOME_CONSTANT
+  // D. DELEGATION: Look for a delegated provider: providers: SOME_CONSTANT
   const delegatedIdentifier = findProvidersIdentifier(sourceFile);
   if (delegatedIdentifier) {
     const importPath = findImportPathForIdentifier(sourceFile, delegatedIdentifier);
@@ -103,7 +114,7 @@ async function applySmartPatch(
       }
 
       if (tree.exists(resolvedPath)) {
-        return applySmartPatch(tree, context, resolvedPath, provideCall, visitedFiles);
+        return applySmartPatch(tree, context, resolvedPath, provideCall, delegatedIdentifier, visitedFiles);
       }
     } else {
       const variableDeclaration = findVariableDeclaration(sourceFile, delegatedIdentifier);
