@@ -4,6 +4,8 @@
 
 A simple and powerful headless theme manager for **Angular**. Built for performance and SSR support.
 
+[**🌐 Live Demo**](https://demo-ngx-theme-stack.wanderlee.site/) | [**📚 Documentation**](https://ngx-theme-stack-docs.wanderlee.site/) | [**⭐ Star on GitHub**](https://github.com/WanderleeDev/ngx-theme-stack)
+
 ## 🚀 Features
 
 - ⚡ **Single Command Installation**: Automatic configuration via `ng add`.
@@ -44,12 +46,14 @@ When running `ng add`, you will be presented with two configuration options:
 
 To provide a "Zero Config" experience, the installation command automates the following:
 
-1.  **`package.json`**: Adds a `"prebuild"` script that executes the synchronization automatically before every build.
-2.  **`angular.json`**: 
-    - Adds `src/themes.css` to the global styles list.
-    - Configures the `inlineCritical` optimization based on your selected strategy.
-3.  **`index.html`**: Injects the marker and the blocking anti-flash script into the `<head>`.
-4.  **`themes.css`**: Creates a base file with selectors ready for you to define your variables.
+1.  **`app.config.ts` (or `main.ts`)**: Injects `provideThemeStack()` into your providers array. It's **Smart**: it uses AST to follow imports and find your providers even if they are delegated to external files.
+2.  **`index.html`**: Injects the blocking anti-flash script into the `<head>` to ensure a seamless theme experience.
+3.  **`package.json`**: Adds a `"prebuild"` script to automate theme synchronization.
+4.  **`angular.json`**: Registers `themes.css` and optimizes build configurations.
+5.  **`themes.css`**: Scaffolds your base theme tokens if they don't exist.
+
+> [!TIP]
+> **Re-configuration support:** You can run `ng add` multiple times. If you change your mind about the `storageKey` or the `mode`, the schematic will update your existing code and script automatically without duplicating them.
 
 ## 🏗️ Architecture & Extensibility
 
@@ -106,18 +110,93 @@ export const appConfig: ApplicationConfig = {
 > [!IMPORTANT]
 > Whenever you update these settings, run `ng generate ngx-theme-stack:sync` to ensure your `index.html` is updated with the correct anti-flash script.
 
-## 🛠️ Basic Usage
+## 🛠️ Usage
 
-### CoreThemeService API
+For most use cases, we recommend using the built-in **Utility Services**. They provide ready-to-use logic for common patterns.
 
-The foundational service managing the theme state. It exposes pure Angular Signals and a solid minimal API.
+### 1. Simple Toggle (Dark/Light)
+
+Use `ThemeToggleService` when you only need a simple switch.
+
+```typescript
+import { inject } from '@angular/core';
+import { ThemeToggleService } from 'ngx-theme-stack';
+
+@Component({
+  selector: 'app-theme-toggle',
+  standalone: true,
+  template: `
+    <button (click)="toggle.toggle()">
+      Switch to {{ toggle.isDark() ? 'Light' : 'Dark' }}
+    </button>
+  `,
+})
+export class ThemeToggleComponent {
+  protected toggle = inject(ThemeToggleService);
+}
+```
+
+### 2. Multi-theme Cycle
+
+Use `ThemeCycleService` to rotate through all your configured themes in order.
+
+```typescript
+import { inject } from '@angular/core';
+import { ThemeCycleService } from 'ngx-theme-stack';
+
+@Component({
+  selector: 'app-theme-cycler',
+  standalone: true,
+  template: `
+    <button (click)="theme.cycle()">
+       Next theme: {{ theme.upcoming() }}
+    </button>
+    <p>Theme {{ theme.cycleIndex() + 1 }} of {{ theme.availableThemes.length }}</p>
+  `,
+})
+export class ThemeCycleComponent {
+  protected theme = inject(ThemeCycleService);
+}
+```
+
+### 3. Direct Selection (Dropdowns/Lists)
+
+Use `ThemeSelectService` to build selection interfaces like dropdowns or radio groups.
+
+```typescript
+import { inject } from '@angular/core';
+import { ThemeSelectService } from 'ngx-theme-stack';
+import { FormsModule } from '@angular/forms';
+
+@Component({
+  selector: 'app-theme-selector',
+  standalone: true,
+  imports: [FormsModule],
+  template: `
+    <select [ngModel]="theme.selectedTheme()" (ngModelChange)="theme.select($event)">
+      @for (t of theme.availableThemes; track t) {
+        <option [value]="t">{{ t }}</option>
+      }
+    </select>
+  `,
+})
+export class ThemeSelectComponent {
+  protected theme = inject(ThemeSelectService);
+}
+```
+
+---
+
+### 🛡️ Advanced: CoreThemeService API
+
+If you need to build custom logic or want full control over the state, use the foundational `CoreThemeService`.
 
 ```typescript
 import { inject } from '@angular/core';
 import { CoreThemeService } from 'ngx-theme-stack';
 
 @Component({ ... })
-export class MyComponent {
+export class MyAdvancedComponent {
   themeService = inject(CoreThemeService);
 
   /* --- 📊 Reactive Signals --- */
@@ -145,79 +224,15 @@ export class MyComponent {
 }
 ```
 
-### Utility Services Examples
-
-#### ThemeToggleService usage:
-
-```typescript
-import { ThemeToggleService } from 'ngx-theme-stack';
-
-@Component({
-  selector: 'app-theme-toggle',
-  template: `
-    <button (click)="toggle.toggle()">Switch to {{ toggle.isDark() ? 'Light' : 'Dark' }}</button>
-  `,
-})
-export class ThemeToggleComponent {
-  protected toggle = inject(ThemeToggleService);
-}
-```
-
-#### ThemeCycleService usage:
-
-Cycles through all available themes in a circular order. Perfect for a single-button rotation where you want to show what's coming next.
-
-```typescript
-import { ThemeCycleService } from 'ngx-theme-stack';
-
-@Component({
-  selector: 'app-theme-cycler',
-  template: `
-    <button (click)="theme.cycle()">
-       Next theme: {{ theme.upcoming() }}
-    </button>
-    <p>Step {{ theme.cycleIndex() + 1 }} of the cycle</p>
-  `,
-})
-export class ThemeCycleComponent {
-  protected theme = inject(ThemeCycleService);
-}
-```
-
-#### ThemeSelectService usage:
-
-Provides a full list of available themes for more complex selection interfaces like dropdowns.
-
-```typescript
-import { ThemeSelectService } from 'ngx-theme-stack';
-
-@Component({
-  selector: 'app-theme-selector',
-  template: `
-    <select [ngModel]="theme.selectedTheme()" (ngModelChange)="theme.select($event)">
-      @for (t of theme.availableThemes; track t) {
-        <option [value]="t">{{ t }}</option>
-      }
-    </select>
-  `,
-})
-export class ThemeSelectComponent {
-  protected theme = inject(ThemeSelectService);
-}
-```
-
 ## 🎨 Styling
 
-The `ng add` command automatically creates a **`src/themes.css`** file in your project. This is where you should define your theme-specific CSS variables.
-
-The library targets the `<html>` element. Based on your configured `mode`, you should define your variables like this:
+The `ng add` command automatically creates a **`src/themes.css`** file. This is where you should define your theme-specific CSS variables.
 
 ```css
 /* src/themes.css */
 
 /* Using Classes (Default Mode) */
-:root,
-.light {
+:root, .light {
   --bg-color: #ffffff;
   --text-color: #333333;
 }
@@ -231,31 +246,13 @@ The library targets the `<html>` element. Based on your configured `mode`, you s
   --bg-color: #ff5f6d;
   --text-color: #ffffff;
 }
-
-/* Using Attributes (Attribute Mode) */
-[data-theme='light'] {
-  --bg-color: #ffffff;
-  --text-color: #333333;
-}
-
-[data-theme='dark'] {
-  --bg-color: #121212;
-  --text-color: #ffffff;
-}
-
-[data-theme='sunset'] {
-  --bg-color: #ff5f6d;
-  --text-color: #ffffff;
-}
 ```
 
 ## 🌪️ Tailwind CSS v4 Integration
 
-If you are using **Tailwind CSS v4**, you can achieve a much cleaner HTML by mapping your `themes.css` variables to your Tailwind theme. This avoids cluttering your components with `dark:` variants.
+If you are using **Tailwind CSS v4**, you can achieve a much cleaner HTML by mapping your `themes.css` variables to your Tailwind theme.
 
 ### 1. Configure Custom Variants
-
-In your main `styles.css`, define how Tailwind should detect your themes:
 
 ```css
 /* src/styles.css */
@@ -270,19 +267,16 @@ In your main `styles.css`, define how Tailwind should detect your themes:
 
 ### 2. Map Semantic Variables
 
-Extend your Tailwind theme using the variables defined in `themes.css`:
-
 ```css
 @theme {
   --color-main-bg: var(--bg-color);
   --color-main-text: var(--text-color);
-  --color-card-bg: var(--card-bg);
 }
 ```
 
 ### 3. Usage in Components
 
-Now, instead of writing `<div class="bg-white dark:bg-black">`, you simply write:
+Now you can write clean, theme-aware classes:
 
 ```html
 <div class="bg-main-bg text-main-text shadow-xl">
@@ -290,16 +284,14 @@ Now, instead of writing `<div class="bg-white dark:bg-black">`, you simply write
 </div>
 ```
 
-This approach keeps your UI code clean, semantic, and fully synchronized with `ngx-theme-stack`.
-
 ## ⚡ Performance Strategies
 
-`ngx-theme-stack` offers two ways to handle the initial theme application to prevent that annoying white flash:
+`ngx-theme-stack` offers two ways to handle the initial theme application to prevent white flashes:
 
-1.  **Critters (Default)**: Best for SSR/Static sites. It uses hidden markers to trick the Angular builder into inlining all your theme CSS variables directly in the HTML `<head>`. Result: **Zero network requests for CSS variables.**
-2.  **Blocking**: Best for standard SPAs. It loads the `themes.css` file as a traditional blocking resource.
+1.  **Critters (Default)**: Best for SSR/Static sites. Inlines CSS variables directly in the HTML `<head>`. Result: **Zero network requests for theme variables.**
+2.  **Blocking**: Best for standard SPAs. Loads `themes.css` as a traditional blocking resource.
 
-The `ng-add` schematic helps you configure the right one automatically. You can always use the **Sync Command** to refresh your `index.html` if you change your configuration:
+Use the **Sync Command** to refresh your `index.html` if you change your configuration:
 
 ```bash
 ng generate ngx-theme-stack:sync --project YOUR_PROJECT_NAME
