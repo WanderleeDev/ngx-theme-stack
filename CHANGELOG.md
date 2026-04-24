@@ -1,5 +1,12 @@
 # Changelog
 
+# [3.4.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.3.0...v3.4.0) (2026-04-24)
+
+
+### Features
+
+* enable automatic app config synchronization and improve import management in sync schematic ([b15af5a](https://github.com/WanderleeDev/ngx-theme-stack/commit/b15af5a1c26c5d42c24763794f126f0eddb87ae4))
+
 # [3.3.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.2.1...v3.3.0) (2026-04-24)
 
 
