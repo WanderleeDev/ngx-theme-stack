@@ -1,6 +1,6 @@
 # ngx-theme-stack 🎨
 
-![ngx-theme-stack banner](https://raw.githubusercontent.com/WanderleeDev/ngx-theme-stack/main/projects/ngx-theme-stack/banner.png)
+![ngx-theme-stack banner](https://raw.githubusercontent.com/WanderleeDev/ngx-theme-stack/refs/heads/main/projects/demo-ngx-theme-stack/public/banner.png)
 
 A simple and powerful headless theme manager for **Angular**. Built for performance and SSR support.
 
@@ -29,6 +29,7 @@ ng add ngx-theme-stack
 > [!TIP]
 > **🚀 Using Bun?**
 > Since `ng add` is currently not supported for Bun environments, please use this two-step process:
+>
 > 1. **Install:** `bun add ngx-theme-stack`
 > 2. **Configure:** `ng generate ngx-theme-stack:ng-add`
 >
@@ -98,22 +99,22 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideThemeStack({
       themes: ['light', 'dark', 'sunset'], // Your theme identifiers
-      defaultTheme: 'system',              // Initial fallback ('system' resolves via matchMedia)
-      mode: 'class',                       // 'class', 'attribute' or 'both'
-      strategy: 'critters',                // 'critters' (SSR) or 'blocking' (Standard SPA)
-      storageKey: 'ngx-theme-stack'  // LocalStorage key
-    })
-  ]
+      defaultTheme: 'system', // Initial fallback ('system' resolves via matchMedia)
+      mode: 'class', // 'class', 'attribute' or 'both'
+      strategy: 'critters', // 'critters' (SSR) or 'blocking' (Standard SPA)
+      storageKey: 'ngx-theme-stack', // LocalStorage key
+    }),
+  ],
 };
 ```
 
-| Option | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `themes` | `string[]` | `['light', 'dark', 'system']` | List of supported theme identifiers. |
-| `defaultTheme` | `string` | `'system'` | Theme used on first visit or when no preference is saved. |
-| `mode` | `NgMode` | `'class'` | How the theme is applied: `class`, `attribute` (`data-theme`), or `both`. |
-| `strategy` | `NgStrategy`| `'critters'` | Anti-flash performance strategy: `critters` (inlined CSS) or `blocking`. |
-| `storageKey` | `string` | `'ngx-theme-stack'` | Key used to persist theme preference in `localStorage`. |
+| Option         | Type         | Default                       | Description                                                               |
+| :------------- | :----------- | :---------------------------- | :------------------------------------------------------------------------ |
+| `themes`       | `string[]`   | `['light', 'dark', 'system']` | List of supported theme identifiers.                                      |
+| `defaultTheme` | `string`     | `'system'`                    | Theme used on first visit or when no preference is saved.                 |
+| `mode`         | `NgMode`     | `'class'`                     | How the theme is applied: `class`, `attribute` (`data-theme`), or `both`. |
+| `strategy`     | `NgStrategy` | `'critters'`                  | Anti-flash performance strategy: `critters` (inlined CSS) or `blocking`.  |
+| `storageKey`   | `string`     | `'ngx-theme-stack'`           | Key used to persist theme preference in `localStorage`.                   |
 
 > [!IMPORTANT]
 > Whenever you update these settings, run `ng generate ngx-theme-stack:sync` to ensure your `index.html` is updated with the correct anti-flash script.
@@ -134,9 +135,7 @@ import { ThemeToggleService } from 'ngx-theme-stack';
   selector: 'app-theme-toggle',
   standalone: true,
   template: `
-    <button (click)="toggle.toggle()">
-      Switch to {{ toggle.isDark() ? 'Light' : 'Dark' }}
-    </button>
+    <button (click)="toggle.toggle()">Switch to {{ toggle.isDark() ? 'Light' : 'Dark' }}</button>
   `,
 })
 export class ThemeToggleComponent {
@@ -156,9 +155,7 @@ import { ThemeCycleService } from 'ngx-theme-stack';
   selector: 'app-theme-cycler',
   standalone: true,
   template: `
-    <button (click)="theme.cycle()">
-       Next theme: {{ theme.upcoming() }}
-    </button>
+    <button (click)="theme.cycle()">Next theme: {{ theme.upcoming() }}</button>
     <p>Theme {{ theme.cycleIndex() + 1 }} of {{ theme.availableThemes.length }}</p>
   `,
 })
@@ -240,7 +237,8 @@ The `ng add` command automatically creates a **`src/themes.css`** file. This is 
 /* src/themes.css */
 
 /* Using Classes (Default Mode) */
-:root, .light {
+:root,
+.light {
   --bg-color: #ffffff;
   --text-color: #333333;
 }
