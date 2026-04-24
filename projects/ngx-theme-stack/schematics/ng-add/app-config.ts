@@ -1,70 +1,200 @@
-import { SchematicContext, Tree } from '@angular-devkit/schematics';
+import { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
+import { addRootProvider } from '@schematics/angular/utility';
+import * as ts from 'typescript';
 
 /**
- * Attempts to automatically locate and update the application configuration files.
- * It searches for standard Angular file paths relative to the project's source root.
- *
- * @param tree The virtual file tree of the project.
- * @param context The schematic's execution context.
- * @param sourceRoot The source root for the project (e.g. 'projects/demo-ngx-theme-stack/src').
- * @param provideCall The pre-formatted code string for provideThemeStack().
+ * Patches the application configuration to include or update the theme stack provider.
+ * Uses a hybrid approach:
+ * 1. Attempts the official 'addRootProvider' for standard standalone apps.
+ * 2. If it fails or if the provider already exists, it uses a smart AST walker
+ *    to either inject or UPDATE the existing configuration.
  */
-export function patchAppConfig(
+export async function patchAppConfig(
   tree: Tree,
   context: SchematicContext,
-  sourceRoot: string,
+  projectSourceRoot: string,
   provideCall: string,
-): void {
-  const candidates = [`${sourceRoot}/app/app.config.ts`, `${sourceRoot}/main.ts`, `${sourceRoot}/app/app.module.ts`].map(p => p.startsWith('/') ? p.slice(1) : p);
+  projectName?: string,
+): Promise<void> {
+  const mainPath = `${projectSourceRoot}/main.ts`.replace(/^\//, '');
+  const appConfigPath = `${projectSourceRoot}/app/app.config.ts`.replace(/^\//, '');
 
-  for (const filePath of candidates) {
-    if (!tree.exists(filePath)) continue;
+  const startFile = tree.exists(appConfigPath) ? appConfigPath : tree.exists(mainPath) ? mainPath : null;
 
-    const content = tree.readText(filePath);
-
-    let updated = content;
-
-    if (updated.includes('provideThemeStack')) {
-      updated = updated.replace(/provideThemeStack\s*\([\s\S]*?\)/, provideCall);
-      tree.overwrite(filePath, updated);
-      return;
-    }
-
-    // Add import if missing
-    if (!updated.includes("from 'ngx-theme-stack'")) {
-      const lastImport = updated.lastIndexOf('import ');
-      const eol = updated.indexOf('\n', lastImport);
-      updated =
-        updated.slice(0, eol + 1) +
-        `import { provideThemeStack } from 'ngx-theme-stack';\n` +
-        updated.slice(eol + 1);
-    }
-
-    // Inject into providers array
-    if (updated.includes('providers:')) {
-      updated = updated.replace(
-        /providers:\s*\[([\s\S]*?)\]/,
-        (_m: string, inner: string) => {
-          const trimmed = inner.trimEnd();
-          const sep = trimmed.length > 0 && !trimmed.endsWith(',') ? ',\n    ' : '\n    ';
-          return `providers: [${trimmed}${sep}${provideCall}\n  ]`;
-        },
-      );
-    } else if (updated.includes('bootstrapApplication')) {
-      updated = updated.replace(
-        /bootstrapApplication\s*\(\s*([^,)]+)\s*\)/,
-        `bootstrapApplication($1, {\n  providers: [\n    ${provideCall}\n  ]\n})`,
-      );
-    }
-
-    tree.overwrite(filePath, updated);
+  if (!startFile) {
+    context.logger.warn('⚠ Could not find app.config.ts or main.ts. Please add provideThemeStack() manually.');
     return;
   }
 
-  context.logger.warn(
-    `⚠ Could not find app.config.ts / main.ts / app.module.ts.\n` +
-      `  Add manually:\n\n` +
-      `  import { provideThemeStack } from 'ngx-theme-stack';\n\n` +
-      `  providers: [ ${provideCall} ]`,
-  );
+  // Check if already present to decide between "Inject" or "Update"
+  const content = tree.read(startFile)?.toString() || '';
+  const alreadyHasProvider = content.includes('provideThemeStack');
+
+  // ── Strategy 1: Standard addRootProvider (Only if NOT already present) ─────
+  if (projectName && !alreadyHasProvider) {
+    try {
+      const rule: Rule = addRootProvider(projectName, ({ code, external }) =>
+        code`${external('provideThemeStack', 'ngx-theme-stack')}(${provideCall.replace(/^provideThemeStack\(/, '').replace(/\)$/, '')})`,
+      );
+      await Promise.resolve((rule as (t: Tree, ctx: SchematicContext) => unknown)(tree, context));
+      
+      // Re-read content to see if it worked
+      const updatedContent = tree.read(startFile)?.toString() || '';
+      if (updatedContent.includes('provideThemeStack')) return;
+    } catch (e) {
+      context.logger.debug(`Standard addRootProvider failed: ${String(e)}`);
+    }
+  }
+
+  // ── Strategy 2: Smart AST Patching / Updating ─────────────────────────────
+  // This will handle both "Delegated Providers" and "Updates to existing config"
+  if (await applySmartPatch(tree, context, startFile, provideCall)) {
+    return;
+  }
+
+  context.logger.warn(`⚠ Could not automatically inject or update provider in ${startFile}.`);
+}
+
+/**
+ * Recursively follows identifiers to find where the providers array is defined
+ * or where provideThemeStack is already called.
+ */
+async function applySmartPatch(
+  tree: Tree,
+  context: SchematicContext,
+  filePath: string,
+  provideCall: string,
+  visitedFiles = new Set<string>()
+): Promise<boolean> {
+  if (visitedFiles.has(filePath)) return false;
+  visitedFiles.add(filePath);
+
+  const buffer = tree.read(filePath);
+  if (!buffer) return false;
+  
+  const content = buffer.toString();
+  const sourceFile = ts.createSourceFile(filePath, content, ts.ScriptTarget.Latest, true);
+
+  // A. UPDATE: If provideThemeStack is already here, replace it.
+  const existingCall = findProvideThemeStackCall(sourceFile);
+  if (existingCall) {
+    const updated = content.slice(0, existingCall.getStart()) + provideCall + content.slice(existingCall.getEnd());
+    tree.overwrite(filePath, updated);
+    return true;
+  }
+
+  // B. INJECT: Look for a providers array literal: providers: [ ... ]
+  const arrayLiteral = findProvidersArrayLiteral(sourceFile);
+  if (arrayLiteral) {
+    insertIntoArray(tree, filePath, arrayLiteral, provideCall);
+    ensureImport(tree, filePath, 'provideThemeStack', 'ngx-theme-stack');
+    return true;
+  }
+
+  // C. DELEGATION: Look for a delegated provider: providers: SOME_CONSTANT
+  const delegatedIdentifier = findProvidersIdentifier(sourceFile);
+  if (delegatedIdentifier) {
+    const importPath = findImportPathForIdentifier(sourceFile, delegatedIdentifier);
+    if (importPath) {
+      const dir = filePath.substring(0, filePath.lastIndexOf('/'));
+      let resolvedPath = `${dir}/${importPath}.ts`.replace(/\/\/+/g, '/').replace(/\.ts\.ts$/, '.ts');
+      if (!tree.exists(resolvedPath)) {
+         resolvedPath = `${dir}/${importPath}/index.ts`.replace(/\/\/+/g, '/');
+      }
+
+      if (tree.exists(resolvedPath)) {
+        return applySmartPatch(tree, context, resolvedPath, provideCall, visitedFiles);
+      }
+    } else {
+      const variableDeclaration = findVariableDeclaration(sourceFile, delegatedIdentifier);
+      if (variableDeclaration && variableDeclaration.initializer && ts.isArrayLiteralExpression(variableDeclaration.initializer)) {
+        insertIntoArray(tree, filePath, variableDeclaration.initializer, provideCall);
+        ensureImport(tree, filePath, 'provideThemeStack', 'ngx-theme-stack');
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+function findProvideThemeStackCall(node: ts.Node): ts.CallExpression | null {
+  let result: ts.CallExpression | null = null;
+  function visit(n: ts.Node) {
+    if (ts.isCallExpression(n) && ts.isIdentifier(n.expression) && n.expression.text === 'provideThemeStack') {
+      result = n;
+    }
+    if (!result) ts.forEachChild(n, visit);
+  }
+  visit(node);
+  return result;
+}
+
+function findProvidersArrayLiteral(node: ts.Node): ts.ArrayLiteralExpression | null {
+  let result: ts.ArrayLiteralExpression | null = null;
+  function visit(n: ts.Node) {
+    if (ts.isPropertyAssignment(n) && ts.isIdentifier(n.name) && n.name.text === 'providers') {
+      if (ts.isArrayLiteralExpression(n.initializer)) {
+        result = n.initializer;
+      }
+    }
+    if (!result) ts.forEachChild(n, visit);
+  }
+  visit(node);
+  return result;
+}
+
+function findProvidersIdentifier(node: ts.Node): string | null {
+  let result: string | null = null;
+  function visit(n: ts.Node) {
+    if (ts.isPropertyAssignment(n) && ts.isIdentifier(n.name) && n.name.text === 'providers') {
+      if (ts.isIdentifier(n.initializer)) {
+        result = n.initializer.text;
+      }
+    }
+    if (!result) ts.forEachChild(n, visit);
+  }
+  visit(node);
+  return result;
+}
+
+function findImportPathForIdentifier(sourceFile: ts.SourceFile, identifier: string): string | null {
+  for (const statement of sourceFile.statements) {
+    if (ts.isImportDeclaration(statement) && statement.importClause?.namedBindings && ts.isNamedImports(statement.importClause.namedBindings)) {
+      if (statement.importClause.namedBindings.elements.some(e => e.name.text === identifier)) {
+        return (statement.moduleSpecifier as ts.StringLiteral).text;
+      }
+    }
+  }
+  return null;
+}
+
+function findVariableDeclaration(sourceFile: ts.SourceFile, identifier: string): ts.VariableDeclaration | null {
+  for (const statement of sourceFile.statements) {
+    if (ts.isVariableStatement(statement)) {
+      for (const decl of statement.declarationList.declarations) {
+        if (ts.isIdentifier(decl.name) && decl.name.text === identifier) {
+          return decl;
+        }
+      }
+    }
+  }
+  return null;
+}
+
+function insertIntoArray(tree: Tree, filePath: string, array: ts.ArrayLiteralExpression, text: string) {
+  const content = tree.read(filePath)!.toString();
+  const insertionPos = array.elements.length > 0 
+    ? array.elements[array.elements.length - 1].getEnd() 
+    : array.getStart() + 1;
+  const prefix = array.elements.length > 0 ? ', ' : '';
+  const updated = content.slice(0, insertionPos) + prefix + text + content.slice(insertionPos);
+  tree.overwrite(filePath, updated);
+}
+
+function ensureImport(tree: Tree, filePath: string, symbol: string, module: string) {
+  const content = tree.read(filePath)!.toString();
+  if (content.includes(symbol)) return;
+  const updated = `import { ${symbol} } from '${module}';\n` + content;
+  tree.overwrite(filePath, updated);
 }
