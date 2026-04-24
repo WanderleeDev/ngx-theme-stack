@@ -1,4 +1,6 @@
 import { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
+import { patchAppConfig } from '../ng-add/app-config';
+import { buildProvideCall } from '../ng-add/utils';
 import { DEFAULTS } from '../ng-add/constants';
 import { Schema } from './schema';
 
@@ -80,10 +82,7 @@ function extractConfig(
     const provideMatch = PROVIDE_CALL_RE.exec(content);
 
     if (!provideMatch) {
-      context.logger.warn(
-        `⚠ provideThemeStack() not found in ${filePath}. Using library defaults.\n` +
-          `  Tip: Add provideThemeStack({...}) to your providers for explicit control.`,
-      );
+      context.logger.info(`ℹ provideThemeStack() not found in ${filePath}. Injecting with defaults.`);
       break;
     }
 
@@ -236,7 +235,7 @@ function detectStrategy(
 }
 
 export function sync(options: Schema): Rule {
-  return (tree: Tree, context: SchematicContext) => {
+  return async (tree: Tree, context: SchematicContext) => {
     const workspaceConfig = tree.read('/angular.json');
     if (!workspaceConfig) {
       throw new Error('Could not find angular.json. Are you in an Angular workspace?');
@@ -254,6 +253,10 @@ export function sync(options: Schema): Rule {
     const config = extractConfig(tree, sourceRoot, context);
     const strategy = (options.strategy || config.strategy || detectStrategy(tree, sourceRoot)) as 'critters' | 'blocking';
     const changeset: string[] = [];
+
+    // Ensure provideThemeStack exists and is up to date in app.config.ts
+    const provideCall = buildProvideCall(config.defaultTheme, config.storageKey, config.mode, config.themes, strategy);
+    await patchAppConfig(tree, context, sourceRoot, provideCall, projectName);
 
     context.logger.info('');
     context.logger.info(`🔄  ngx-theme-stack — sync [project: ${projectName}]`);

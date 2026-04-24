@@ -81,6 +81,7 @@ async function applySmartPatch(
   if (existingCall) {
     const updated = content.slice(0, existingCall.getStart()) + provideCall + content.slice(existingCall.getEnd());
     tree.overwrite(filePath, updated);
+    ensureImport(tree, filePath, 'provideThemeStack', 'ngx-theme-stack');
     return true;
   }
 
@@ -205,7 +206,30 @@ function insertIntoArray(tree: Tree, filePath: string, array: ts.ArrayLiteralExp
 
 function ensureImport(tree: Tree, filePath: string, symbol: string, module: string) {
   const content = tree.read(filePath)!.toString();
-  if (content.includes(symbol)) return;
-  const updated = `import { ${symbol} } from '${module}';\n` + content;
-  tree.overwrite(filePath, updated);
+  
+  const sourceFile = ts.createSourceFile(filePath, content, ts.ScriptTarget.Latest, true);
+  const importFound = sourceFile.statements.some(s => 
+    ts.isImportDeclaration(s) && 
+    ts.isStringLiteral(s.moduleSpecifier) && 
+    s.moduleSpecifier.text === module &&
+    s.importClause?.namedBindings &&
+    ts.isNamedImports(s.importClause.namedBindings) &&
+    s.importClause.namedBindings.elements.some(e => e.name.text === symbol)
+  );
+
+  if (importFound) return;
+
+  const moduleImportRegex = new RegExp(`import\\s*{([^}]*)}\\s*from\\s*['"]${module}['"]`);
+  const match = moduleImportRegex.exec(content);
+  
+  if (match) {
+    const existingSymbols = match[1].trim();
+    const updatedSymbols = existingSymbols ? `${existingSymbols}, ${symbol}` : symbol;
+    const updated = content.replace(match[0], `import { ${updatedSymbols} } from '${module}'`);
+    tree.overwrite(filePath, updated);
+  } else {
+    const updated = `import { ${symbol} } from '${module}';\n` + content;
+    tree.overwrite(filePath, updated);
+  }
 }
+
