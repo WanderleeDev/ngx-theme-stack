@@ -2,6 +2,25 @@
   "name": "ngx-theme-stack",
   "version": "3.4.0",
   "description": "A stack of themes for Angular applications.",
+  "keywords": [
+    "angular",
+    "theme",
+    "dark-mode",
+    "light-mode",
+    "theming",
+    "angular-library",
+    "css-variables",
+    "tailwindcss"
+  ],
+  "author": "WanderleeDev",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/WanderleeDev/ngx-theme-stack.git"
+  },
+  "bugs": {
+    "url": "https://github.com/WanderleeDev/ngx-theme-stack/issues"
+  },
+  "homepage": "https://ngx-theme-stack-docs.wanderlee.site/",
   "scripts": {
     "build": "tsc -p tsconfig.schematics.json",
     "postbuild": "copyfiles schematics/*/schema.json schematics/*/files/** schematics/collection.json ../../dist/ngx-theme-stack/ && node -e \"const f='../../dist/ngx-theme-stack/package.json',p=JSON.parse(require('fs').readFileSync(f,'utf8'));delete p.type;require('fs').writeFileSync(f,JSON.stringify(p,null,2)+'\\n');\""
