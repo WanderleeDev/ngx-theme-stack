@@ -28,7 +28,6 @@ export async function patchAppConfig(
     return;
   }
 
-
   const content = tree.read(startFile)?.toString() || '';
   const alreadyHasProvider = content.includes('provideThemeStack');
 
@@ -39,7 +38,6 @@ export async function patchAppConfig(
         code`${external('provideThemeStack', 'ngx-theme-stack')}(${provideCall.replace(/^provideThemeStack\(/, '').replace(/\)$/, '')})`,
       );
       await Promise.resolve((rule as (t: Tree, ctx: SchematicContext) => unknown)(tree, context));
-      
       const updatedContent = tree.read(startFile)?.toString() || '';
       if (updatedContent.includes('provideThemeStack')) return;
     } catch (e) {
