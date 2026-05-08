@@ -256,52 +256,103 @@ The `ng add` command automatically creates a **`src/themes.css`** file. This is 
 
 ## 🌪️ Tailwind CSS v4 Integration
 
-If you are using **Tailwind CSS v4**, you can achieve a much cleaner HTML by mapping your `themes.css` variables to your Tailwind theme.
+If you are using **Tailwind CSS v4**, you can map your `themes.css` variables directly to Tailwind design tokens for a clean, theme-aware utility class experience.
 
-### 1. Configure Custom Variants
+### 1. Map Semantic Variables ✅ Recommended
+
+In your `src/styles.css`, expose your theme variables as Tailwind tokens:
 
 ```css
-/* src/styles.css */
 @import 'tailwindcss';
 
-/* If using Class mode */
-@custom-variant dark (&:where(.dark, .dark *));
-
-/* If using Attribute mode */
-@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
-```
-
-### 2. Map Semantic Variables
-
-```css
 @theme {
   --color-main-bg: var(--bg-color);
   --color-main-text: var(--text-color);
 }
 ```
 
-### 3. Usage in Components
+### 2. Usage in Components
 
-Now you can write clean, theme-aware classes:
+Now you can write clean, theme-aware classes. Colors update **automatically** whenever `ngx-theme-stack` switches the active theme — no `dark:` prefix needed:
 
 ```html
 <div class="bg-main-bg text-main-text shadow-xl">
-  <!-- This automatically changes colors based on the active theme -->
+  <!-- Automatically reflects the active theme (dark, light, sunset, etc.) -->
 </div>
 ```
 
+> **✅ Why this works:** The CSS variables on `<html>` are already set before Angular boots (see [Performance Strategies](#-performance-strategies)). Since the Tailwind tokens (`--color-main-bg`) point directly to those variables, **this single approach covers manual toggling + all themes** (dark, light, sunset, etc.) — without any extra Tailwind configuration.
+
+
+---
+
+### (Optional) Enable the `dark:` Tailwind Prefix
+
+Only needed if you want to use `dark:` utilities directly (e.g. `dark:bg-black`) tied to ngx-theme-stack's toggle instead of the OS system preference.
+
+```css
+/* src/styles.css */
+@import 'tailwindcss';
+
+/* Class mode */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Attribute mode */
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
+```
+
+> **⚠️** Overriding `@custom-variant dark` disconnects `dark:` from the OS preference and only covers the `dark` theme. For multi-theme support, prefer the CSS variable approach above.
+
+
+
+
 ## ⚡ Performance Strategies
 
-`ngx-theme-stack` offers two ways to handle the initial theme application to prevent white flashes:
+### How the theme is applied on first load
 
-1.  **Critters (Default)**: Best for SSR/Static sites. Inlines CSS variables directly in the HTML `<head>`. Result: **Zero network requests for theme variables.**
-2.  **Blocking**: Best for standard SPAs. Loads `themes.css` as a traditional blocking resource.
+`ng add` injects a minimal blocking script as the **first child of `<head>`** in your `index.html`. This script runs before any stylesheet or Angular bundle:
+
+```
+1. Reads the stored theme from localStorage
+2. If the theme (or defaultTheme) is 'system' →
+   resolves OS preference via matchMedia('prefers-color-scheme: dark')
+3. Applies the theme to <html> (class, attribute, or both)
+4. Sets color-scheme CSS property for native browser adaptation
+```
+
+This script **always runs regardless of strategy** — it eliminates the flash of incorrect theme class. However, the CSS variables (your actual colors) still need to be delivered. That's where the strategy matters.
+
+### Anti-flash strategies
+
+There are two layers to prevent a flash:
+
+| Layer | What it prevents | Always active? |
+|---|---|---|
+| Anti-flash script | Wrong theme class on `<html>` | ✅ Yes, always |
+| Strategy | Unstyled variables flash | Depends on chosen strategy |
+
+**1. Critters (Default)**
+
+Injects hidden `<div>`s for each theme into `<body>`, forcing Angular's Critters optimizer to inline **all** CSS variables directly into `<head>`. When the anti-flash script sets the class, the variables are already there — **zero network requests, zero flash**. Works equally for CSR, SSR, and SSG apps.
+
+**2. Blocking**
+
+Disables Critters (`inlineCritical: false`) and loads `themes.css` as a render-blocking stylesheet. The browser blocks rendering until it's downloaded, so there's no visible flash — but it requires one network round-trip. The file is HTTP-cacheable after the first load.
+
+**When to choose Blocking over Critters:**
+
+- **Strict CSP** — Critters generates inline `<style>` tags, which require `'unsafe-inline'` in `style-src`. A blocking stylesheet avoids this.
+- **Many themes** — All theme variables get inlined into the HTML on every request with Critters. If you have many themes with many variables, a cached external file is more efficient.
+- **Critters conflicts** — Complex CSS pipelines (PostCSS, CSS Modules, etc.) can conflict with Critters. Blocking is the safe fallback.
+- **Simpler debugging** — An explicit stylesheet is easier to inspect in DevTools than inlined styles.
+
 
 Use the **Sync Command** to refresh your `index.html` if you change your configuration:
 
 ```bash
 ng generate ngx-theme-stack:sync --project YOUR_PROJECT_NAME
 ```
+
 
 ## 📄 License
 
