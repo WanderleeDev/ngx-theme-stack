@@ -28,8 +28,8 @@ const OPTION_KEY_RE = /storageKey\s*:\s*['"]([^'"]+)['"]/;
 
 /** Extracts "defaultTheme" value from the captured options string. */
 const OPTION_DEFAULT_THEME_RE = /defaultTheme\s*:\s*['"]([^'"]+)['"]/;
+/** Extracts "strategy" value from the captured options string. */
 const OPTION_STRATEGY_RE = /strategy\s*:\s*['"]([^'"]+)['"]/;
-
 
 /**
  * Extracts the themes array from the options string.
@@ -93,7 +93,6 @@ function extractConfig(
     const defaultTheme = OPTION_DEFAULT_THEME_RE.exec(opts)?.[1] ?? DEFAULTS.defaultTheme;
     const strategy = OPTION_STRATEGY_RE.exec(opts)?.[1] ?? undefined;
 
-    // Extract themes array: ['light', 'dark', 'sunset'] → ['light', 'dark', 'sunset']
     const themesRaw = OPTION_THEMES_RE.exec(opts)?.[1] ?? '';
     const themes: string[] = themesRaw
       ? themesRaw
@@ -163,7 +162,6 @@ function buildCrittersDivs(themes: string[], mode: string): string {
       } else if (mode === 'attribute') {
         return `      <div data-theme="${theme}"></div>`;
       } else {
-        // 'both'
         return `      <div class="${theme}" data-theme="${theme}"></div>`;
       }
     })
@@ -171,13 +169,10 @@ function buildCrittersDivs(themes: string[], mode: string): string {
 
   return (
     `<!-- ngx-theme-stack critters-trick -->\n` +
-    `    <div id="ngx-theme-stack-critters-trick" hidden>\n${divs}\n    </div>\n` +
+    `    <div id="ngx-theme-stack-critters-trick" hidden aria-hidden="true" style="display: none; overflow: hidden; clip-path: inset(50%); position: absolute;">\n${divs}\n    </div>\n` +
     `    <!-- /ngx-theme-stack critters-trick -->`
   );
 }
-
-// ── index.html patching ───────────────────────────────────────────────────────
-
 
 
 // ── Schematic factory ─────────────────────────────────────────────────────────
@@ -192,25 +187,14 @@ function buildCrittersDivs(themes: string[], mode: string): string {
  *    `defaultTheme`, and `mode` in sync with the Angular provider.
  *
  * 2. **The Critters Trick divs** (if `strategy: 'critters'`) — hidden `<div>`
- *    elements that trick Angular's built-in CSS inliner (Critters) into treating
- *    all theme token blocks as "critical CSS", inlining them in the `<head>`
- *    at build time. This achieves zero-flash without any extra network requests.
+ *    elements that trick Angular's built-in CSS inliner into treating all theme
+ *    token blocks as "critical CSS", inlining them in `<head>` at build time.
+ *
+ * Auto-detects the strategy from the existing `index.html` markers so the
+ * prebuild command runs with zero extra flags.
  *
  * Run this whenever you change `mode`, `storageKey`, `defaultTheme`, or `themes`
- * inside `provideThemeStack()`. Tip: add it as a `prebuild` script in package.json
- * so it runs automatically before every build.
- *
- * @example
- * // One-off sync
- * ng generate ngx-theme-stack:sync
- *
- * @example
- * // Automatic sync (recommended — add to package.json)
- * "prebuild": "ng generate ngx-theme-stack:sync"
- */
-/**
- * Auto-detects the strategy by checking if a Critters marker exists in index.html.
- * This allows the prebuild command to run with zero extra flags.
+ * inside `provideThemeStack()`. Tip: add it as a `prebuild` script in package.json.
  */
 function detectStrategy(
   tree: Tree,
@@ -323,34 +307,29 @@ export function sync(options: Schema): Rule {
     }
 
     // ── 2. angular.json ──
-    const angularJson = tree.read('/angular.json');
-    if (angularJson) {
-      const workspace = JSON.parse(angularJson.toString());
-      const project = workspace.projects[projectName];
-      const prodConfig = project.architect?.build?.configurations?.production;
+    const prodConfig = project.architect?.build?.configurations?.production;
 
-      if (prodConfig) {
-        let changed = false;
-        if (strategy === 'blocking') {
-          if (typeof prodConfig.optimization === 'object') {
-            prodConfig.optimization.styles = prodConfig.optimization.styles || {};
-            if (prodConfig.optimization.styles.inlineCritical !== false) {
-              prodConfig.optimization.styles.inlineCritical = false;
-              changed = true;
-            }
-          } else {
-            prodConfig.optimization = { styles: { inlineCritical: false } };
+    if (prodConfig) {
+      let changed = false;
+      if (strategy === 'blocking') {
+        if (typeof prodConfig.optimization === 'object') {
+          prodConfig.optimization.styles = prodConfig.optimization.styles || {};
+          if (prodConfig.optimization.styles.inlineCritical !== false) {
+            prodConfig.optimization.styles.inlineCritical = false;
             changed = true;
           }
-        } else if (typeof prodConfig.optimization === 'object' && prodConfig.optimization.styles?.inlineCritical === false) {
-          prodConfig.optimization.styles.inlineCritical = true;
+        } else {
+          prodConfig.optimization = { styles: { inlineCritical: false } };
           changed = true;
         }
+      } else if (typeof prodConfig.optimization === 'object' && prodConfig.optimization.styles?.inlineCritical === false) {
+        prodConfig.optimization.styles.inlineCritical = true;
+        changed = true;
+      }
 
-        if (changed) {
-          tree.overwrite('/angular.json', JSON.stringify(workspace, null, 2));
-          changeset.push(' \u001b[33mM\u001b[0m angular.json (optimization synced)');
-        }
+      if (changed) {
+        tree.overwrite('/angular.json', JSON.stringify(workspace, null, 2));
+        changeset.push(' \u001b[33mM\u001b[0m angular.json (optimization synced)');
       }
     }
 

@@ -5,9 +5,6 @@ import { DEFAULT_THEMES, DEFAULTS } from './constants';
 import { Schema } from './schema';
 import { ask, askList, buildProvideCall, createRl } from './utils';
 
-/**
- * Collected configuration for the ng-add schematic.
- */
 interface SchematicConfig {
   defaultTheme: string;
   storageKey: string;
@@ -17,9 +14,6 @@ interface SchematicConfig {
   provideCall: string;
 }
 
-/**
- * Interactively prompts the user for custom configuration options.
- */
 async function collectCustomOptions(): Promise<SchematicConfig> {
   const rl = createRl();
 
@@ -63,9 +57,6 @@ async function collectCustomOptions(): Promise<SchematicConfig> {
   }
 }
 
-/**
- * Main schematic factory for the 'ng-add' command.
- */
 export function ngAdd(options: Schema): Rule {
   return async (tree: Tree, context: SchematicContext) => {
     const workspaceConfig = tree.read('/angular.json');
@@ -109,97 +100,95 @@ export function ngAdd(options: Schema): Rule {
 
     const changeset: string[] = [];
     const themesToScaffold = config.themes.filter((t) => t !== 'system');
+    // Computed once and shared across steps to avoid duplication
+    const themesPath = `${projectSourceRoot}/themes.css`.replace(/^\//, '');
+
+    function scaffoldThemesCss(t: Tree): void {
+      if (t.exists(themesPath)) {
+        changeset.push(` \u001b[90mℹ\u001b[0m ${themesPath} (already exists)`);
+        return;
+      }
+
+      let content = '/* ngx-theme-stack tokens */\n\n';
+      themesToScaffold.forEach((theme) => {
+        const selector = config.mode === 'attribute' ? `[data-theme="${theme}"]` : `.${theme}`;
+        content +=
+          theme === 'light'
+            ? `:root, ${selector} {\n  /* Add your light theme variables here */\n}\n\n`
+            : `${selector} {\n  /* Add your ${theme} theme variables here */\n}\n\n`;
+      });
+
+      t.create(themesPath, content);
+      changeset.push(` \u001b[36mA\u001b[0m ${themesPath} (theme tokens)`);
+    }
+
+    function patchPrebuildScript(t: Tree): void {
+      const pkgPath = '/package.json';
+      const buffer = t.read(pkgPath);
+      if (!buffer) return;
+
+      const pkg = JSON.parse(buffer.toString());
+      pkg.scripts = pkg.scripts || {};
+      const syncCmd = `ng generate ngx-theme-stack:sync --project ${projectName}`;
+      const existing = pkg.scripts.prebuild as string | undefined;
+
+      if (!existing) {
+        pkg.scripts.prebuild = syncCmd;
+        changeset.push(' \u001b[33mM\u001b[0m package.json (prebuild script added)');
+      } else if (!existing.includes('ngx-theme-stack:sync')) {
+        pkg.scripts.prebuild = `${existing} && ${syncCmd}`;
+        changeset.push(' \u001b[33mM\u001b[0m package.json (sync appended to existing prebuild)');
+      } else {
+        changeset.push(' \u001b[90mℹ\u001b[0m package.json (prebuild already contains sync — skipped)');
+      }
+
+      t.overwrite(pkgPath, JSON.stringify(pkg, null, 2));
+    }
+
+    function patchAngularJson(t: Tree): void {
+      const target = project.architect.build.options;
+
+      if (target.styles && !target.styles.includes(themesPath)) {
+        target.styles.unshift(themesPath);
+      }
+
+      const prodConfig = project.architect.build.configurations?.production;
+      if (prodConfig && config.strategy === 'blocking') {
+        if (typeof prodConfig.optimization === 'object') {
+          prodConfig.optimization.styles = prodConfig.optimization.styles || {};
+          prodConfig.optimization.styles.inlineCritical = false;
+        } else {
+          prodConfig.optimization = { styles: { inlineCritical: false } };
+        }
+      }
+
+      t.overwrite('/angular.json', JSON.stringify(workspace, null, 2));
+      changeset.push(' \u001b[33mM\u001b[0m angular.json (styles & optimization)');
+    }
+
+    async function patchProviderAndIndexHtml(t: Tree, ctx: SchematicContext): Promise<void> {
+      await patchAppConfig(t, ctx, projectSourceRoot, config.provideCall, projectName);
+      changeset.push(' \u001b[33mM\u001b[0m app.config.ts (provided theme stack)');
+
+      patchIndexHtml(t, ctx, projectSourceRoot, {
+        storageKey: config.storageKey,
+        defaultTheme: config.defaultTheme,
+        mode: config.mode,
+        themes: config.themes,
+        strategy: config.strategy,
+      });
+      changeset.push(' \u001b[33mM\u001b[0m index.html (injected anti-flash)');
+
+      ctx.logger.info('\n\u001b[1mChangeset:\u001b[0m');
+      changeset.forEach((entry) => ctx.logger.info(entry));
+      ctx.logger.info('\n\u001b[1m\u001b[32m🏁 Done.\u001b[0m\n');
+    }
 
     return chain([
-      // 1. Scaffold themes.css
-      (t: Tree) => {
-        const themesPath = `${projectSourceRoot}/themes.css`.replace(/^\//, '');
-        if (!t.exists(themesPath)) {
-          let content = '/* ngx-theme-stack tokens */\n\n';
-          themesToScaffold.forEach((theme) => {
-            const selector = config.mode === 'attribute' ? `[data-theme="${theme}"]` : `.${theme}`;
-            if (theme === 'light') {
-              content += `:root, ${selector} {\n  /* Add your light theme variables here */\n}\n\n`;
-            } else {
-              content += `${selector} {\n  /* Add your ${theme} theme variables here */\n}\n\n`;
-            }
-          });
-          t.create(themesPath, content);
-          changeset.push(` \u001b[36mA\u001b[0m ${themesPath} (theme tokens)`);
-        } else {
-          changeset.push(` \u001b[90mℹ\u001b[0m ${themesPath} (already exists)`);
-        }
-      },
-
-      // 2. Add prebuild script to package.json
-      (t: Tree) => {
-        const pkgPath = '/package.json';
-        const buffer = t.read(pkgPath);
-        if (buffer) {
-          const pkg = JSON.parse(buffer.toString());
-          pkg.scripts = pkg.scripts || {};
-          const syncCmd = `ng generate ngx-theme-stack:sync --project ${projectName}`;
-          const existing = pkg.scripts.prebuild as string | undefined;
-
-          if (!existing) {
-            // Case 1: no prebuild — create it
-            pkg.scripts.prebuild = syncCmd;
-            changeset.push(' \u001b[33mM\u001b[0m package.json (prebuild script added)');
-          } else if (!existing.includes('ngx-theme-stack:sync')) {
-            // Case 2: prebuild exists but doesn't have sync — append
-            pkg.scripts.prebuild = `${existing} && ${syncCmd}`;
-            changeset.push(' \u001b[33mM\u001b[0m package.json (sync appended to existing prebuild)');
-          } else {
-            // Case 3: already contains sync — skip (idempotent)
-            changeset.push(' \u001b[90mℹ\u001b[0m package.json (prebuild already contains sync — skipped)');
-          }
-
-          t.overwrite(pkgPath, JSON.stringify(pkg, null, 2));
-        }
-      },
-
-
-      // 3. Update angular.json (styles & optimization)
-      (t: Tree) => {
-        const themesPath = `${projectSourceRoot}/themes.css`.replace(/^\//, '');
-        const target = project.architect.build.options;
-
-        if (target.styles && !target.styles.includes(themesPath)) {
-          target.styles.unshift(themesPath);
-        }
-
-        const prodConfig = project.architect.build.configurations?.production;
-        if (prodConfig && config.strategy === 'blocking') {
-          if (typeof prodConfig.optimization === 'object') {
-            prodConfig.optimization.styles = prodConfig.optimization.styles || {};
-            prodConfig.optimization.styles.inlineCritical = false;
-          } else {
-            prodConfig.optimization = { styles: { inlineCritical: false } };
-          }
-        }
-
-        t.overwrite('/angular.json', JSON.stringify(workspace, null, 2));
-        changeset.push(' \u001b[33mM\u001b[0m angular.json (styles & optimization)');
-      },
-
-      // 4. Patch App Config and Index HTML
-      async (t: Tree, ctx: SchematicContext) => {
-        await patchAppConfig(t, ctx, projectSourceRoot, config.provideCall, projectName);
-        changeset.push(' \u001b[33mM\u001b[0m app.config.ts (provided theme stack)');
-
-        patchIndexHtml(t, ctx, projectSourceRoot, {
-          storageKey: config.storageKey,
-          defaultTheme: config.defaultTheme,
-          mode: config.mode,
-          themes: config.themes,
-          strategy: config.strategy,
-        });
-        changeset.push(' \u001b[33mM\u001b[0m index.html (injected anti-flash)');
-
-        ctx.logger.info('\n\u001b[1mChangeset:\u001b[0m');
-        changeset.forEach((entry) => ctx.logger.info(entry));
-        ctx.logger.info('\n\u001b[1m\u001b[32m🏁 Done.\u001b[0m\n');
-      },
+      scaffoldThemesCss,
+      patchPrebuildScript,
+      patchAngularJson,
+      patchProviderAndIndexHtml,
     ]);
   };
 }

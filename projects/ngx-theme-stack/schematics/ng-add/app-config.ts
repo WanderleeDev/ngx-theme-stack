@@ -19,14 +19,16 @@ export async function patchAppConfig(
   const mainPath = `${projectSourceRoot}/main.ts`.replace(/^\//, '');
   const appConfigPath = `${projectSourceRoot}/app/app.config.ts`.replace(/^\//, '');
 
-  const startFile = tree.exists(appConfigPath) ? appConfigPath : tree.exists(mainPath) ? mainPath : null;
+  let startFile: string | null = null;
+  if (tree.exists(appConfigPath)) startFile = appConfigPath;
+  else if (tree.exists(mainPath)) startFile = mainPath;
 
   if (!startFile) {
     context.logger.warn('⚠ Could not find app.config.ts or main.ts. Please add provideThemeStack() manually.');
     return;
   }
 
-  // Check if already present to decide between "Inject" or "Update"
+
   const content = tree.read(startFile)?.toString() || '';
   const alreadyHasProvider = content.includes('provideThemeStack');
 
@@ -38,7 +40,6 @@ export async function patchAppConfig(
       );
       await Promise.resolve((rule as (t: Tree, ctx: SchematicContext) => unknown)(tree, context));
       
-      // Re-read content to see if it worked
       const updatedContent = tree.read(startFile)?.toString() || '';
       if (updatedContent.includes('provideThemeStack')) return;
     } catch (e) {
@@ -130,44 +131,43 @@ async function applySmartPatch(
   return false;
 }
 
-function findProvideThemeStackCall(node: ts.Node): ts.CallExpression | null {
-  let result: ts.CallExpression | null = null;
-  function visit(n: ts.Node) {
-    if (ts.isCallExpression(n) && ts.isIdentifier(n.expression) && n.expression.text === 'provideThemeStack') {
-      result = n;
-    }
-    if (!result) ts.forEachChild(n, visit);
+/**
+ * Generic depth-first walker. Returns the first value for which `match` returns
+ * a non-null result, or null if the whole tree is exhausted.
+ */
+function walkFirst<T>(root: ts.Node, match: (n: ts.Node) => T | null): T | null {
+  let result: T | null = null;
+  function visit(n: ts.Node): void {
+    if (result !== null) return;
+    result = match(n);
+    if (result === null) ts.forEachChild(n, visit);
   }
-  visit(node);
+  visit(root);
   return result;
+}
+
+function findProvideThemeStackCall(node: ts.Node): ts.CallExpression | null {
+  return walkFirst(node, (n) =>
+    ts.isCallExpression(n) && ts.isIdentifier(n.expression) && n.expression.text === 'provideThemeStack'
+      ? n
+      : null,
+  );
 }
 
 function findProvidersArrayLiteral(node: ts.Node): ts.ArrayLiteralExpression | null {
-  let result: ts.ArrayLiteralExpression | null = null;
-  function visit(n: ts.Node) {
-    if (ts.isPropertyAssignment(n) && ts.isIdentifier(n.name) && n.name.text === 'providers') {
-      if (ts.isArrayLiteralExpression(n.initializer)) {
-        result = n.initializer;
-      }
-    }
-    if (!result) ts.forEachChild(n, visit);
-  }
-  visit(node);
-  return result;
+  return walkFirst(node, (n) =>
+    ts.isPropertyAssignment(n) && ts.isIdentifier(n.name) && n.name.text === 'providers' && ts.isArrayLiteralExpression(n.initializer)
+      ? n.initializer
+      : null,
+  );
 }
 
 function findProvidersIdentifier(node: ts.Node): string | null {
-  let result: string | null = null;
-  function visit(n: ts.Node) {
-    if (ts.isPropertyAssignment(n) && ts.isIdentifier(n.name) && n.name.text === 'providers') {
-      if (ts.isIdentifier(n.initializer)) {
-        result = n.initializer.text;
-      }
-    }
-    if (!result) ts.forEachChild(n, visit);
-  }
-  visit(node);
-  return result;
+  return walkFirst(node, (n) =>
+    ts.isPropertyAssignment(n) && ts.isIdentifier(n.name) && n.name.text === 'providers' && ts.isIdentifier(n.initializer)
+      ? n.initializer.text
+      : null,
+  );
 }
 
 function findImportPathForIdentifier(sourceFile: ts.SourceFile, identifier: string): string | null {

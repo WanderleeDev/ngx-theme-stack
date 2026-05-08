@@ -1,6 +1,5 @@
 import * as readline from 'readline';
 
-
 /**
  * Creates a readline interface using the system's standard input and output.
  */
