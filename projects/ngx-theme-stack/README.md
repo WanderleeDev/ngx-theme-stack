@@ -49,7 +49,7 @@ When running `ng add`, you will be presented with two configuration options:
     - Configure the default theme upon app startup.
     - Change the `localStorage` key where the theme choice is saved.
     - Decide how to apply themes: via classes (`class`), attributes (`data-theme`), or both.
-    - **Pick your strategy**: `critters` for modern SSR/SSG apps or `blocking` for standard CSS loading.
+    - **Pick your strategy**: `critters` (default) inlines all theme CSS — works for CSR, SSR, and SSG. Use `blocking` if you have a strict CSP or prefer a standard external stylesheet.
 
 ## 🤖 What does `ng add` do for you?
 
