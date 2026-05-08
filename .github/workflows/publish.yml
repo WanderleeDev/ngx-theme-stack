@@ -10,6 +10,11 @@ jobs:
   publish:
     name: Build & Publish to npm
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -32,9 +37,8 @@ jobs:
       - name: Build Library & Schematics
         run: pnpm run build:lib
 
-      - name: Publish to NPM
-        run: |
-          cd dist/ngx-theme-stack
-          pnpm publish --no-git-checks
+      - name: Publish to NPM (with provenance)
+        run: npm publish --provenance --access public
+        working-directory: dist/ngx-theme-stack
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
