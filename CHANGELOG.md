@@ -1,5 +1,19 @@
 # Changelog
 
+# [3.5.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.4.0...v3.5.0) (2026-05-08)
+
+
+### Bug Fixes
+
+* **lib:** correct documentation inaccuracies in library source ([72ef531](https://github.com/WanderleeDev/ngx-theme-stack/commit/72ef5317c7c7eb2e6f84e99e972c48b38184e90d)), closes [#initialStoredTheme](https://github.com/WanderleeDev/ngx-theme-stack/issues/initialStoredTheme)
+* **ng-add:** safe prebuild merge and improved strategy prompt ([360d93e](https://github.com/WanderleeDev/ngx-theme-stack/commit/360d93eeda4a9d11355a977f3d9f280de8d0acf7))
+* **security:** pin vulnerable transitive deps via pnpm overrides ([6c39b5b](https://github.com/WanderleeDev/ngx-theme-stack/commit/6c39b5bdaf7c217852133839d2026bf77a6c71ad))
+
+
+### Features
+
+* **pkg:** add npm package metadata for discoverability and trust ([dadd1e3](https://github.com/WanderleeDev/ngx-theme-stack/commit/dadd1e316887394839a79dfa2291c8e919349845))
+
 # [3.4.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.3.0...v3.4.0) (2026-04-24)
 
 
