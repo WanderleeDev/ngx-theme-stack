@@ -28,7 +28,10 @@ async function collectCustomOptions(): Promise<SchematicConfig> {
 
     const rawThemes = await ask(rl, '  Custom themes (comma-separated, Enter to skip): ');
     const customThemes = rawThemes
-      ? rawThemes.split(',').map((t) => t.trim()).filter(Boolean)
+      ? rawThemes
+          .split(',')
+          .map((t) => t.trim())
+          .filter(Boolean)
       : [];
     const themes = [...DEFAULT_THEMES, ...customThemes];
 
@@ -42,9 +45,14 @@ async function collectCustomOptions(): Promise<SchematicConfig> {
 
     const STRATEGIES = ['critters', 'blocking'] as const;
     process.stdout.write('\n  Anti-flash strategy:\n');
-    process.stdout.write('  - critters: Zero network requests (inlines CSS in <head>)\n');
-    process.stdout.write('  - blocking: Standard CSS loading (themes.css)\n');
-    const strategy = (await askList(rl, 'Choose strategy:', STRATEGIES, 0)) as 'critters' | 'blocking';
+    process.stdout.write('  - critters (default): Inlines all theme CSS in <head> — zero network requests.\n');
+    process.stdout.write('                        Works for CSR, SSR, and SSG apps.\n');
+    process.stdout.write('                        Use blocking instead if you have a strict CSP or many themes.\n');
+    process.stdout.write('  - blocking:           Loads themes.css as a render-blocking stylesheet.\n');
+    process.stdout.write('                        HTTP-cacheable. Choose if Critters conflicts with your setup.\n');
+    const strategy = (await askList(rl, 'Choose strategy:', STRATEGIES, 0)) as
+      | 'critters'
+      | 'blocking';
 
     const provideCall = buildProvideCall(defaultTheme, storageKey, mode, themes, strategy);
 
@@ -66,7 +74,8 @@ export function ngAdd(options: Schema): Rule {
     }
 
     const workspace = JSON.parse(workspaceConfig.toString());
-    const projectName = options.project || workspace.defaultProject || Object.keys(workspace.projects)[0];
+    const projectName =
+      options.project || workspace.defaultProject || Object.keys(workspace.projects)[0];
     const project = workspace.projects[projectName];
 
     if (!project) {
@@ -129,11 +138,26 @@ export function ngAdd(options: Schema): Rule {
         if (buffer) {
           const pkg = JSON.parse(buffer.toString());
           pkg.scripts = pkg.scripts || {};
-          pkg.scripts.prebuild = `ng generate ngx-theme-stack:sync --project ${projectName}`;
+          const syncCmd = `ng generate ngx-theme-stack:sync --project ${projectName}`;
+          const existing = pkg.scripts.prebuild as string | undefined;
+
+          if (!existing) {
+            // Case 1: no prebuild — create it
+            pkg.scripts.prebuild = syncCmd;
+            changeset.push(' \u001b[33mM\u001b[0m package.json (prebuild script added)');
+          } else if (!existing.includes('ngx-theme-stack:sync')) {
+            // Case 2: prebuild exists but doesn't have sync — append
+            pkg.scripts.prebuild = `${existing} && ${syncCmd}`;
+            changeset.push(' \u001b[33mM\u001b[0m package.json (sync appended to existing prebuild)');
+          } else {
+            // Case 3: already contains sync — skip (idempotent)
+            changeset.push(' \u001b[90mℹ\u001b[0m package.json (prebuild already contains sync — skipped)');
+          }
+
           t.overwrite(pkgPath, JSON.stringify(pkg, null, 2));
-          changeset.push(' \u001b[33mM\u001b[0m package.json (prebuild script)');
         }
       },
+
 
       // 3. Update angular.json (styles & optimization)
       (t: Tree) => {
