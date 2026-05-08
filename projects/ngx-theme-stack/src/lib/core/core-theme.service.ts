@@ -31,10 +31,7 @@ export class CoreThemeService {
 
   // ── Theme configuration ───────────────────────────────────────────────────
 
-  /**
-   * The initial stored theme read from localStorage.
-   * This is used to determine the initial theme of the application.
-   */
+  /** The initial stored theme read from localStorage on startup. */
   readonly #initialStoredTheme = this.readStoredTheme();
 
   /** List of available themes for Select/Cycle services. Defaults to ['system', 'light', 'dark']. */

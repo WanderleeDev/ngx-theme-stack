@@ -62,7 +62,7 @@ export interface NgConfig<T extends string = string & {}> {
   /** The theme to use on first visit or when no preference is saved. Default: 'system'. */
   defaultTheme: NgTheme<T>;
 
-  /** Key used to persist theme preference in localStorage. Default: 'ngx-theme-stack-theme'. */
+  /** Key used to persist theme preference in localStorage. Default: 'ngx-theme-stack'. */
   storageKey: string;
 
   /** 
@@ -72,9 +72,9 @@ export interface NgConfig<T extends string = string & {}> {
   mode: NgMode;
 
   /** 
-   * Performance strategy for anti-flash. 
-   * Use 'critters' for SSG/SSR builds with inlined CSS, 'blocking' for standard CSS files.
-   * Default: 'critters'.
+   * Performance strategy for anti-flash.
+   * Use 'critters' (default) to inline all theme CSS in <head> — works for CSR, SSR, and SSG.
+   * Use 'blocking' to load themes.css as a render-blocking stylesheet (HTTP-cacheable).
    */
   strategy: NgStrategy;
 

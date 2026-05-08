@@ -65,7 +65,7 @@ export const NGX_THEME_STACK_CONFIG = new InjectionToken<NgConfig<string>>(
  * provideThemeStack()
  *
  * @example
- * // SSR/SSG Optimization — uses Critters inlining strategy
+ * // Critters strategy — inlines all theme CSS in <head> (works for CSR, SSR, and SSG)
  * provideThemeStack({
  *   strategy: 'critters',
  *   mode: 'class',
