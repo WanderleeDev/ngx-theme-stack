@@ -33,9 +33,14 @@ const OPTION_STRATEGY_RE = /strategy\s*:\s*['"]([^'"]+)['"]/;
 
 /**
  * Extracts the themes array from the options string.
- * Matches: themes: ['light', 'dark', 'sunset']
+ * Supports both single-line and multiline array declarations:
+ *   themes: ['light', 'dark', 'sunset']
+ *   themes: [
+ *     'light',
+ *     'dark',
+ *   ] as const
  */
-const OPTION_THEMES_RE = /themes\s*:\s*\[([^\]]*)\]/;
+const OPTION_THEMES_RE = /themes\s*:\s*\[([\s\S]*?)\]/;
 
 /** Matches the complete <script> anti-flash block (identified by its marker comment). */
 const SCRIPT_BLOCK_RE = /<!--\s*ngx-theme-stack\s*anti-flash\s*-->\s*<script[^>]*>[\s\S]*?<\/script>/;
