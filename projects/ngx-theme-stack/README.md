@@ -25,7 +25,7 @@ Built for performance and SSR support.
 - [📦 Installation](#-installation)
 - [🤖 What does `ng add` do for you?](#-what-does-ng-add-do-for-you)
 - [🏗️ Architecture & Extensibility](#️-architecture--extensibility)
-- [⚙️ Supported Versions](#️-supported-versions)
+- [📐 Supported Versions](#-supported-versions)
 - [⚙️ Configuration](#️-configuration)
 - [🛠️ Usage](#️-usage)
 - [🛡️ CoreThemeService API](#️-advanced-corethemeservice-api)
@@ -125,7 +125,7 @@ The **`CoreThemeService`** is the foundation — it manages state (Signals), per
 
 ---
 
-## ⚙️ Supported Versions
+## 📐 Supported Versions
 
 | Angular Version | Status    |
 | --------------- | --------- |
@@ -267,6 +267,14 @@ export class MyAdvancedComponent {
 > ```typescript
 > const isSunset = computed(() => themeService.resolvedTheme() === 'sunset');
 > ```
+>
+> Use `isHydrated()` to guard conditional content (icons, images) against SSR hydration mismatches:
+>
+> ```html
+> @if (theme.isHydrated()) {
+>   <img [src]="theme.isDark() ? 'dark-logo.png' : 'light-logo.png'">
+> }
+> ```
 
 ---
 
@@ -360,7 +368,7 @@ Only needed if you want `dark:` utilities tied to ngx-theme-stack's toggle:
 | **Network requests**      | Zero                               | One (then cached)                          |
 | **Flash risk**            | None                               | None                                       |
 | **Works with CSR**        | ✅                                 | ✅                                         |
-| **Works with SSR/SSG**    | ✅                                 | ❌                                         |
+| **Works with SSR/SSG**    | ✅                                 | ⚠️ May flash on SSG                       |
 | **Strict CSP compatible** | ❌ requires `unsafe-inline`        | ✅                                         |
 | **Best for**              | Most apps                          | Strict CSP, many themes                    |
 
