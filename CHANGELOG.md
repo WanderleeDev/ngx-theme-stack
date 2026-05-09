@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.5.1](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.5.0...v3.5.1) (2026-05-09)
+
+
+### Bug Fixes
+
+* **schematics:** support multiline theme arrays in sync command ([c92363c](https://github.com/WanderleeDev/ngx-theme-stack/commit/c92363c8ac7a3cdb1b3cc8c62aacb18aebe52ca0))
+
 # [3.5.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.4.0...v3.5.0) (2026-05-08)
 
 
