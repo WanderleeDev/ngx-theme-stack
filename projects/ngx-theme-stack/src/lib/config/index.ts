@@ -36,8 +36,10 @@ export const NGX_THEME_STACK_CONFIG = new InjectionToken<NgConfig<string>>(
 /**
  * Provides Theme Stack configuration to Angular's DI system.
  *
- * Custom `themes` are **merged** with the built-in defaults
- * (`'light'`, `'dark'`, `'system'`), so you never lose the base themes.
+ * The `themes` option accepts **additional** theme identifiers beyond the
+ * built-in defaults. They are merged with `'light'`, `'dark'`, and `'system'`
+ * so that the resolved {@link NgConfig.themes} array always includes all of
+ * them — your custom values are appended after the built-ins.
  *
  * **Defaults:**
  * - `themes`: `['light', 'dark', 'system']`

@@ -78,6 +78,21 @@ export interface NgConfig<T extends string = string & {}> {
    */
   strategy: NgStrategy;
 
-  /** List of supported theme identifiers. Default: ['light', 'dark', 'system']. */
+  /**
+   * The **resolved** list of supported theme identifiers, always including the
+   * built-in themes (`'light'`, `'dark'`, `'system'`).
+   *
+   * When you pass custom themes to {@link provideThemeStack}, they are **merged**
+   * with the built-in defaults — your custom values are appended after them.
+   *
+   * @example
+   * // Input to provideThemeStack:
+   * themes: ['sepia', 'ocean'] as const
+   *
+   * // Resolved value stored in NgConfig:
+   * // ['system', 'light', 'dark', 'sepia', 'ocean']
+   *
+   * Default (no custom themes): `['system', 'light', 'dark']`.
+   */
   themes: NgTheme<T>[];
 }

@@ -69,10 +69,20 @@ export class CoreThemeService {
     return theme === 'system' ? this.#systemPreference() : theme;
   });
 
-  /** Whether the currently applied theme is dark. */
+  /**
+   * Whether the currently applied theme is dark.
+   *
+   * Returns `false` when a custom theme (e.g. `'sunset'`) is active — use
+   * `resolvedTheme()` directly if you need to inspect the current custom theme.
+   */
   readonly isDark = computed(() => this.resolvedTheme() === 'dark');
 
-  /** Whether the currently applied theme is light. */
+  /**
+   * Whether the currently applied theme is light.
+   *
+   * Returns `false` when a custom theme (e.g. `'sepia'`) is active — use
+   * `resolvedTheme()` directly if you need to inspect the current custom theme.
+   */
   readonly isLight = computed(() => this.resolvedTheme() === 'light');
 
   /** Whether the currently applied theme is system. */
