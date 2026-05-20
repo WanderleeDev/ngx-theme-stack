@@ -1,5 +1,5 @@
 import { Component, PLATFORM_ID } from '@angular/core';
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { CoreThemeService } from './core-theme.service';
 import { NgConfig } from '../types';
 import { NGX_THEME_STACK_CONFIG } from '../config';
@@ -226,51 +226,51 @@ describe('CoreThemeService', () => {
 
   // ── DOM updates and Modes ──
 
-  it('should apply theme as class when mode is class', () => {
+  it('should apply theme as class when mode is class', fakeAsync(() => {
     const { service } = setup({ mode: 'class' });
-    TestBed.flushEffects();
+    tick();
     service.setTheme('dark');
-    TestBed.flushEffects();
+    tick();
     expect(document.documentElement.classList.contains('dark')).toBe(true);
     expect(document.documentElement.getAttribute('data-theme')).toBeNull();
-  });
+  }));
 
-  it('should apply theme as attribute when mode is attribute', () => {
+  it('should apply theme as attribute when mode is attribute', fakeAsync(() => {
     const { service } = setup({ mode: 'attribute' });
-    TestBed.flushEffects();
+    tick();
     service.setTheme('dark');
-    TestBed.flushEffects();
+    tick();
     expect(document.documentElement.classList.contains('dark')).toBe(false);
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
-  });
+  }));
 
-  it('should apply theme as both when mode is both', () => {
+  it('should apply theme as both when mode is both', fakeAsync(() => {
     const { service } = setup({ mode: 'both' });
-    TestBed.flushEffects();
+    tick();
     service.setTheme('dark');
-    TestBed.flushEffects();
+    tick();
     expect(document.documentElement.classList.contains('dark')).toBe(true);
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
-  });
+  }));
 
-  it('should apply color-scheme style property for light/dark themes and remove it for custom themes', () => {
+  it('should apply color-scheme style property for light/dark themes and remove it for custom themes', fakeAsync(() => {
     const { service } = setup({
       themes: ['light', 'dark', 'system', 'sepia'],
     });
-    TestBed.flushEffects();
+    tick();
 
     service.setTheme('dark');
-    TestBed.flushEffects();
+    tick();
     expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('dark');
 
     service.setTheme('light');
-    TestBed.flushEffects();
+    tick();
     expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('light');
 
     service.setTheme('sepia');
-    TestBed.flushEffects();
+    tick();
     expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('');
-  });
+  }));
 
   // ── Hydration Signal ──
 
@@ -292,23 +292,23 @@ describe('CoreThemeService', () => {
 
   // ── Anti-flash ──
 
-  it('should capture and remove anti-flash class in browser', () => {
+  it('should capture and remove anti-flash class in browser', fakeAsync(() => {
     // Add 'dark' to document element representing pre-rendered state
     document.documentElement.classList.add('dark');
 
     // Setup service with storage theme 'dark' and mode 'attribute'
     // This ensures 'dark' is removed from classList by the anti-flash logic and not re-added as class
-    const { service } = setup({ mode: 'attribute' }, { 'ngx-theme-stack': 'dark' });
-    TestBed.flushEffects();
+    setup({ mode: 'attribute' }, { 'ngx-theme-stack': 'dark' });
+    tick();
 
     expect(document.documentElement.classList.contains('dark')).toBe(false);
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
-  });
+  }));
 
   // ── LocalStorage Error Handling ──
 
   it('should catch exceptions and log warning when localStorage.getItem throws', () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(vi.fn());
 
     const { service } = setup({}, {}, false, 'browser', true, false);
     expect(service.selectedTheme()).toBe('system'); // Falls back to default config theme
@@ -319,7 +319,7 @@ describe('CoreThemeService', () => {
   });
 
   it('should catch exceptions and log warning when localStorage.setItem throws', () => {
-    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(vi.fn());
 
     const { service } = setup({}, {}, false, 'browser', false, true);
     service.setTheme('dark');
