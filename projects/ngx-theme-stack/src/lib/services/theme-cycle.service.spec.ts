@@ -80,14 +80,37 @@ describe('ThemeCycleService', () => {
   });
 
   it('should restart from first if current theme is not in cycle', () => {
+    const { service } = setup({
+      defaultTheme: 'system',
+      themes: ['light', 'dark'],
+    });
+    // selectedTheme is 'system' (which is not in ['light', 'dark'])
+    expect(service.selectedTheme()).toBe('system');
+    expect(service.cycleIndex()).toBe(-1);
+
+    service.cycle();
+    expect(service.selectedTheme()).toBe('light');
+  });
+
+  it('should compute cycleIndex, preceding and upcoming correctly', () => {
     const { service, core } = setup({
       themes: ['light', 'dark', 'system'],
     });
-    // Force a theme not in the list via core (bypassing validation for test)
-    // When indexOf returns -1, (−1 + 1) % length = 0 → first theme
+
     core.setTheme('light');
-    service.cycle();
-    expect(service.selectedTheme()).toBe('dark');
+    expect(service.cycleIndex()).toBe(0);
+    expect(service.preceding()).toBe('system');
+    expect(service.upcoming()).toBe('dark');
+
+    core.setTheme('dark');
+    expect(service.cycleIndex()).toBe(1);
+    expect(service.preceding()).toBe('light');
+    expect(service.upcoming()).toBe('system');
+
+    core.setTheme('system');
+    expect(service.cycleIndex()).toBe(2);
+    expect(service.preceding()).toBe('dark');
+    expect(service.upcoming()).toBe('light');
   });
 
   it('should expose resolvedTheme signal', () => {
