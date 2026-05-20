@@ -1,8 +1,8 @@
 import { Component, PLATFORM_ID } from '@angular/core';
-import { TestBed, fakeAsync, tick } from '@angular/core/testing';
-import { CoreThemeService } from './core-theme.service';
-import { NgConfig } from '../types';
+import { TestBed } from '@angular/core/testing';
 import { NGX_THEME_STACK_CONFIG } from '../config';
+import { NgConfig } from '../types';
+import { CoreThemeService } from './core-theme.service';
 
 @Component({
   template: '',
@@ -13,7 +13,11 @@ class TestComponent {}
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 let store: Record<string, string>;
-let matchMediaMock: { matches: boolean; addEventListener: ReturnType<typeof vi.fn>; removeEventListener: ReturnType<typeof vi.fn> };
+let matchMediaMock: {
+  matches: boolean;
+  addEventListener: ReturnType<typeof vi.fn>;
+  removeEventListener: ReturnType<typeof vi.fn>;
+};
 
 function setup(
   config: Partial<NgConfig> = {},
@@ -34,7 +38,9 @@ function setup(
       if (mockStorageSetError) throw new Error('Quota exceeded');
       store[key] = value;
     },
-    clear: () => { store = {}; },
+    clear: () => {
+      store = {};
+    },
   });
 
   matchMediaMock = {
@@ -122,10 +128,7 @@ describe('CoreThemeService', () => {
   });
 
   it('should use custom storageKey from config', () => {
-    const { service } = setup(
-      { storageKey: 'my-custom-key' },
-      { 'my-custom-key': 'dark' },
-    );
+    const { service } = setup({ storageKey: 'my-custom-key' }, { 'my-custom-key': 'dark' });
     expect(service.selectedTheme()).toBe('dark');
   });
 
@@ -226,51 +229,51 @@ describe('CoreThemeService', () => {
 
   // ── DOM updates and Modes ──
 
-  it('should apply theme as class when mode is class', fakeAsync(() => {
+  it('should apply theme as class when mode is class', () => {
     const { service } = setup({ mode: 'class' });
-    tick();
+    TestBed.tick();
     service.setTheme('dark');
-    tick();
+    TestBed.tick();
     expect(document.documentElement.classList.contains('dark')).toBe(true);
     expect(document.documentElement.getAttribute('data-theme')).toBeNull();
-  }));
+  });
 
-  it('should apply theme as attribute when mode is attribute', fakeAsync(() => {
+  it('should apply theme as attribute when mode is attribute', () => {
     const { service } = setup({ mode: 'attribute' });
-    tick();
+    TestBed.tick();
     service.setTheme('dark');
-    tick();
+    TestBed.tick();
     expect(document.documentElement.classList.contains('dark')).toBe(false);
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
-  }));
+  });
 
-  it('should apply theme as both when mode is both', fakeAsync(() => {
+  it('should apply theme as both when mode is both', () => {
     const { service } = setup({ mode: 'both' });
-    tick();
+    TestBed.tick();
     service.setTheme('dark');
-    tick();
+    TestBed.tick();
     expect(document.documentElement.classList.contains('dark')).toBe(true);
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
-  }));
+  });
 
-  it('should apply color-scheme style property for light/dark themes and remove it for custom themes', fakeAsync(() => {
+  it('should apply color-scheme style property for light/dark themes and remove it for custom themes', () => {
     const { service } = setup({
       themes: ['light', 'dark', 'system', 'sepia'],
     });
-    tick();
+    TestBed.tick();
 
     service.setTheme('dark');
-    tick();
+    TestBed.tick();
     expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('dark');
 
     service.setTheme('light');
-    tick();
+    TestBed.tick();
     expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('light');
 
     service.setTheme('sepia');
-    tick();
+    TestBed.tick();
     expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('');
-  }));
+  });
 
   // ── Hydration Signal ──
 
@@ -292,18 +295,18 @@ describe('CoreThemeService', () => {
 
   // ── Anti-flash ──
 
-  it('should capture and remove anti-flash class in browser', fakeAsync(() => {
+  it('should capture and remove anti-flash class in browser', () => {
     // Add 'dark' to document element representing pre-rendered state
     document.documentElement.classList.add('dark');
 
     // Setup service with storage theme 'dark' and mode 'attribute'
     // This ensures 'dark' is removed from classList by the anti-flash logic and not re-added as class
     setup({ mode: 'attribute' }, { 'ngx-theme-stack': 'dark' });
-    tick();
+    TestBed.tick();
 
     expect(document.documentElement.classList.contains('dark')).toBe(false);
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
-  }));
+  });
 
   // ── LocalStorage Error Handling ──
 
@@ -314,7 +317,7 @@ describe('CoreThemeService', () => {
     expect(service.selectedTheme()).toBe('system'); // Falls back to default config theme
     expect(warnSpy).toHaveBeenCalledWith(
       '[ngx-theme-stack] Could not read theme from localStorage.',
-      expect.any(Error)
+      expect.any(Error),
     );
   });
 
@@ -325,7 +328,7 @@ describe('CoreThemeService', () => {
     service.setTheme('dark');
     expect(warnSpy).toHaveBeenCalledWith(
       '[ngx-theme-stack] Could not save theme to localStorage.',
-      expect.any(Error)
+      expect.any(Error),
     );
   });
 });
