@@ -1,8 +1,14 @@
-import { PLATFORM_ID } from '@angular/core';
+import { Component, PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { CoreThemeService } from './core-theme.service';
 import { NgConfig } from '../types';
 import { NGX_THEME_STACK_CONFIG } from '../config';
+
+@Component({
+  template: '',
+  standalone: true,
+})
+class TestComponent {}
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -14,12 +20,20 @@ function setup(
   initialStore: Record<string, string> = {},
   systemPrefersDark = false,
   platformId = 'browser',
+  mockStorageGetError = false,
+  mockStorageSetError = false,
 ) {
   store = { ...initialStore };
 
   vi.stubGlobal('localStorage', {
-    getItem: (key: string) => store[key] ?? null,
-    setItem: (key: string, value: string) => { store[key] = value; },
+    getItem: (key: string) => {
+      if (mockStorageGetError) throw new Error('Storage disabled');
+      return store[key] ?? null;
+    },
+    setItem: (key: string, value: string) => {
+      if (mockStorageSetError) throw new Error('Quota exceeded');
+      store[key] = value;
+    },
     clear: () => { store = {}; },
   });
 
@@ -57,6 +71,10 @@ function setup(
 describe('CoreThemeService', () => {
   afterEach(() => {
     vi.restoreAllMocks();
+    const host = document.documentElement;
+    host.className = '';
+    host.removeAttribute('data-theme');
+    host.style.removeProperty('color-scheme');
   });
 
   // ── Initialization ──
@@ -204,5 +222,110 @@ describe('CoreThemeService', () => {
   it('should resolve resolvedTheme to config.theme in SSR (never system)', () => {
     const { service } = setup({ defaultTheme: 'dark' }, {}, false, 'server');
     expect(service.resolvedTheme()).toBe('dark');
+  });
+
+  // ── DOM updates and Modes ──
+
+  it('should apply theme as class when mode is class', () => {
+    const { service } = setup({ mode: 'class' });
+    TestBed.flushEffects();
+    service.setTheme('dark');
+    TestBed.flushEffects();
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(document.documentElement.getAttribute('data-theme')).toBeNull();
+  });
+
+  it('should apply theme as attribute when mode is attribute', () => {
+    const { service } = setup({ mode: 'attribute' });
+    TestBed.flushEffects();
+    service.setTheme('dark');
+    TestBed.flushEffects();
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+  });
+
+  it('should apply theme as both when mode is both', () => {
+    const { service } = setup({ mode: 'both' });
+    TestBed.flushEffects();
+    service.setTheme('dark');
+    TestBed.flushEffects();
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+  });
+
+  it('should apply color-scheme style property for light/dark themes and remove it for custom themes', () => {
+    const { service } = setup({
+      themes: ['light', 'dark', 'system', 'sepia'],
+    });
+    TestBed.flushEffects();
+
+    service.setTheme('dark');
+    TestBed.flushEffects();
+    expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('dark');
+
+    service.setTheme('light');
+    TestBed.flushEffects();
+    expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('light');
+
+    service.setTheme('sepia');
+    TestBed.flushEffects();
+    expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('');
+  });
+
+  // ── Hydration Signal ──
+
+  it('should set isHydrated to true in browser environment after next render', () => {
+    const { service } = setup();
+    expect(service.isHydrated()).toBe(false);
+
+    // Create a dummy component and trigger change detection/rendering to run afterNextRender
+    const fixture = TestBed.createComponent(TestComponent);
+    fixture.detectChanges();
+
+    expect(service.isHydrated()).toBe(true);
+  });
+
+  it('should keep isHydrated as false in server environment (SSR)', () => {
+    const { service } = setup({}, {}, false, 'server');
+    expect(service.isHydrated()).toBe(false);
+  });
+
+  // ── Anti-flash ──
+
+  it('should capture and remove anti-flash class in browser', () => {
+    // Add 'dark' to document element representing pre-rendered state
+    document.documentElement.classList.add('dark');
+
+    // Setup service with storage theme 'dark' and mode 'attribute'
+    // This ensures 'dark' is removed from classList by the anti-flash logic and not re-added as class
+    const { service } = setup({ mode: 'attribute' }, { 'ngx-theme-stack': 'dark' });
+    TestBed.flushEffects();
+
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+  });
+
+  // ── LocalStorage Error Handling ──
+
+  it('should catch exceptions and log warning when localStorage.getItem throws', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const { service } = setup({}, {}, false, 'browser', true, false);
+    expect(service.selectedTheme()).toBe('system'); // Falls back to default config theme
+    expect(warnSpy).toHaveBeenCalledWith(
+      '[ngx-theme-stack] Could not read theme from localStorage.',
+      expect.any(Error)
+    );
+  });
+
+  it('should catch exceptions and log warning when localStorage.setItem throws', () => {
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+
+    const { service } = setup({}, {}, false, 'browser', false, true);
+    service.setTheme('dark');
+    expect(warnSpy).toHaveBeenCalledWith(
+      '[ngx-theme-stack] Could not save theme to localStorage.',
+      expect.any(Error)
+    );
   });
 });
