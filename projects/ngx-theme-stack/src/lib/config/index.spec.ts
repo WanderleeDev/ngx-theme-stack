@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideThemeStack, NGX_THEME_STACK_CONFIG, DEFAULT_NG_CONFIG } from './index';
 import { NgxThemeStackError } from '../errors';
+import { NgTheme } from '../types';
 
 describe('provideThemeStack', () => {
   it('should provide default configuration when no config is passed', () => {
@@ -30,13 +31,13 @@ describe('provideThemeStack', () => {
   it('should throw an error if a theme name is empty or whitespace', () => {
     expect(() =>
       provideThemeStack({
-        themes: [''] as any,
+        themes: [''] as NgTheme[],
       })
     ).toThrow(NgxThemeStackError);
 
     expect(() =>
       provideThemeStack({
-        themes: ['   '] as any,
+        themes: ['   '] as NgTheme[],
       })
     ).toThrow('Theme cannot be empty or whitespace.');
   });
@@ -45,14 +46,14 @@ describe('provideThemeStack', () => {
     expect(() =>
       provideThemeStack({
         themes: ['sepia'] as const,
-        defaultTheme: 'invalid-theme' as any,
+        defaultTheme: 'invalid-theme' as NgTheme,
       })
     ).toThrow(NgxThemeStackError);
 
     expect(() =>
       provideThemeStack({
         themes: ['sepia'] as const,
-        defaultTheme: 'invalid-theme' as any,
+        defaultTheme: 'invalid-theme' as NgTheme,
       })
     ).toThrow('"defaultTheme" must be one of the resolved themes: [system, light, dark, sepia].');
   });
