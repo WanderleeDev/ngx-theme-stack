@@ -1,5 +1,7 @@
 # Changelog
 
+## [3.6.1](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.6.0...v3.6.1) (2026-05-22)
+
 # [3.6.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.5.2...v3.6.0) (2026-05-22)
 
 
