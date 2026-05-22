@@ -105,7 +105,7 @@ The installation command automates the following:
 | `package.json`  | Adds a `"prebuild"` script for theme synchronization                    |
 | `angular.json`  | Registers `themes.css` and optimizes build config                       |
 | `themes.css`    | Scaffolds base theme tokens if they don't exist                         |
-| `SKILL.md`      | Generates an AI Agent Skill under `.agent/skills/` (optional)          |
+| `SKILL.md`      | Generates an AI Agent Skill under `.agents/skills/` (optional)         |
 
 > [!TIP]
 > **Re-configuration support:** Run `ng add` multiple times freely. The schematic updates existing code without duplicating it.
@@ -372,7 +372,7 @@ The AI Agent Skill tells coding assistants exactly how to implement theme toggle
 
 ### Setup
 
-1. **Automatic:** During `ng add`, you are prompted to generate the skill file. Selecting **Yes** automatically creates `.agent/skills/ngx-theme-stack/SKILL.md` in your project root.
+1. **Automatic:** During `ng add`, you are prompted to generate the skill file. Selecting **Yes** automatically creates `.agents/skills/ngx-theme-stack/SKILL.md` in your project root.
 2. **Manual:** If you did not generate it during installation, or deleted it, you can create/re-create the skill by running:
    ```bash
    ng generate ngx-theme-stack:skill
