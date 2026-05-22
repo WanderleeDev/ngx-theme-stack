@@ -390,7 +390,7 @@ export class ThemeSelect {
 
 const SKILL_ROOT = '.agent/skills/ngx-theme-stack';
 
-const FILES: Array<{ path: string; content: string }> = [
+const FILES: { path: string; content: string }[] = [
   { path: `${SKILL_ROOT}/SKILL.md`, content: SKILL_CONTENT },
   { path: `${SKILL_ROOT}/references/api-reference.md`, content: API_REFERENCE },
   { path: `${SKILL_ROOT}/assets/theme-toggle.component.md`, content: TEMPLATE_TOGGLE },
