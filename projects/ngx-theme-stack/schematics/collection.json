@@ -10,6 +10,11 @@
       "description": "Re-sync the anti-flash script in index.html with the current provideThemeStack() configuration.",
       "factory": "./sync/index#sync",
       "schema": "./sync/schema.json"
+    },
+    "skill": {
+      "description": "Generate an AI Agent Skill (SKILL.md) in the project root.",
+      "factory": "./skill/index#skill",
+      "schema": "./skill/schema.json"
     }
   }
 }
