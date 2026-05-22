@@ -410,8 +410,9 @@ export function generateSkill(tree: Tree, context: SchematicContext): void {
   }
 }
 
-export function skill(_options: Schema): Rule {
+export function skill(options: Schema): Rule {
   return (tree: Tree, context: SchematicContext) => {
+    context.logger.info(`Generating AI agent skill for project: ${options.project}`);
     generateSkill(tree, context);
     return tree;
   };
