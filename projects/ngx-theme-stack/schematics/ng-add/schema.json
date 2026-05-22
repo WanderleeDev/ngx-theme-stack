@@ -35,6 +35,10 @@
       "type": "string",
       "description": "The strategy to use for flash prevention (critters or blocking).",
       "enum": ["blocking", "critters"]
+    },
+    "addSkill": {
+      "type": "boolean",
+      "description": "Generate an AI Agent Skill (SKILL.md) in the project root."
     }
   },
   "required": ["project"]

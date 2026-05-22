@@ -5,4 +5,6 @@ export interface Schema {
   mode: 'quick' | 'custom';
   /** The strategy to prevent theme flicker. */
   strategy: 'critters' | 'blocking';
+  /** Whether to generate the AI agent skill. */
+  addSkill?: boolean;
 }

@@ -4,6 +4,7 @@ import { patchAppConfig } from './app-config';
 import { DEFAULT_THEMES, DEFAULTS } from './constants';
 import { Schema } from './schema';
 import { ask, askList, buildProvideCall, createRl } from './utils';
+import { generateSkill } from '../skill/index';
 
 interface SchematicConfig {
   defaultTheme: string;
@@ -12,9 +13,10 @@ interface SchematicConfig {
   themes: string[];
   strategy: 'critters' | 'blocking';
   provideCall: string;
+  addSkill: boolean;
 }
 
-async function collectCustomOptions(): Promise<SchematicConfig> {
+async function collectCustomOptions(cliAddSkill?: boolean): Promise<SchematicConfig> {
   const rl = createRl();
 
   try {
@@ -48,10 +50,16 @@ async function collectCustomOptions(): Promise<SchematicConfig> {
       | 'critters'
       | 'blocking';
 
+    let addSkill = cliAddSkill;
+    if (addSkill === undefined) {
+      const rawAddSkill = await ask(rl, '  Generate an AI Agent Skill (SKILL.md) in the project root? [Y/n]: ');
+      addSkill = rawAddSkill.toLowerCase() !== 'n';
+    }
+
     const provideCall = buildProvideCall(defaultTheme, storageKey, mode, themes, strategy);
 
     process.stdout.write('\n');
-    return { defaultTheme, storageKey, mode, themes, strategy, provideCall };
+    return { defaultTheme, storageKey, mode, themes, strategy, provideCall, addSkill };
   } finally {
     rl.close();
   }
@@ -91,11 +99,12 @@ export function ngAdd(options: Schema): Rule {
         themes,
         strategy: strategy as 'critters' | 'blocking',
         provideCall: buildProvideCall(defaultTheme, storageKey, mode, themes, strategy),
+        addSkill: options.addSkill ?? false,
       };
       context.logger.info('⚡ Quick setup — providing explicit defaults.');
     } else {
       context.logger.info('🛠  Custom setup — answer the prompts below:');
-      config = await collectCustomOptions();
+      config = await collectCustomOptions(options.addSkill);
     }
 
     const changeset: string[] = [];
@@ -166,6 +175,12 @@ export function ngAdd(options: Schema): Rule {
       changeset.push(' \u001b[33mM\u001b[0m angular.json (styles & optimization)');
     }
 
+    function scaffoldAgentSkill(t: Tree, ctx: SchematicContext): void {
+      if (config.addSkill) {
+        generateSkill(t, ctx);
+      }
+    }
+
     async function patchProviderAndIndexHtml(t: Tree, ctx: SchematicContext): Promise<void> {
       await patchAppConfig(t, ctx, projectSourceRoot, config.provideCall, projectName);
       changeset.push(' \u001b[33mM\u001b[0m app.config.ts (provided theme stack)');
@@ -188,6 +203,7 @@ export function ngAdd(options: Schema): Rule {
       scaffoldThemesCss,
       patchPrebuildScript,
       patchAngularJson,
+      scaffoldAgentSkill,
       patchProviderAndIndexHtml,
     ]);
   };
