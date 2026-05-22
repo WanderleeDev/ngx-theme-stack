@@ -299,7 +299,12 @@ Catch with: \`if (e instanceof NgxThemeStackError) { ... }\`
 
 // ── assets/ templates (Tier 3 — copied on demand) ───────────────────────────
 
-const TEMPLATE_TOGGLE = `import { inject, Component } from '@angular/core';
+const TEMPLATE_TOGGLE = `# Theme Toggle Component
+
+A simple button component to toggle between light and dark themes.
+
+\`\`\`typescript
+import { inject, Component } from '@angular/core';
 import { ThemeToggleService } from 'ngx-theme-stack';
 
 @Component({
@@ -317,9 +322,15 @@ import { ThemeToggleService } from 'ngx-theme-stack';
 export class ThemeToggle {
   protected readonly theme = inject(ThemeToggleService);
 }
+\`\`\`
 `;
 
-const TEMPLATE_CYCLE = `import { inject, Component } from '@angular/core';
+const TEMPLATE_CYCLE = `# Theme Cycle Component
+
+A button component to cycle through all available themes.
+
+\`\`\`typescript
+import { inject, Component } from '@angular/core';
 import { ThemeCycleService } from 'ngx-theme-stack';
 
 @Component({
@@ -337,9 +348,15 @@ import { ThemeCycleService } from 'ngx-theme-stack';
 export class ThemeCycle {
   protected readonly theme = inject(ThemeCycleService);
 }
+\`\`\`
 `;
 
-const TEMPLATE_SELECT = `import { inject, Component } from '@angular/core';
+const TEMPLATE_SELECT = `# Theme Select Component
+
+A dropdown select component to choose any available theme.
+
+\`\`\`typescript
+import { inject, Component } from '@angular/core';
 import { ThemeSelectService } from 'ngx-theme-stack';
 
 @Component({
@@ -366,6 +383,7 @@ export class ThemeSelect {
     this.theme.select(value);
   }
 }
+\`\`\`
 `;
 
 // ── Schematic logic ─────────────────────────────────────────────────────────
@@ -375,9 +393,9 @@ const SKILL_ROOT = '.agent/skills/ngx-theme-stack';
 const FILES: Array<{ path: string; content: string }> = [
   { path: `${SKILL_ROOT}/SKILL.md`, content: SKILL_CONTENT },
   { path: `${SKILL_ROOT}/references/api-reference.md`, content: API_REFERENCE },
-  { path: `${SKILL_ROOT}/assets/theme-toggle.component.ts`, content: TEMPLATE_TOGGLE },
-  { path: `${SKILL_ROOT}/assets/theme-cycle.component.ts`, content: TEMPLATE_CYCLE },
-  { path: `${SKILL_ROOT}/assets/theme-select.component.ts`, content: TEMPLATE_SELECT },
+  { path: `${SKILL_ROOT}/assets/theme-toggle.component.md`, content: TEMPLATE_TOGGLE },
+  { path: `${SKILL_ROOT}/assets/theme-cycle.component.md`, content: TEMPLATE_CYCLE },
+  { path: `${SKILL_ROOT}/assets/theme-select.component.md`, content: TEMPLATE_SELECT },
 ];
 
 export function generateSkill(tree: Tree, context: SchematicContext): void {
