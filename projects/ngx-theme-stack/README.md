@@ -105,6 +105,7 @@ The installation command automates the following:
 | `package.json`  | Adds a `"prebuild"` script for theme synchronization                    |
 | `angular.json`  | Registers `themes.css` and optimizes build config                       |
 | `themes.css`    | Scaffolds base theme tokens if they don't exist                         |
+| `SKILL.md`      | Generates an AI Agent Skill under `.agent/skills/` (optional)          |
 
 > [!TIP]
 > **Re-configuration support:** Run `ng add` multiple times freely. The schematic updates existing code without duplicating it.
@@ -181,13 +182,18 @@ import { ThemeToggleService } from 'ngx-theme-stack';
 
 @Component({
   selector: 'app-theme-toggle',
-  standalone: true,
   template: `
-    <button (click)="toggle.toggle()">Switch to {{ toggle.isDark() ? 'Light' : 'Dark' }}</button>
+    @if (theme.isHydrated()) {
+      <button (click)="theme.toggle()">
+        {{ theme.isDark() ? '🌙' : '☀️' }}
+      </button>
+    } @else {
+      <div class="theme-toggle-skeleton"></div>
+    }
   `,
 })
-export class ThemeToggleComponent {
-  protected toggle = inject(ThemeToggleService);
+export class ThemeToggle {
+  protected readonly theme = inject(ThemeToggleService);
 }
 ```
 
@@ -198,15 +204,19 @@ import { inject } from '@angular/core';
 import { ThemeCycleService } from 'ngx-theme-stack';
 
 @Component({
-  selector: 'app-theme-cycler',
-  standalone: true,
+  selector: 'app-theme-cycle',
   template: `
-    <button (click)="theme.cycle()">Next: {{ theme.upcoming() }}</button>
-    <p>Theme {{ theme.cycleIndex() + 1 }} of {{ theme.availableThemes.length }}</p>
+    @if (theme.isHydrated()) {
+      <button (click)="theme.cycle()">
+        🔄 Cycle Theme
+      </button>
+    } @else {
+      <div class="theme-cycle-skeleton"></div>
+    }
   `,
 })
-export class ThemeCycleComponent {
-  protected theme = inject(ThemeCycleService);
+export class ThemeCycle {
+  protected readonly theme = inject(ThemeCycleService);
 }
 ```
 
@@ -215,22 +225,30 @@ export class ThemeCycleComponent {
 ```typescript
 import { inject } from '@angular/core';
 import { ThemeSelectService } from 'ngx-theme-stack';
-import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-theme-selector',
-  standalone: true,
-  imports: [FormsModule],
+  selector: 'app-theme-select',
   template: `
-    <select [ngModel]="theme.selectedTheme()" (ngModelChange)="theme.select($event)">
-      @for (t of theme.availableThemes; track t) {
-        <option [value]="t">{{ t }}</option>
-      }
-    </select>
+    @if (theme.isHydrated()) {
+      <select name="select-theme" (change)="onThemeChange($event)">
+        @for (t of theme.availableThemes; track t) {
+          <option [value]="t" [selected]="theme.selectedTheme() === t">
+            {{ t }}
+          </option>
+        }
+      </select>
+    } @else {
+      <div class="theme-select-skeleton"></div>
+    }
   `,
 })
-export class ThemeSelectComponent {
-  protected theme = inject(ThemeSelectService);
+export class ThemeSelect {
+  protected readonly theme = inject(ThemeSelectService);
+
+  onThemeChange(event: Event) {
+    const value = (event.target as HTMLSelectElement).value;
+    this.theme.select(value);
+  }
 }
 ```
 
@@ -344,6 +362,23 @@ Only needed if you want `dark:` utilities tied to ngx-theme-stack's toggle:
 > **⚠️** This disconnects `dark:` from OS preference and only covers the built-in `dark` theme. For multi-theme support, prefer the CSS variable approach above.
 
 </details>
+
+---
+## 🤖 AI Code Assistants Integration
+
+`ngx-theme-stack` includes out-of-the-box support for AI coding assistants (such as Google Antigravity, Gemini, Claude Code, and other agents that support the open `SKILL.md` standard).
+
+The AI Agent Skill tells coding assistants exactly how to implement theme toggles, cycles, and dropdowns, use Tailwind CSS v4 variables correctly, and handle SSR hydration protection to avoid layout flashes.
+
+### Setup
+
+1. **Automatic:** During `ng add`, you are prompted to generate the skill file. Selecting **Yes** automatically creates `.agent/skills/ngx-theme-stack/SKILL.md` in your project root.
+2. **Manual:** If you did not generate it during installation, or deleted it, you can create/re-create the skill by running:
+   ```bash
+   ng generate ngx-theme-stack:skill
+   ```
+
+Once the skill is in your workspace, your AI assistant will automatically read it and generate bug-free theme management code on the first try!
 
 ---
 
