@@ -1,5 +1,19 @@
 # Changelog
 
+# [3.6.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.5.2...v3.6.0) (2026-05-22)
+
+
+### Bug Fixes
+
+* **config:** replace 'as any' with NgTheme types to satisfy no-explicit-any lint rule ([631ff06](https://github.com/WanderleeDev/ngx-theme-stack/commit/631ff0606f9b9dc05a03b33fc348fcb7147548c8))
+
+
+### Features
+
+* **agent:** add agent skill definition and assets ([38f9471](https://github.com/WanderleeDev/ngx-theme-stack/commit/38f94718066298e64cc4293a4ac90af0e1fc28f4))
+* **schematics:** add agent-skill schematic ([9e0dca9](https://github.com/WanderleeDev/ngx-theme-stack/commit/9e0dca9b904216ac7dc9cebb95ea85c67ce8c00d))
+* **schematics:** integrate agent-skill generation into ng-add setup ([3391f58](https://github.com/WanderleeDev/ngx-theme-stack/commit/3391f586b3d1e7b72111eca7b2b273a825c7968f))
+
 ## [3.5.2](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.5.1...v3.5.2) (2026-05-09)
 
 ## [3.5.1](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.5.0...v3.5.1) (2026-05-09)
