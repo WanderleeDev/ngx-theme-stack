@@ -16,7 +16,7 @@ export const appConfig: ApplicationConfig = {
     ),
     provideClientHydration(withEventReplay()),
     provideThemeStack({
-      themes: ['system', 'light', 'dark', 'sunset'],
+      themes: ['system', 'light', 'dark', 'sunset'] as const,
       defaultTheme: 'sunset',
       storageKey: 'ngx-theme-stack',
       mode: 'class',

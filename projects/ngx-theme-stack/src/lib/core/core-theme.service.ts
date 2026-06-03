@@ -226,7 +226,10 @@ export class CoreThemeService {
   private captureAntiFlashClass(): void {
     if (!this.#isBrowser || !this.#initialStoredTheme) return;
 
-    if (!/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(this.#initialStoredTheme)) {
+    if (
+      !/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(this.#initialStoredTheme) ||
+      !this.#validThemes.has(this.#initialStoredTheme as NgTheme)
+    ) {
       this.#antiFlashClass = null;
       return;
     }
