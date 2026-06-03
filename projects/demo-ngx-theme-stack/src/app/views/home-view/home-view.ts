@@ -1,38 +1,21 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { ServiceHeaderComponent } from '../../components/service-header/service-header';
 
 @Component({
   selector: 'app-home-view',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, ServiceHeaderComponent],
   host: {
     class: 'w-full flex items-center justify-center px-4 md:px-6',
   },
   template: `
     <div class="grid grid-cols-1 md:grid-cols-3 gap-3 w-full max-w-4xl">
-      <div
-        class="md:col-span-2 rounded-3xl bg-card-bg backdrop-blur-xl border border-card-border p-8 md:p-10 flex flex-col justify-between min-h-[220px]"
-      >
-        <div>
-          <h1
-            class="text-4xl md:text-6xl font-black tracking-tighter bg-gradient-to-r from-[var(--primary,oklch(0.7_0.2_250))] to-[var(--accent,oklch(0.6_0.25_320))] bg-clip-text text-transparent font-outfit select-none transition-all duration-1000 leading-[1.1]"
-          >
-            <span class="uppercase">ngx</span>-theme-stack
-          </h1>
-          <p class="text-sm text-text-muted/80 font-inter mt-3 max-w-sm leading-relaxed">
-            Powerful theme management for Angular — SSR safe, signal-driven, zero-flicker.
-          </p>
-        </div>
-        <div class="flex flex-wrap gap-1.5 mt-6">
-          @for (tag of tags; track tag) {
-            <span
-              class="px-2.5 py-1 bg-tag-bg rounded-full text-[9px] font-bold text-tag-text border border-white/5 uppercase tracking-wider"
-            >
-              {{ tag }}
-            </span>
-          }
-        </div>
-      </div>
+      <app-service-header
+        title="NGX-theme-stack"
+        description="Powerful theme management for Angular — SSR safe, signal-driven, zero-flicker."
+        [tags]="tags"
+      />
 
       <div
         class="rounded-3xl bg-card-bg backdrop-blur-xl border border-card-border p-6 flex flex-col justify-between min-h-[220px]"
@@ -56,7 +39,7 @@ import { RouterLink } from '@angular/router';
             <span
               class="material-symbols-outlined text-xs group-hover/btn:text-[var(--primary)] transition-colors select-none"
             >
-              {{ copied ? 'check' : 'content_copy' }}
+              {{ copied() ? 'check' : 'content_copy' }}
             </span>
           </button>
         </div>
@@ -65,7 +48,8 @@ import { RouterLink } from '@angular/router';
       @for (service of services; track service.id) {
         <a
           [routerLink]="service.path"
-          class="group/card relative overflow-hidden rounded-3xl bg-card-bg backdrop-blur-xl border border-card-border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.3)] flex flex-col justify-between min-h-[220px]"
+          class="group/card relative overflow-hidden rounded-3xl bg-card-bg backdrop-blur-xl border border-card-border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.3)] flex flex-col justify-between min-h-[220px] animate-zoom-in animate-duration-500"
+          [style.animation-delay.ms]="$index * 200"
         >
           <div
             class="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none"
@@ -118,13 +102,14 @@ import { RouterLink } from '@angular/router';
 })
 export default class HomeView {
   protected readonly tags = ['Angular 20+', 'SSR Ready', 'Signals', 'Zero Flicker'];
-  protected copied = false;
+  protected copied = signal(false);
 
   protected copyCommand() {
+    if (this.copied()) return;
     navigator.clipboard.writeText('ng add ngx-theme-stack');
-    this.copied = true;
+    this.copied.set(true);
     setTimeout(() => {
-      this.copied = false;
+      this.copied.set(false);
     }, 2000);
   }
 
