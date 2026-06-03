@@ -53,7 +53,7 @@ export class ThemeCycleService {
    * Whether the service has completed client-side initialization and
    * resolved the real persisted theme. Use to prevent hydration flashes.
    */
-  readonly isHydrated = this.#core.isHydrated.asReadonly();
+  readonly isHydrated = this.#core.isHydrated;
 
   /**
    * Advances to the next theme in the cycle.

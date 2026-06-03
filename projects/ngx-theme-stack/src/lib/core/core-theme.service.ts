@@ -104,7 +104,9 @@ export class CoreThemeService {
    * {{ theme.isHydrated() ? theme.selectedTheme() : '...' }}
    * ```
    */
-  readonly isHydrated = signal(false);
+  readonly #isHydrated = signal(false);
+
+  readonly isHydrated = this.#isHydrated.asReadonly();
 
   // ── Event handler ─────────────────────────────────────────────────────────
 
@@ -121,7 +123,7 @@ export class CoreThemeService {
     }
 
     effect(() => this.applyThemeToDOM(this.resolvedTheme()));
-    afterNextRender(() => this.isHydrated.set(true));
+    afterNextRender(() => this.#isHydrated.set(true));
     this.#destroyRef.onDestroy(() => this.stopSystemThemeListener());
   }
 

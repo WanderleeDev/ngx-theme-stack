@@ -30,7 +30,7 @@ export class ThemeToggleService {
    * Whether the service has completed client-side initialization and
    * resolved the real persisted theme. Use to prevent hydration flashes.
    */
-  readonly isHydrated = this.#core.isHydrated.asReadonly();
+  readonly isHydrated = this.#core.isHydrated;
 
   /**
    * Toggles between `'dark'` and `'light'`.
