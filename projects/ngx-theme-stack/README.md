@@ -143,7 +143,7 @@ import { provideThemeStack } from 'ngx-theme-stack';
 export const appConfig: ApplicationConfig = {
   providers: [
     provideThemeStack({
-      themes: ['light', 'dark', 'sunset'], // your theme identifiers
+      themes: ['light', 'dark', 'sunset'] as const, // your theme identifiers
       defaultTheme: 'system', // resolves via matchMedia
       mode: 'class', // 'class' | 'attribute' | 'both'
       strategy: 'critters', // 'critters' | 'blocking'
