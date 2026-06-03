@@ -5,73 +5,129 @@ import { RouterLink } from '@angular/router';
   selector: 'app-home-view',
   standalone: true,
   imports: [RouterLink],
+  host: {
+    class: 'w-full flex items-center justify-center px-4 md:px-6',
+  },
   template: `
-    <div
-      class="max-w-6xl mx-auto flex flex-col items-center justify-center min-h-[70vh] px-6 text-center animate-in fade-in duration-1000"
-    >
-      <!-- Theme-Reactive Title -->
-      <h1
-        class="text-5xl md:text-8xl font-black tracking-tighter title-reactive-gradient drop-shadow-sm font-outfit mb-10 select-none "
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 w-full max-w-4xl">
+      <div
+        class="md:col-span-2 rounded-3xl bg-card-bg backdrop-blur-xl border border-card-border p-8 md:p-10 flex flex-col justify-between min-h-[220px]"
       >
-        <span class="uppercase">ngx</span>-theme-stack
-      </h1>
-
-      <p
-        class="text-xl md:text-2xl text-fg/60 leading-relaxed font-medium font-inter max-w-2xl mx-auto mb-16"
-      >
-        Experience the power of a streamlined theme management workflow through our specialized
-        suite of services.
-      </p>
-
-      <!-- Minimalist Section Header -->
-      <div class="w-full max-w-4xl mb-6 text-left">
-        <h2
-          class="text-[10px] uppercase tracking-[0.4em] text-primary/60 font-black font-outfit border-b border-primary/10 pb-2 inline-block"
-        >
-          Interactive Utility Services Demo
-        </h2>
+        <div>
+          <h1
+            class="text-4xl md:text-6xl font-black tracking-tighter bg-gradient-to-r from-[var(--primary,oklch(0.7_0.2_250))] to-[var(--accent,oklch(0.6_0.25_320))] bg-clip-text text-transparent font-outfit select-none transition-all duration-1000 leading-[1.1]"
+          >
+            <span class="uppercase">ngx</span>-theme-stack
+          </h1>
+          <p class="text-sm text-text-muted/80 font-inter mt-3 max-w-sm leading-relaxed">
+            Powerful theme management for Angular — SSR safe, signal-driven, zero-flicker.
+          </p>
+        </div>
+        <div class="flex flex-wrap gap-1.5 mt-6">
+          @for (tag of tags; track tag) {
+            <span
+              class="px-2.5 py-1 bg-tag-bg rounded-full text-[9px] font-bold text-tag-text border border-white/5 uppercase tracking-wider"
+            >
+              {{ tag }}
+            </span>
+          }
+        </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-4xl">
-        @for (service of services; track service.id) {
-          <a
-            [routerLink]="service.path"
-            class="group/card p-6 md:p-8 rounded-[2rem] bg-card-bg border border-white/5 shadow-xl transition-all hover:border-primary/50 hover:-translate-y-1 cursor-pointer block text-left"
+      <div
+        class="rounded-3xl bg-card-bg backdrop-blur-xl border border-card-border p-6 flex flex-col justify-between min-h-[220px]"
+      >
+        <div class="w-full">
+          <div
+            class="w-10 h-10 rounded-xl flex items-center justify-center mb-4 bg-white/5 border border-white/10"
           >
+            <span class="material-symbols-outlined text-xl text-[var(--accent)]"> terminal </span>
+          </div>
+          <h2 class="text-lg font-black font-outfit tracking-tight mb-1">Installation</h2>
+          <p class="text-[11px] text-text-muted/70 font-inter leading-relaxed">
+            Add the package to your workspace with a single command.
+          </p>
+
+          <button
+            (click)="copyCommand()"
+            class="w-full bg-black/35 dark:bg-black/50 border border-white/5 font-mono text-[10px] rounded-xl p-3 flex items-center justify-between text-text-muted/90 mt-3 cursor-pointer hover:border-[var(--primary)]/30 hover:bg-black/50 dark:hover:bg-black/70 transition-all duration-300 select-all active:scale-98 group/btn"
+          >
+            <span class="text-left select-all">ng add ngx-theme-stack</span>
+            <span
+              class="material-symbols-outlined text-xs group-hover/btn:text-[var(--primary)] transition-colors select-none"
+            >
+              {{ copied ? 'check' : 'content_copy' }}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      @for (service of services; track service.id) {
+        <a
+          [routerLink]="service.path"
+          class="group/card relative overflow-hidden rounded-3xl bg-card-bg backdrop-blur-xl border border-card-border p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_-15px_rgba(0,0,0,0.3)] flex flex-col justify-between min-h-[220px]"
+        >
+          <div
+            class="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-0 group-hover/card:opacity-100 transition-opacity duration-500 pointer-events-none"
+            [style.background]="service.color"
+          ></div>
+          <div class="relative z-10">
             <div
-              class="w-12 h-12 rounded-xl flex items-center justify-center mb-6 transition-colors"
+              class="w-10 h-10 rounded-xl flex items-center justify-center mb-4 transition-transform duration-300 group-hover/card:scale-110"
               [style.background-color]="service.color + '1a'"
             >
-              <span
-                class="material-symbols-outlined text-3xl transform transition-transform group-hover/card:scale-110"
-                [style.color]="service.color"
-              >
+              <span class="material-symbols-outlined text-xl" [style.color]="service.color">
                 {{ service.icon }}
               </span>
             </div>
-            <h3 class="text-xl font-black mb-2 font-outfit capitalize tracking-tight">
+            <h2 class="text-lg font-black font-outfit tracking-tight mb-1">
               {{ service.label }}
-            </h3>
-            <p class="text-xs opacity-50 font-inter leading-relaxed">{{ service.description }}</p>
-          </a>
-        }
+            </h2>
+            <p class="text-xs text-text-muted/70 font-inter leading-relaxed">
+              {{ service.description }}
+            </p>
+          </div>
+          <span
+            class="relative material-symbols-outlined text-sm opacity-0 -translate-x-1 group-hover/card:opacity-50 group-hover/card:translate-x-0 transition-all duration-300 self-end mt-4 z-10"
+            >arrow_forward</span
+          >
+        </a>
+      }
+
+      <div
+        class="md:col-span-3 rounded-2xl bg-card-bg backdrop-blur-xl border border-card-border px-6 py-3 flex items-center justify-between"
+      >
+        <span
+          class="text-[10px] uppercase tracking-[0.3em] text-text-muted/50 font-black font-outfit"
+        >
+          Interactive Demo
+        </span>
+        <div class="flex items-center gap-3">
+          @for (service of services; track service.id) {
+            <a
+              [routerLink]="service.path"
+              class="w-2 h-2 rounded-full transition-all duration-300 hover:scale-150"
+              [style.background-color]="service.color"
+              [attr.aria-label]="service.label + ' demo'"
+            ></a>
+          }
+        </div>
       </div>
     </div>
   `,
-  styles: `
-    .title-reactive-gradient {
-      background: linear-gradient(
-        to right,
-        var(--primary, oklch(0.7 0.2 250)),
-        var(--accent, oklch(0.6 0.25 320))
-      );
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      transition: all 1s ease-in-out;
-    }
-  `,
 })
 export default class HomeView {
+  protected readonly tags = ['Angular 20+', 'SSR Ready', 'Signals', 'Zero Flicker'];
+  protected copied = false;
+
+  protected copyCommand() {
+    navigator.clipboard.writeText('ng add ngx-theme-stack');
+    this.copied = true;
+    setTimeout(() => {
+      this.copied = false;
+    }, 2000);
+  }
+
   protected readonly services = [
     {
       id: 'toggle',
@@ -79,7 +135,7 @@ export default class HomeView {
       label: 'Toggle',
       icon: 'toggle_on',
       color: 'var(--primary)',
-      description: 'Simple binary switching.',
+      description: 'Binary switching between two themes with a single action.',
     },
     {
       id: 'cycle',
@@ -87,7 +143,7 @@ export default class HomeView {
       label: 'Cycle',
       icon: 'sync',
       color: 'var(--accent)',
-      description: 'Sequential theme stepping.',
+      description: 'Step through your full theme list sequentially.',
     },
     {
       id: 'select',
@@ -95,7 +151,7 @@ export default class HomeView {
       label: 'Select',
       icon: 'checklist',
       color: 'var(--info)',
-      description: 'Direct selection from list.',
+      description: 'Pick any theme directly from available options.',
     },
   ];
 }
