@@ -1,5 +1,22 @@
 # Changelog
 
+# [3.8.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.7.0...v3.8.0) (2026-06-03)
+
+
+### Bug Fixes
+
+* **lib:** validate captured initial theme against valid themes ([18951cd](https://github.com/WanderleeDev/ngx-theme-stack/commit/18951cd344ca72d54b551d49b82662e312c415fc))
+* **schematics:** validate localStorage theme in anti-flash script ([f5569f2](https://github.com/WanderleeDev/ngx-theme-stack/commit/f5569f2d6eda097df2b50921e8f79a56f607b215))
+
+
+### Features
+
+* add dynamic star animations and clean up layout styles and footer formatting ([3a3b112](https://github.com/WanderleeDev/ngx-theme-stack/commit/3a3b112375ea6ec924d29579b15eadb91c0ba899))
+* **demo:** add home navigation and exact active route matching to switcher ([f0e61ef](https://github.com/WanderleeDev/ngx-theme-stack/commit/f0e61ef250d2107f97a0de50173a1fe1d35787aa))
+* **demo:** migrate views to Bento layout with staggered tailwind animations ([7e9fd8b](https://github.com/WanderleeDev/ngx-theme-stack/commit/7e9fd8baa3e0e4b927c8dd3ac253e64c5bff0622))
+* **demo:** restructure home view layout to bento grid with installation copy block ([cdd817d](https://github.com/WanderleeDev/ngx-theme-stack/commit/cdd817dae0061f648386482aa100c6c9cb824431))
+* **schematics:** add 'as const' assertion to generated themes array ([e6d3755](https://github.com/WanderleeDev/ngx-theme-stack/commit/e6d3755d225810b840c9bcb6c813f7c28a9e37e5))
+
 # [3.7.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.6.1...v3.7.0) (2026-05-22)
 
 
