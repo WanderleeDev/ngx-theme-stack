@@ -33,7 +33,7 @@ import { ServiceHeaderComponent } from '../../components/service-header/service-
 
           <button
             (click)="copyCommand()"
-            class="w-full bg-black/35 dark:bg-black/50 border border-white/5 font-mono text-[10px] rounded-xl p-3 flex items-center justify-between text-text-muted/90 mt-3 cursor-pointer hover:border-[var(--primary)]/30 hover:bg-black/50 dark:hover:bg-black/70 transition-all duration-300 select-all active:scale-98 group/btn"
+            class="w-full bg-tag-bg border border-card-border font-mono text-[10px] rounded-xl p-3 flex items-center justify-between text-text-main mt-3 cursor-pointer hover:border-[var(--primary)]/45 hover:bg-tag-bg/85 transition-all duration-300 select-all active:scale-98 group/btn"
           >
             <span class="text-left select-all">ng add ngx-theme-stack</span>
             <span
