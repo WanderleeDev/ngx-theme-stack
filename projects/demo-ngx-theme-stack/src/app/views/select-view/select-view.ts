@@ -25,12 +25,16 @@ import { ThemeStatusComponent } from '../../components/theme-status/theme-status
       <div
         class="rounded-3xl bg-card-bg backdrop-blur-xl border border-card-border p-6 flex flex-col items-center justify-center min-h-[220px]"
       >
-        <div class="w-16 h-16 rounded-2xl flex items-center justify-center bg-white/5 border border-white/10 select-none">
+        <div
+          class="w-16 h-16 rounded-2xl flex items-center justify-center bg-white/5 border border-white/10 select-none"
+        >
           <span class="material-symbols-outlined text-3xl text-[var(--info,oklch(0.7_0.15_180))]">
             palette
           </span>
         </div>
-        <span class="text-[10px] uppercase font-bold tracking-widest text-text-muted/50 mt-4 text-center">
+        <span
+          class="text-[10px] uppercase font-bold tracking-widest text-text-muted/50 mt-4 text-center"
+        >
           Theme Palette
         </span>
       </div>
@@ -51,11 +55,17 @@ import { ThemeStatusComponent } from '../../components/theme-status/theme-status
                   [attr.aria-label]="'Select theme ' + theme"
                   class="group/btn flex flex-col items-center justify-center p-4 rounded-2xl transition-all duration-300 active:scale-95 border-2 cursor-pointer"
                   [class.bg-nav-active]="theme === themeService.selectedTheme()"
-                  [class.border-[var(--info,oklch(0.7_0.15_180))]]="theme === themeService.selectedTheme()"
+                  [class.border-[var(--info,oklch(0.7_0.15_180))]]="
+                    theme === themeService.selectedTheme()
+                  "
                   [class.border-transparent]="theme !== themeService.selectedTheme()"
                   [class.bg-tag-bg]="theme !== themeService.selectedTheme()"
                 >
-                  <span class="material-symbols-outlined text-xl mb-1 opacity-60 transition-transform duration-300 group-hover/btn:scale-110"> palette </span>
+                  <span
+                    class="material-symbols-outlined text-xl mb-1 opacity-60 transition-transform duration-300 group-hover/btn:scale-110"
+                  >
+                    palette
+                  </span>
                   <span class="text-[10px] font-black uppercase tracking-widest text-text-main">
                     {{ theme }}
                   </span>
