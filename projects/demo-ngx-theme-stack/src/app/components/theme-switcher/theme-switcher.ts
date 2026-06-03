@@ -8,6 +8,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 })
 export class ThemeSwitcherComponent {
   protected readonly modes = [
+    { id: 'home', path: '/', label: 'Home', icon: 'home' },
     { id: 'toggle', path: '/toggle', label: 'Simple Toggle', icon: 'toggle_on' },
     { id: 'cycle', path: '/cycle', label: 'Multi Cycle', icon: 'sync' },
     { id: 'select', path: '/select', label: 'Direct Select', icon: 'checklist' },
