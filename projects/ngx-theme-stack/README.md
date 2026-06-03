@@ -389,10 +389,11 @@ Once the skill is in your workspace, your AI assistant will automatically read i
 `ng add` injects a minimal blocking script as the **first child of `<head>`**. It runs before any stylesheet or Angular bundle:
 
 ```
-1. Read stored theme from localStorage
-2. If 'system' → resolve OS preference via matchMedia('prefers-color-scheme: dark')
-3. Apply theme to <html> (class, attribute, or both)
-4. Set color-scheme CSS property for native browser adaptation
+1. Read stored theme from localStorage (or fallback to default theme)
+2. Validate the theme name format (regex) and ensure it exists in the configured themes (otherwise fallback to default)
+3. If 'system' → resolve OS preference via matchMedia('prefers-color-scheme: dark')
+4. Apply theme to <html> (class, attribute, or both)
+5. Set color-scheme CSS property for native browser adaptation
 ```
 
 ### Strategy comparison
