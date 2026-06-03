@@ -41,7 +41,7 @@ export function buildProvideCall(
   const themesArr = themes.map((t) => `'${t}'`).join(', ');
   return [
     'provideThemeStack({',
-    `      themes: [${themesArr}],`,
+    `      themes: [${themesArr}] as const,`,
     `      defaultTheme: '${defaultTheme}',`,
     `      storageKey: '${storageKey}',`,
     `      mode: '${mode}',`,
