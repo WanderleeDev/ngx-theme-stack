@@ -1,44 +1,5 @@
 import { SchematicContext, Tree } from '@angular-devkit/schematics';
-
-/**
- * Generates a minimal blocking inline script that applies the stored theme
- * to `<html>` before the browser paints.
- *
- * This is the single source of truth for the anti-flash script logic.
- * Schematics compile to CommonJS (Node.js) and cannot import from the
- * library's ESM build, so this logic lives here — close to its only consumer.
- *
- * The generated script:
- * 1. Reads `localStorage` for the stored theme key.
- * 2. Validates the value using a Regex to prevent injections.
- * 3. Falls back to `defaultTheme`; resolves `'system'` via `matchMedia`.
- * 4. Applies the theme according to the configured `mode` (class, attribute, or both).
- * 5. Sets the `color-scheme` CSS property for native browser adaptation.
- */
-function buildAntiFlashScript(options: {
-  storageKey: string;
-  defaultTheme: string;
-  mode: string;
-  themes: string[];
-}): string {
-  const { storageKey, defaultTheme, mode, themes } = options;
-
-  return (
-    `(function(){try{` +
-    `var k=${JSON.stringify(storageKey)},` +
-    `d=${JSON.stringify(defaultTheme)},` +
-    `m=${JSON.stringify(mode)},` +
-    `v=${JSON.stringify(themes)},` +
-    `t=localStorage.getItem(k)||d,` +
-    `e=document.documentElement;` +
-    `if(!/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(t)||v.indexOf(t)===-1)t=d;` +
-    `if(t==='system')t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';` +
-    `if(m==='class'||m==='both')e.classList.add(t);` +
-    `if(m==='attribute'||m==='both')e.setAttribute('data-theme',t);` +
-    `if(t==='dark'||t==='light')e.style.setProperty('color-scheme',t);` +
-    `}catch(x){}})();`
-  );
-}
+import { buildAntiFlashScript } from '../utils/anti-flash-script';
 
 /**
  * Finds `index.html` and injects the anti-flash blocking script as the very
