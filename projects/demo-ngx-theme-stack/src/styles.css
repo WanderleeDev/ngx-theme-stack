@@ -37,19 +37,14 @@
   }
 }
 
-/* --- Icon Fix: Zero-Flash for Material Symbols --- */
+
 .material-symbols-outlined {
-  /* Al usar display=block en el HTML, esto ayuda a mantener el layout */
   display: inline-block;
   width: 1.5rem;
   height: 1.5rem;
   line-height: 1;
   overflow: hidden;
   white-space: nowrap;
-
-  /* Evita que se vea el texto antes de la fuente */
   font-display: block;
-
-  /* Suaviza la aparición del icono */
   transition: opacity 0.3s ease-in;
 }
