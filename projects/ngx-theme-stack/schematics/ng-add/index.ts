@@ -131,24 +131,59 @@ export function ngAdd(options: Schema): Rule {
       changeset.push(` \u001b[36mA\u001b[0m ${themesPath} (theme tokens)`);
     }
 
-    function patchPrebuildScript(t: Tree): void {
+    function detectPackageManager(t: Tree): string {
+      if (t.exists('/pnpm-lock.yaml')) return 'pnpm';
+      if (t.exists('/yarn.lock')) return 'yarn';
+      if (t.exists('/bun.lockb') || t.exists('/bun.lock')) return 'bun';
+      return 'npm';
+    }
+
+    function patchPackageJsonScripts(t: Tree): void {
       const pkgPath = '/package.json';
       const buffer = t.read(pkgPath);
       if (!buffer) return;
 
       const pkg = JSON.parse(buffer.toString());
       pkg.scripts = pkg.scripts || {};
-      const syncCmd = `ng generate ngx-theme-stack:sync --project ${projectName}`;
-      const existing = pkg.scripts.prebuild as string | undefined;
 
-      if (!existing) {
-        pkg.scripts.prebuild = syncCmd;
-        changeset.push(' \u001b[33mM\u001b[0m package.json (prebuild script added)');
-      } else if (!existing.includes('ngx-theme-stack:sync')) {
-        pkg.scripts.prebuild = `${existing} && ${syncCmd}`;
-        changeset.push(' \u001b[33mM\u001b[0m package.json (sync appended to existing prebuild)');
+      const syncCmd = `ng generate ngx-theme-stack:sync --project ${projectName}`;
+      const pm = detectPackageManager(t);
+      const pmRunCmd = `${pm} run ngx-theme-stack:sync`;
+
+      // 1. Add/Update main sync script
+      const existingSync = pkg.scripts['ngx-theme-stack:sync'] as string | undefined;
+      if (!existingSync) {
+        pkg.scripts['ngx-theme-stack:sync'] = syncCmd;
+        changeset.push(' \u001b[33mM\u001b[0m package.json (ngx-theme-stack:sync script added)');
+      } else if (existingSync !== syncCmd) {
+        pkg.scripts['ngx-theme-stack:sync'] = syncCmd;
+        changeset.push(' \u001b[33mM\u001b[0m package.json (ngx-theme-stack:sync script updated)');
       } else {
-        changeset.push(' \u001b[90mℹ\u001b[0m package.json (prebuild already contains sync — skipped)');
+        changeset.push(' \u001b[90mℹ\u001b[0m package.json (ngx-theme-stack:sync script already correct — skipped)');
+      }
+
+      // 2. Patch prebuild (runs before production builds)
+      const existingPrebuild = pkg.scripts.prebuild as string | undefined;
+      if (!existingPrebuild) {
+        pkg.scripts.prebuild = pmRunCmd;
+        changeset.push(` \u001b[33mM\u001b[0m package.json (prebuild script added with ${pmRunCmd})`);
+      } else if (!existingPrebuild.includes('ngx-theme-stack:sync')) {
+        pkg.scripts.prebuild = `${existingPrebuild} && ${pmRunCmd}`;
+        changeset.push(' \u001b[33mM\u001b[0m package.json (sync run appended to existing prebuild)');
+      } else {
+        changeset.push(' \u001b[90mℹ\u001b[0m package.json (prebuild already contains sync run — skipped)');
+      }
+
+      // 3. Patch prestart (runs before local development server)
+      const existingPrestart = pkg.scripts.prestart as string | undefined;
+      if (!existingPrestart) {
+        pkg.scripts.prestart = pmRunCmd;
+        changeset.push(` \u001b[33mM\u001b[0m package.json (prestart script added with ${pmRunCmd})`);
+      } else if (!existingPrestart.includes('ngx-theme-stack:sync')) {
+        pkg.scripts.prestart = `${pmRunCmd} && ${existingPrestart}`;
+        changeset.push(' \u001b[33mM\u001b[0m package.json (sync run prepended to existing prestart)');
+      } else {
+        changeset.push(' \u001b[90mℹ\u001b[0m package.json (prestart already contains sync run — skipped)');
       }
 
       t.overwrite(pkgPath, JSON.stringify(pkg, null, 2));
@@ -201,7 +236,7 @@ export function ngAdd(options: Schema): Rule {
 
     return chain([
       scaffoldThemesCss,
-      patchPrebuildScript,
+      patchPackageJsonScripts,
       patchAngularJson,
       scaffoldAgentSkill,
       patchProviderAndIndexHtml,

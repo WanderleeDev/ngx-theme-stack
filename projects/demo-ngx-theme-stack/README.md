@@ -20,9 +20,9 @@ ng serve demo-ngx-theme-stack
 ```
 
 ### Syncing Configuration
-If you modify the themes in `appConfig`, run the sync command to refresh `index.html`:
+If you modify the themes in `appConfig`, the configuration will sync automatically when starting the dev server (`pnpm start`). You can also run the sync command manually:
 ```bash
-pnpm prebuild
+pnpm run ngx-theme-stack:sync
 ```
 
 ## 🏗️ Structure

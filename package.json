@@ -2,17 +2,20 @@
   "name": "my-workspace",
   "scripts": {
     "ng": "ng",
+    "ngx-theme-stack:sync": "ng generate ./dist/ngx-theme-stack/schematics/collection.json:sync --project demo-ngx-theme-stack",
+    "prestart": "pnpm run ngx-theme-stack:sync",
     "start": "ng serve",
+    "prestart:demo": "pnpm run ngx-theme-stack:sync",
     "start:demo": "ng serve -o demo-ngx-theme-stack",
     "build:lib": "ng build ngx-theme-stack && cd projects/ngx-theme-stack/ && pnpm run build",
-    "prebuild:demo": "ng generate ./dist/ngx-theme-stack/schematics/collection.json:sync --project demo-ngx-theme-stack",
+    "prebuild:demo": "pnpm run ngx-theme-stack:sync",
     "build:demo": "ng build demo-ngx-theme-stack",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "lint": "ng lint",
     "release": "release-it",
     "serve:ssr:demo-ngx-theme-stack": "node dist/demo-ngx-theme-stack/server/server.mjs",
-    "prebuild": "ng generate ngx-theme-stack:sync --project demo-ngx-theme-stack"
+    "prebuild": "pnpm run ngx-theme-stack:sync"
   },
   "prettier": {
     "printWidth": 100,

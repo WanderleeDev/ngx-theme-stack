@@ -27,6 +27,7 @@ Built for performance and SSR support.
 - [🏗️ Architecture & Extensibility](#️-architecture--extensibility)
 - [📐 Supported Versions](#-supported-versions)
 - [⚙️ Configuration](#️-configuration)
+- [🔄 Theme Synchronization](#-theme-synchronization)
 - [🛠️ Usage](#️-usage)
 - [🛡️ CoreThemeService API](#️-advanced-corethemeservice-api)
 - [🎨 Styling](#-styling)
@@ -102,7 +103,7 @@ The installation command automates the following:
 | --------------- | ----------------------------------------------------------------------- |
 | `app.config.ts` | Injects `provideThemeStack()` using AST — follows imports automatically |
 | `index.html`    | Injects the blocking anti-flash script into `<head>`                    |
-| `package.json`  | Adds a `"prebuild"` script for theme synchronization                    |
+| `package.json`  | Adds a central `"ngx-theme-stack:sync"` script and configures `"prestart"` / `"prebuild"` hooks to run it automatically |
 | `angular.json`  | Registers `themes.css` and optimizes build config                       |
 | `themes.css`    | Scaffolds base theme tokens if they don't exist                         |
 | `SKILL.md`      | Generates an AI Agent Skill under `.agents/skills/` (optional)          |
@@ -163,12 +164,68 @@ export const appConfig: ApplicationConfig = {
 | `strategy`     | `NgStrategy` | `'critters'`                  | Anti-flash strategy      |
 | `storageKey`   | `string`     | `'ngx-theme-stack'`           | Persistence key          |
 
-> [!NOTE]
-> Custom themes are **merged** with built-ins. Passing `['sepia', 'ocean']` resolves to `['system', 'light', 'dark', 'sepia', 'ocean']`. After config changes, run:
->
-> ```bash
-> ng generate ngx-theme-stack:sync --project YOUR_PROJECT_NAME
-> ```
+> [!IMPORTANT]
+> Custom themes are **merged** with built-ins. Passing `['sepia', 'ocean']` resolves to `['system', 'light', 'dark', 'sepia', 'ocean']`.
+> After making any configuration changes, you **must** synchronize the workspace. See [🔄 Theme Synchronization](#-theme-synchronization) below for instructions and when to run it.
+
+---
+
+## 🔄 Theme Synchronization
+
+The synchronization schematic validates and compiles your theme configuration in `app.config.ts` into static assets (like the zero-flash anti-flash script in `index.html` and critters placeholders).
+
+### Centralized Script
+
+The installation schematic registers a centralized `"ngx-theme-stack:sync"` script in your `package.json` to compile configurations:
+
+```bash
+# Run manually using your package manager of choice:
+npm run ngx-theme-stack:sync
+pnpm run ngx-theme-stack:sync
+yarn run ngx-theme-stack:sync
+bun run ngx-theme-stack:sync
+```
+
+### When should you run sync?
+
+You should run this command after:
+- ➕ **Adding or removing** themes in `provideThemeStack`
+- 🏷️ **Renaming** a theme identifier
+- ⚙️ **Changing** configuration settings like `storageKey`, `mode`, or `strategy`
+- 📝 **Manually editing** the anti-flash script in your `index.html` file
+
+### Development vs. Production (Serving vs. Building)
+
+To prevent you from having to run this command manually, the `ng add` command automatically detects your package manager and registers hooks in your `package.json` (appending/prepending safely to any existing scripts):
+
+```json
+"scripts": {
+  "ngx-theme-stack:sync": "ng generate ngx-theme-stack:sync --project YOUR_PROJECT_NAME",
+  "prestart": "npm run ngx-theme-stack:sync",
+  "start": "ng serve",
+  "prebuild": "npm run ngx-theme-stack:sync",
+  "build": "ng build"
+}
+```
+
+This ensures that the theme configuration is synchronized automatically before running your local development server (`npm start` / `pnpm start` / `yarn start` / `bun start`) and before production builds (`ng build`).
+
+> [!WARNING]
+> If you run `ng serve` or `ng build` directly from the CLI (bypassing npm/pnpm/yarn/bun scripts), the package manager hooks (`prestart` and `prebuild`) will not run. In this case, you must run the synchronization command manually after making configuration changes.
+
+### Troubleshooting: Theme reverts to Default/System on reload
+
+If you select a newly added custom theme (e.g. `'sunset'`) and reload the page, but the page reverts to the default theme (e.g. `'system'`), the theme is being rejected by the anti-flash script.
+
+**Diagnostic steps:**
+1. Open your `src/index.html` file.
+2. Locate the `<script>` tag inside `<head>` marked with `<!-- ngx-theme-stack anti-flash -->`.
+3. Check the valid themes array (`v`) defined in that script (e.g., `v=["system","light","dark"]`).
+4. **Verify if your custom theme is missing from this array.** To prevent layout flicker and XSS injections, the blocking script rejects any theme not explicitly registered in this array and falls back to the default.
+5. If it is missing, run the synchronization script:
+   ```bash
+   npm run ngx-theme-stack:sync
+   ```
 
 ---
 
