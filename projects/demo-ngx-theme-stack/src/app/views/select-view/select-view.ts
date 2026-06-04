@@ -105,7 +105,7 @@ export default class SelectView {
 
   protected readonly resolvedTheme = this.themeService.resolvedTheme;
   protected readonly selectedTheme = this.themeService.selectedTheme;
-  protected readonly tags = ['Direct Select', 'Custom Palette', 'Multi-Theme', 'SSR Ready'];
+  protected readonly tags = ['Direct Select', 'Custom Palette', 'Multi-Theme', 'Explicit Choice'];
 
   public selectTheme(theme: string) {
     this.themeService.select(theme);

@@ -65,7 +65,7 @@ export default class ToggleView {
 
   protected readonly resolvedTheme = this.themeService.resolvedTheme;
   protected readonly selectedTheme = this.themeService.selectedTheme;
-  protected readonly tags = ['Light / Dark', 'One Action', 'SSR Ready', 'Hydration Safe'];
+  protected readonly tags = ['Light / Dark', 'One Action', 'Binary Switch', 'Theme Toggle'];
 
   public toggleTheme() {
     this.themeService.toggle();

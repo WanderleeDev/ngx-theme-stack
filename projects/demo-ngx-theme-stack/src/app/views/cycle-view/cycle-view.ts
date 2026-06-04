@@ -111,7 +111,7 @@ export default class CycleView {
   protected readonly upcomingTheme = this.themeService.upcoming;
   protected readonly precedingTheme = this.themeService.preceding;
   protected readonly isHydrated = this.themeService.isHydrated;
-  protected readonly tags = ['Sequential', 'Looping', 'Multi-Theme', 'SSR Ready'];
+  protected readonly tags = ['Sequential', 'Looping', 'Multi-Theme', 'Theme Loop'];
 
   public nextTheme() {
     this.themeService.cycle();
