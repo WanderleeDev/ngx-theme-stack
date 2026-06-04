@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.8.1](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.8.0...v3.8.1) (2026-06-04)
+
+
+### Bug Fixes
+
+* **security:** resolve socket.dev alerts and convert md asset templates to ts ([c86cfe3](https://github.com/WanderleeDev/ngx-theme-stack/commit/c86cfe3716a88cb8bd15c4b600fc595efb3c83f1))
+
 # [3.8.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.7.0...v3.8.0) (2026-06-03)
 
 
