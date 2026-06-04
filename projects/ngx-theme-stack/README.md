@@ -303,18 +303,18 @@ export class MyAdvancedComponent {
 
 :root,
 .light {
-  --bg-color: #ffffff;
-  --text-color: #333333;
+  --background: #ffffff;
+  --foreground: #333333;
 }
 
 .dark {
-  --bg-color: #121212;
-  --text-color: #ffffff;
+  --background: #121212;
+  --foreground: #ffffff;
 }
 
 .sunset {
-  --bg-color: #ff5f6d;
-  --text-color: #ffffff;
+  --background: #ff5f6d;
+  --foreground: #ffffff;
 }
 ```
 
@@ -329,15 +329,15 @@ export class MyAdvancedComponent {
 @import 'tailwindcss';
 
 @theme {
-  --color-main-bg: var(--bg-color);
-  --color-main-text: var(--text-color);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
 }
 ```
 
 ### Use in components — no `dark:` prefix needed
 
 ```html
-<div class="bg-main-bg text-main-text shadow-xl">
+<div class="bg-background text-foreground shadow-xl">
   <!-- automatically reflects the active theme -->
 </div>
 ```
