@@ -2,135 +2,66 @@
 
 ## provideThemeStack(config?)
 
-Provides Theme Stack configuration to Angular's DI system.
+Configures the Theme Stack in `app.config.ts`. Custom themes merge with built-ins (`system`, `light`, `dark`).
 
 ```typescript
 provideThemeStack({
   themes: ['sunset', 'ocean'] as const,
   defaultTheme: 'system',
   storageKey: 'ngx-theme-stack',
-  mode: 'class',
-  strategy: 'critters',
+  mode: 'class', // 'class' | 'attribute' | 'both'
+  strategy: 'critters', // 'critters' | 'blocking'
 })
 ```
 
-Custom themes are **merged** with built-in defaults (`'system'`, `'light'`, `'dark'`).
-Passing `['sepia', 'ocean']` resolves to `['system', 'light', 'dark', 'sepia', 'ocean']`.
-
-### Throws `NgxThemeStackError` when:
-- A theme entry is empty or whitespace-only.
-- `defaultTheme` is not in the resolved themes array.
-- `storageKey` is empty or whitespace-only.
+**Throws `NgxThemeStackError` when:**
+- A theme entry is empty, or `defaultTheme` is not in themes, or `storageKey` is empty.
 
 ---
 
 ## CoreThemeService
 
-Foundation service. Manages state (signals), persistence (localStorage),
-system preference detection (matchMedia), and safe DOM manipulation (SSR compatible).
+Foundation service managing state (signals), persistence, system preference, and DOM manipulation (SSR safe).
 
-### Signals
+### Signals, Methods & Properties
 
-| Signal             | Type                | Description                                         |
-| ------------------ | ------------------- | --------------------------------------------------- |
-| `selectedTheme()`  | `Signal<string>`    | Theme chosen by the user. May be `'system'`.         |
-| `resolvedTheme()`  | `Signal<string>`    | Theme applied to DOM. Never `'system'`.              |
-| `isDark()`          | `Signal<boolean>`   | `true` when resolved is `'dark'`. `false` for custom. |
-| `isLight()`         | `Signal<boolean>`   | `true` when resolved is `'light'`. `false` for custom.|
-| `isSystem()`        | `Signal<boolean>`   | `true` when user selected `'system'`.                |
-| `isHydrated()`      | `Signal<boolean>`   | `true` after first browser render. Guard SSR content.|
-
-### Methods
-
-| Method            | Signature              | Description                              |
-| ----------------- | ---------------------- | ---------------------------------------- |
-| `setTheme()`      | `(theme: string): void`| Validates, applies to DOM, persists.     |
-
-### Properties
-
-| Property          | Type        | Description                               |
-| ----------------- | ----------- | ----------------------------------------- |
-| `availableThemes` | `string[]`  | Resolved list including built-ins.        |
+| Name | Type | Description |
+| --- | --- | --- |
+| `selectedTheme()` | `Signal<string>` | Chosen theme (can be `'system'`). |
+| `resolvedTheme()` | `Signal<string>` | Active theme applied to DOM (never `'system'`). |
+| `isDark()` / `isLight()` | `Signal<boolean>` | `true` for dark/light (returns `false` for custom themes). |
+| `isSystem()` / `isHydrated()` | `Signal<boolean>` | System choice active / SSR hydration finished. |
+| `availableThemes` | `string[]` | All configured themes including built-ins. |
+| `setTheme(theme)` | `(theme: string) => void` | Validates, persists, and applies the theme to DOM. |
 
 ---
 
-## ThemeToggleService
+## Convenience Services
 
+Specialized services implementing different theme selection behaviors.
+
+### ThemeToggleService
 Binary switch between `'dark'` and `'light'`.
+- `toggle()`: Toggles the theme.
 
-### Signals
-Inherits: `selectedTheme()`, `resolvedTheme()`, `isDark()`, `isLight()`, `isSystem()`, `isHydrated()`.
+### ThemeCycleService
+Rotates through all themes in configuration order.
+- `cycle()`: Moves to the next theme.
+- `cycleIndex()`: `Signal<number>` - Current theme index.
+- `upcoming()` / `preceding()`: `Signal<string>` - Next / previous theme in cycle.
 
-### Methods
-
-| Method     | Description                                    |
-| ---------- | ---------------------------------------------- |
-| `toggle()` | If resolved is dark → light. Otherwise → dark. |
-
----
-
-## ThemeCycleService
-
-Rotates through all configured themes in order.
-
-### Signals
-Inherits all from CoreThemeService, plus:
-
-| Signal         | Type              | Description                             |
-| -------------- | ----------------- | --------------------------------------- |
-| `cycleIndex()` | `Signal<number>`  | Index of current theme in the cycle.    |
-| `upcoming()`   | `Signal<string>`  | Next theme in the cycle.                |
-| `preceding()`  | `Signal<string>`  | Previous theme in the cycle.            |
-
-### Methods
-
-| Method    | Description                  |
-| --------- | ---------------------------- |
-| `cycle()` | Advances to the next theme.  |
-
-### Properties
-
-| Property          | Type        | Description                        |
-| ----------------- | ----------- | ---------------------------------- |
-| `availableThemes` | `string[]`  | Full list of themes in cycle order.|
+### ThemeSelectService
+Full list control for select dropdowns, radio buttons, or lists.
+- `select(theme)`: Sets the chosen theme.
 
 ---
 
-## ThemeSelectService
+## Types & Errors
 
-Exposes the full theme list for dropdowns, radios, or tab selection.
+### Core Types
+- `NgTheme<T>`: `'system' | 'light' | 'dark' | T`
+- `NgMode`: `'class' | 'attribute' | 'both'`
+- `NgStrategy`: `'critters' | 'blocking'`
 
-### Signals
-Inherits: `selectedTheme()`, `resolvedTheme()`, `isDark()`, `isLight()`, `isSystem()`, `isHydrated()`.
-
-### Methods
-
-| Method            | Signature              | Description                 |
-| ----------------- | ---------------------- | --------------------------- |
-| `select()`        | `(theme: string): void`| Applies the given theme.    |
-
-### Properties
-
-| Property          | Type        | Description                        |
-| ----------------- | ----------- | ---------------------------------- |
-| `availableThemes` | `string[]`  | Full list of configured themes.    |
-
----
-
-## Types
-
-| Type          | Definition                          | Description                       |
-| ------------- | ----------------------------------- | --------------------------------- |
-| `NgTheme<T>`  | `'system' \| 'light' \| 'dark' \| T`| Theme identifier union            |
-| `NgSystemTheme`| `'light' \| 'dark'`                 | Resolved system theme             |
-| `NgMode`       | `'class' \| 'attribute' \| 'both'`  | How theme is applied to DOM       |
-| `NgStrategy`   | `'critters' \| 'blocking'`          | Anti-flash rendering strategy     |
-| `NgConfig<T>`  | `interface`                          | Full library configuration        |
-
-## Errors
-
-| Error                | When thrown                                               |
-| -------------------- | --------------------------------------------------------- |
-| `NgxThemeStackError` | Invalid config, invalid theme name in `setTheme()`, etc.  |
-
-Catch with: `if (e instanceof NgxThemeStackError) { ... }`
+### Errors
+- `NgxThemeStackError`: Thrown for invalid configurations, storage keys, or theme names.
