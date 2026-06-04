@@ -1,8 +1,3 @@
-# Theme Toggle Component
-
-A simple button component to toggle between light and dark themes.
-
-```typescript
 import { inject, Component } from '@angular/core';
 import { ThemeToggleService } from 'ngx-theme-stack';
 
@@ -21,4 +16,3 @@ import { ThemeToggleService } from 'ngx-theme-stack';
 export class ThemeToggle {
   protected readonly theme = inject(ThemeToggleService);
 }
-```

@@ -1,8 +1,3 @@
-# Theme Cycle Component
-
-A button component to cycle through all available themes.
-
-```typescript
 import { inject, Component } from '@angular/core';
 import { ThemeCycleService } from 'ngx-theme-stack';
 
@@ -10,9 +5,7 @@ import { ThemeCycleService } from 'ngx-theme-stack';
   selector: 'app-theme-cycle',
   template: `
     @if (theme.isHydrated()) {
-      <button (click)="theme.cycle()">
-        🔄 Cycle Theme
-      </button>
+      <button (click)="theme.cycle()">🔄 Cycle Theme</button>
     } @else {
       <div class="theme-cycle-skeleton"></div>
     }
@@ -21,4 +14,3 @@ import { ThemeCycleService } from 'ngx-theme-stack';
 export class ThemeCycle {
   protected readonly theme = inject(ThemeCycleService);
 }
-```

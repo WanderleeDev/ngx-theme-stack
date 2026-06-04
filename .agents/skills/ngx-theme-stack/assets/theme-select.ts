@@ -1,8 +1,3 @@
-# Theme Select Component
-
-A dropdown select component to choose any available theme.
-
-```typescript
 import { inject, Component } from '@angular/core';
 import { ThemeSelectService } from 'ngx-theme-stack';
 
@@ -30,4 +25,3 @@ export class ThemeSelect {
     this.theme.select(value);
   }
 }
-```

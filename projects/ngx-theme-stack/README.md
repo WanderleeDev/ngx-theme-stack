@@ -105,7 +105,7 @@ The installation command automates the following:
 | `package.json`  | Adds a `"prebuild"` script for theme synchronization                    |
 | `angular.json`  | Registers `themes.css` and optimizes build config                       |
 | `themes.css`    | Scaffolds base theme tokens if they don't exist                         |
-| `SKILL.md`      | Generates an AI Agent Skill under `.agents/skills/` (optional)         |
+| `SKILL.md`      | Generates an AI Agent Skill under `.agents/skills/` (optional)          |
 
 > [!TIP]
 > **Re-configuration support:** Run `ng add` multiple times freely. The schematic updates existing code without duplicating it.
@@ -207,9 +207,7 @@ import { ThemeCycleService } from 'ngx-theme-stack';
   selector: 'app-theme-cycle',
   template: `
     @if (theme.isHydrated()) {
-      <button (click)="theme.cycle()">
-        🔄 Cycle Theme
-      </button>
+      <button (click)="theme.cycle()">🔄 Cycle Theme</button>
     } @else {
       <div class="theme-cycle-skeleton"></div>
     }
@@ -290,7 +288,7 @@ export class MyAdvancedComponent {
 >
 > ```html
 > @if (theme.isHydrated()) {
->   <img [src]="theme.isDark() ? 'dark-logo.png' : 'light-logo.png'">
+> <img [src]="theme.isDark() ? darkLogo : lightLogo" />
 > }
 > ```
 
@@ -364,6 +362,7 @@ Only needed if you want `dark:` utilities tied to ngx-theme-stack's toggle:
 </details>
 
 ---
+
 ## 🤖 AI Code Assistants Integration
 
 `ngx-theme-stack` includes out-of-the-box support for AI coding assistants (such as Google Antigravity, Gemini, Claude Code, and other agents that support the open `SKILL.md` standard).
@@ -404,7 +403,7 @@ Once the skill is in your workspace, your AI assistant will automatically read i
 | **Network requests**      | Zero                               | One (then cached)                          |
 | **Flash risk**            | None                               | None                                       |
 | **Works with CSR**        | ✅                                 | ✅                                         |
-| **Works with SSR/SSG**    | ✅                                 | ⚠️ May flash on SSG                       |
+| **Works with SSR/SSG**    | ✅                                 | ⚠️ May flash on SSG                        |
 | **Strict CSP compatible** | ❌ requires `unsafe-inline`        | ✅                                         |
 | **Best for**              | Most apps                          | Strict CSP, many themes                    |
 

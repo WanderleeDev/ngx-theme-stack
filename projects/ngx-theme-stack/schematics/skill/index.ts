@@ -111,8 +111,9 @@ export const appConfig: ApplicationConfig = {
 
 All services expose these signals: \`selectedTheme()\`, \`resolvedTheme()\`, \`isDark()\`, \`isLight()\`, \`isSystem()\`, \`isHydrated()\`.
 
-For complete component templates, copy from \`assets/\` directory in this skill folder.
-For full API details, read \`references/api-reference.md\`.
+Ver [ejemplo Toggle](assets/theme-toggle.ts) · [ejemplo Cycle](assets/theme-cycle.ts) · [ejemplo Select](assets/theme-select.ts)
+
+For full API details, read [references/api-reference.md](references/api-reference.md).
 
 ## SSR Hydration Guard & Layout Stability
 
@@ -120,7 +121,7 @@ Guard theme-dependent template content behind \`isHydrated()\` in SSR to prevent
 
 \`\`\`html
 @if (theme.isHydrated()) {
-  <img [src]="theme.isDark() ? 'dark-logo.png' : 'light-logo.png'">
+  <img [src]="theme.isDark() ? darkLogo : lightLogo">
 } @else {
   <!-- The placeholder/skeleton MUST match the exact size and spacing of the hydrated image -->
   <div class="logo-skeleton" style="width: 150px; height: 40px; display: inline-block;"></div>
@@ -306,14 +307,10 @@ Inherits: \`selectedTheme()\`, \`resolvedTheme()\`, \`isDark()\`, \`isLight()\`,
 Catch with: \`if (e instanceof NgxThemeStackError) { ... }\`
 `;
 
-// ── assets/ templates (Tier 3 — copied on demand) ───────────────────────────
+// ── assets/ component examples (Tier 3 — pure TypeScript, read on demand) ───
 
-const TEMPLATE_TOGGLE = `# Theme Toggle Component
-
-A simple button component to toggle between light and dark themes.
-
-\`\`\`typescript
-import { inject, Component } from '@angular/core';
+const TEMPLATE_TOGGLE =
+`import { inject, Component } from '@angular/core';
 import { ThemeToggleService } from 'ngx-theme-stack';
 
 @Component({
@@ -331,24 +328,17 @@ import { ThemeToggleService } from 'ngx-theme-stack';
 export class ThemeToggle {
   protected readonly theme = inject(ThemeToggleService);
 }
-\`\`\`
 `;
 
-const TEMPLATE_CYCLE = `# Theme Cycle Component
-
-A button component to cycle through all available themes.
-
-\`\`\`typescript
-import { inject, Component } from '@angular/core';
+const TEMPLATE_CYCLE =
+`import { inject, Component } from '@angular/core';
 import { ThemeCycleService } from 'ngx-theme-stack';
 
 @Component({
   selector: 'app-theme-cycle',
   template: \`
     @if (theme.isHydrated()) {
-      <button (click)="theme.cycle()">
-        🔄 Cycle Theme
-      </button>
+      <button (click)="theme.cycle()">🔄 Cycle Theme</button>
     } @else {
       <div class="theme-cycle-skeleton"></div>
     }
@@ -357,15 +347,10 @@ import { ThemeCycleService } from 'ngx-theme-stack';
 export class ThemeCycle {
   protected readonly theme = inject(ThemeCycleService);
 }
-\`\`\`
 `;
 
-const TEMPLATE_SELECT = `# Theme Select Component
-
-A dropdown select component to choose any available theme.
-
-\`\`\`typescript
-import { inject, Component } from '@angular/core';
+const TEMPLATE_SELECT =
+`import { inject, Component } from '@angular/core';
 import { ThemeSelectService } from 'ngx-theme-stack';
 
 @Component({
@@ -392,7 +377,6 @@ export class ThemeSelect {
     this.theme.select(value);
   }
 }
-\`\`\`
 `;
 
 // ── Schematic logic ─────────────────────────────────────────────────────────
@@ -402,9 +386,9 @@ const SKILL_ROOT = '.agents/skills/ngx-theme-stack';
 const FILES: { path: string; content: string }[] = [
   { path: `${SKILL_ROOT}/SKILL.md`, content: SKILL_CONTENT },
   { path: `${SKILL_ROOT}/references/api-reference.md`, content: API_REFERENCE },
-  { path: `${SKILL_ROOT}/assets/theme-toggle.component.md`, content: TEMPLATE_TOGGLE },
-  { path: `${SKILL_ROOT}/assets/theme-cycle.component.md`, content: TEMPLATE_CYCLE },
-  { path: `${SKILL_ROOT}/assets/theme-select.component.md`, content: TEMPLATE_SELECT },
+  { path: `${SKILL_ROOT}/assets/theme-toggle.ts`, content: TEMPLATE_TOGGLE },
+  { path: `${SKILL_ROOT}/assets/theme-cycle.ts`, content: TEMPLATE_CYCLE },
+  { path: `${SKILL_ROOT}/assets/theme-select.ts`, content: TEMPLATE_SELECT },
 ];
 
 export function generateSkill(tree: Tree, context: SchematicContext): void {

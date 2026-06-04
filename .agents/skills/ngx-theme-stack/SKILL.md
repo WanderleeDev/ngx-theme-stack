@@ -106,8 +106,9 @@ export const appConfig: ApplicationConfig = {
 
 All services expose these signals: `selectedTheme()`, `resolvedTheme()`, `isDark()`, `isLight()`, `isSystem()`, `isHydrated()`.
 
-For complete component templates, copy from `assets/` directory in this skill folder.
-For full API details, read `references/api-reference.md`.
+Ver [ejemplo Toggle](assets/theme-toggle.ts) · [ejemplo Cycle](assets/theme-cycle.ts) · [ejemplo Select](assets/theme-select.ts)
+
+For full API details, read [references/api-reference.md](references/api-reference.md).
 
 ## SSR Hydration Guard & Layout Stability
 
@@ -115,7 +116,7 @@ Guard theme-dependent template content behind `isHydrated()` in SSR to prevent h
 
 ```html
 @if (theme.isHydrated()) {
-  <img [src]="theme.isDark() ? 'dark-logo.png' : 'light-logo.png'">
+  <img [src]="theme.isDark() ? darkLogo : lightLogo">
 } @else {
   <!-- The placeholder/skeleton MUST match the exact size and spacing of the hydrated image -->
   <div class="logo-skeleton" style="width: 150px; height: 40px; display: inline-block;"></div>
