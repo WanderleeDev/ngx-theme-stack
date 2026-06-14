@@ -16,6 +16,7 @@ provideThemeStack({
 
 **Throws `NgxThemeStackError` when:**
 - A theme entry is empty, or `defaultTheme` is not in themes, or `storageKey` is empty.
+- `setTheme()` is called with a theme not in the configured themes list.
 
 ---
 
@@ -65,3 +66,4 @@ Full list control for select dropdowns, radio buttons, or lists.
 
 ### Errors
 - `NgxThemeStackError`: Thrown for invalid configurations, storage keys, or theme names.
+Catch with: `if (e instanceof NgxThemeStackError) { ... }`

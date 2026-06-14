@@ -4,7 +4,7 @@ description: Signal-based theme manager for Angular 20+. Covers setup, services,
 compatibility: Angular 20+ with TypeScript. Optional Tailwind CSS v4.
 metadata:
   author: WanderleeDev
-  version: '1.1.0'
+  version: '1.2.0'
 ---
 
 # ngx-theme-stack
@@ -29,7 +29,10 @@ Headless, signal-based theme manager for Angular 20+.
   - **When to sync**: Run after adding/removing themes, renaming themes, changing configuration settings (storageKey, mode, strategy), or manually editing index.html.
   - **Debugging**: If a theme reverts to default/system on reload, check if the theme identifier is missing in the valid themes array (`v`) in `index.html`. If missing, run synchronization.
 - `isDark()` / `isLight()` return false for custom themes (use `resolvedTheme()`).
+- `selectedTheme()` can be `'system'`; `resolvedTheme()` is always the concrete theme applied to the DOM (never `'system'`).
+- `toggle()` switches between `'dark'` and `'light'`. If a custom theme is active, it switches to `'dark'`.
 - Pick ONE convenience service per component. Do not write custom localStorage or direct DOM logic.
+- Use `CoreThemeService` directly only for advanced scenarios (dynamic theme names, custom service wrappers). For standard use, prefer convenience services.
 
 ## SSR Hydration & Layout Stability
 
@@ -37,15 +40,15 @@ Wrap theme-dependent elements in `@if (theme.isHydrated())` to prevent layout sh
 
 ```html
 @if (theme.isHydrated()) {
-<img [src]="theme.isDark() ? darkLogo : lightLogo" />
+  <img [src]="theme.isDark() ? darkLogo : lightLogo" />
 } @else {
-<div class="logo-skeleton"></div>
+  <!-- Implement a custom skeleton matching the hydrated element's exact dimensions -->
 }
 ```
 
 ## Configuration & API
 
-See [references/api-reference.md](references/api-reference.md) for APIs. Examples: [Toggle](assets/theme-toggle.ts) · [Cycle](assets/theme-cycle.ts) · [Select](assets/theme-select.ts).
+See [references/api-reference.md](references/api-reference.md) for full API docs. Examples: [Toggle](assets/theme-toggle.ts) · [Cycle](assets/theme-cycle.ts) · [Select](assets/theme-select.ts).
 
 ```typescript
 import { provideThemeStack } from 'ngx-theme-stack';
@@ -54,18 +57,22 @@ export const appConfig = {
 };
 ```
 
-| Service              | Method      | Signals                                                                                     |
-| -------------------- | ----------- | ------------------------------------------------------------------------------------------- |
-| `ThemeToggleService` | `toggle()`  | `selectedTheme()`, `resolvedTheme()`, `isDark()`, `isLight()`, `isSystem()`, `isHydrated()` |
-| `ThemeCycleService`  | `cycle()`   |                                                                                             |
-| `ThemeSelectService` | `select(t)` |                                                                                             |
+All convenience services share these signals: `selectedTheme()`, `resolvedTheme()`, `isDark()`, `isLight()`, `isSystem()`, `isHydrated()`.
+
+| Service              | Method      | Exclusive API                                                                 |
+| -------------------- | ----------- | ----------------------------------------------------------------------------- |
+| `ThemeToggleService` | `toggle()`  | —                                                                             |
+| `ThemeCycleService`  | `cycle()`   | `cycleIndex()`, `upcoming()`, `preceding()`, `availableThemes`               |
+| `ThemeSelectService` | `select(t)` | `availableThemes`                                                             |
 
 ## Styling: CSS Variables & Tailwind Separation
 
-Define CSS variables in `src/themes.css` and map them to Tailwind in `src/styles.css` (use semantic classes, not `dark:`):
+Define CSS variables in `src/themes.css` and map them to Tailwind in `src/styles.css` (use semantic classes, not `dark:`).
+
+For `mode: 'class'` (default) use CSS class selectors:
 
 ```css
-/* src/themes.css */
+/* src/themes.css — class mode */
 :root,
 .light {
   --background: #fff;
@@ -76,6 +83,25 @@ Define CSS variables in `src/themes.css` and map them to Tailwind in `src/styles
   --foreground: #f5f5f5;
 }
 .sunset {
+  --background: #ff5f6d;
+  --foreground: #fff;
+}
+```
+
+For `mode: 'attribute'` use `data-theme` attribute selectors instead:
+
+```css
+/* src/themes.css — attribute mode */
+:root,
+[data-theme="light"] {
+  --background: #fff;
+  --foreground: #1a1a1a;
+}
+[data-theme="dark"] {
+  --background: #0a0a0a;
+  --foreground: #f5f5f5;
+}
+[data-theme="sunset"] {
   --background: #ff5f6d;
   --foreground: #fff;
 }
