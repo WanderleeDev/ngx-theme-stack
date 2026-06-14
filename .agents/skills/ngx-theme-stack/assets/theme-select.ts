@@ -13,7 +13,7 @@ import { ThemeSelectService } from 'ngx-theme-stack';
         }
       </select>
     } @else {
-      <div class="theme-select-skeleton"></div>
+      <!-- Implement a custom skeleton/placeholder that matches the hydrated select's exact dimensions to prevent layout shift -->
     }
   `,
 })

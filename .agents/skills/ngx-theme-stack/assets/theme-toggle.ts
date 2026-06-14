@@ -9,7 +9,7 @@ import { ThemeToggleService } from 'ngx-theme-stack';
         {{ theme.isDark() ? '🌙' : '☀️' }}
       </button>
     } @else {
-      <div class="theme-toggle-skeleton"></div>
+      <!-- Implement a custom skeleton/placeholder that matches the hydrated button's exact dimensions to prevent layout shift -->
     }
   `,
 })

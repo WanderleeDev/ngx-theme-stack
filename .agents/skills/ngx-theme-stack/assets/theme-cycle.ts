@@ -7,7 +7,7 @@ import { ThemeCycleService } from 'ngx-theme-stack';
     @if (theme.isHydrated()) {
       <button (click)="theme.cycle()">🔄 Cycle Theme</button>
     } @else {
-      <div class="theme-cycle-skeleton"></div>
+      <!-- Implement a custom skeleton/placeholder that matches the hydrated button's exact dimensions to prevent layout shift -->
     }
   `,
 })
