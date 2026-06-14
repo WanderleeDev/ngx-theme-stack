@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.8.6](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.8.5...v3.8.6) (2026-06-14)
+
+
+### Features
+
+* **schematics:** improve skill schematic with comprehensive LLM guidance and custom skeleton prompts ([e0f7523](https://github.com/WanderleeDev/ngx-theme-stack/commit/e0f7523acb242d0271b15ca690fa38d84134d6f7))
+
 ## [3.8.5](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.8.4...v3.8.5) (2026-06-13)
 
 ## [3.8.4](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.8.3...v3.8.4) (2026-06-04)
