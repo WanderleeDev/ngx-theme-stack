@@ -65,9 +65,11 @@ All convenience services share these signals: `selectedTheme()`, `resolvedTheme(
 | `ThemeCycleService`  | `cycle()`   | `cycleIndex()`, `upcoming()`, `preceding()`, `availableThemes`               |
 | `ThemeSelectService` | `select(t)` | `availableThemes`                                                             |
 
-## Styling: CSS Variables & Tailwind Separation
+## Styling: CSS Variables, Tailwind, and Pure CSS
 
-Define CSS variables in `src/themes.css` and map them to Tailwind in `src/styles.css` (use semantic classes, not `dark:`).
+Define CSS variables in `src/themes.css`. You can use them with either Tailwind CSS or Pure CSS.
+
+### 1. Define CSS Variables (src/themes.css)
 
 For `mode: 'class'` (default) use CSS class selectors:
 
@@ -107,6 +109,24 @@ For `mode: 'attribute'` use `data-theme` attribute selectors instead:
 }
 ```
 
+### 2. Choose Styling Integration (src/styles.css)
+
+Before choosing, check if Tailwind is installed in `package.json`.
+
+#### Option A: Using Pure CSS (No Tailwind)
+If Tailwind is not used or installed in the project, apply the variables directly to your elements:
+
+```css
+/* src/styles.css */
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+```
+
+#### Option B: Using Tailwind CSS v4
+If Tailwind is installed, map the variables inside the `@theme` directive (use semantic classes, not `dark:`):
+
 ```css
 /* src/styles.css */
 @import 'tailwindcss';
@@ -115,6 +135,7 @@ For `mode: 'attribute'` use `data-theme` attribute selectors instead:
   --color-foreground: var(--foreground);
 }
 ```
+
 
 ## Anti-patterns
 
