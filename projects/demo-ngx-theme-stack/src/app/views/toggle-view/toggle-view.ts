@@ -12,7 +12,7 @@ import { ThemeStatusComponent } from '../../components/theme-status/theme-status
   host: {
     class: 'w-full flex flex-col gap-6 items-center justify-center px-4 md:px-6',
   },
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <app-theme-switcher ngProjectAs="top-nav" />
 

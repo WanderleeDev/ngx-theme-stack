@@ -6,7 +6,7 @@ import { CLOUDS, STARS } from './theme-scene.data';
 @Component({
   selector: 'app-theme-scene',
   imports: [RouterOutlet, ThemeBrandingComponent],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './theme-scene.html',
 })
 export class ThemeSceneComponent {

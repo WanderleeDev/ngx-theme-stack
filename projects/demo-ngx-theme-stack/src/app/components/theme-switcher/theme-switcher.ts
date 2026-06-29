@@ -4,7 +4,7 @@ import { RouterLink, RouterLinkActive } from '@angular/router';
 @Component({
   selector: 'app-theme-switcher',
   imports: [RouterLink, RouterLinkActive],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './theme-switcher.html',
 })
 export class ThemeSwitcherComponent {
