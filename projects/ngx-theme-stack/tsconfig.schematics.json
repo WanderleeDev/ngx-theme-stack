@@ -2,8 +2,7 @@
   "compilerOptions": {
     "baseUrl": ".",
     "lib": [
-      "es2018",
-      "dom"
+      "es2022"
     ],
     "declaration": true,
     "module": "commonjs",
@@ -20,7 +19,7 @@
     "skipLibCheck": true,
     "sourceMap": true,
     "strictNullChecks": true,
-    "target": "es6",
+    "target": "es2022",
     "types": [
       "node"
     ]
