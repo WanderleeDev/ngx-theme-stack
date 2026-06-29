@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ThemeToggleService } from 'ngx-theme-stack';
 import { ThemeSwitcherComponent } from '../../components/theme-switcher/theme-switcher';
 import { ThemeSoundService } from '../../services/theme-sound.service';
@@ -12,6 +12,7 @@ import { ThemeStatusComponent } from '../../components/theme-status/theme-status
   host: {
     class: 'w-full flex flex-col gap-6 items-center justify-center px-4 md:px-6',
   },
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <app-theme-switcher ngProjectAs="top-nav" />
 

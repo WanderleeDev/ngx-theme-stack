@@ -1,4 +1,4 @@
-import { Component, PLATFORM_ID } from '@angular/core';
+import { Component, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NGX_THEME_STACK_CONFIG } from '../config';
 import { NgConfig } from '../types';
@@ -6,6 +6,7 @@ import { CoreThemeService } from './core-theme.service';
 
 @Component({
   template: '',
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: true,
 })
 class TestComponent {}

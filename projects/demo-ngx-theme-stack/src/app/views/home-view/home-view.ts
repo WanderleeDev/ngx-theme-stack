@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { ServiceHeaderComponent } from '../../components/service-header/service-header';
 
@@ -9,6 +9,7 @@ import { ServiceHeaderComponent } from '../../components/service-header/service-
   host: {
     class: 'w-full flex items-center justify-center px-4 md:px-6',
   },
+  changeDetection: ChangeDetectionStrategy.Eager,
   template: `
     <div class="grid grid-cols-1 md:grid-cols-3 gap-3 w-full max-w-4xl">
       <app-service-header
