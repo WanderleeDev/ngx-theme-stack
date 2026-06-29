@@ -309,6 +309,36 @@ describe('CoreThemeService', () => {
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
   });
 
+  it('should capture and remove anti-flash class for system theme stored', () => {
+    document.documentElement.classList.add('dark');
+    // System pref is dark (true). Stored is 'system'.
+    setup({ mode: 'attribute' }, { 'ngx-theme-stack': 'system' }, true);
+    TestBed.tick();
+
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
+  });
+
+  it('should remove anti-flash class and apply both class and attribute when mode is both', () => {
+    document.documentElement.classList.add('dark');
+    setup({ mode: 'both' }, { 'ngx-theme-stack': 'light' });
+    TestBed.tick();
+
+    // 'dark' (anti-flash) removed, 'light' added as class and attribute
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(document.documentElement.classList.contains('light')).toBe(true);
+    expect(document.documentElement.getAttribute('data-theme')).toBe('light');
+  });
+
+  it('should do nothing for anti-flash in SSR environment', () => {
+    document.documentElement.classList.add('dark');
+    setup({ mode: 'attribute' }, { 'ngx-theme-stack': 'dark' }, false, 'server');
+    TestBed.tick();
+
+    // In SSR, anti-flash is a no-op, so 'dark' class remains on element
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+  });
+
   // ── LocalStorage Error Handling ──
 
   it('should catch exceptions and log warning when localStorage.getItem throws', () => {

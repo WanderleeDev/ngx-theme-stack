@@ -92,6 +92,19 @@ describe('ThemeCycleService', () => {
     expect(service.selectedTheme()).toBe('light');
   });
 
+  it('should compute preceding and upcoming correctly when cycleIndex is -1', () => {
+    const { service } = setup({
+      defaultTheme: 'system',
+      themes: ['light', 'dark'], // len = 2
+    });
+    expect(service.cycleIndex()).toBe(-1);
+    // index = -1
+    // preceding: (-1 - 1 + 2) % 2 = 0 -> themes[0] = 'light'
+    // upcoming: (-1 + 1) % 2 = 0 -> themes[0] = 'light'
+    expect(service.preceding()).toBe('light');
+    expect(service.upcoming()).toBe('light');
+  });
+
   it('should compute cycleIndex, preceding and upcoming correctly', () => {
     const { service, core } = setup({
       themes: ['light', 'dark', 'system'],
