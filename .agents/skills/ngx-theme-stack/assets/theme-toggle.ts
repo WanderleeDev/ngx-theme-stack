@@ -3,7 +3,6 @@ import { ThemeToggleService } from 'ngx-theme-stack';
 
 @Component({
   selector: 'app-theme-toggle',
-  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (theme.isHydrated()) {

@@ -18,33 +18,17 @@ If using Tailwind CSS, use utility classes like `animate-pulse` for the placehol
 }
 ```
 
-### Option B: Using Pure CSS Skeletons (Inline styles or plain classes)
-If using pure CSS, match dimensions using inline styles or CSS classes:
+### Option B: Using Pure CSS Skeletons
+If using pure CSS, match dimensions using inline styles or custom CSS classes:
 
 ```html
 @if (theme.isHydrated()) {
-  <img [src]="theme.isDark() ? darkLogo : lightLogo" class="logo-dimensions" />
+  <img [src]="theme.isDark() ? darkLogo : lightLogo" style="width: 64px; height: 64px;" />
 } @else {
-  <!-- Pure CSS Skeleton matching image dimensions -->
-  <div class="logo-skeleton"></div>
+  <!-- CSS Skeleton matching image dimensions -->
+  <div style="width: 64px; height: 64px; border-radius: 4px; background-color: #e2e8f0;"></div>
 }
 ```
 
-```css
-/* Styling in styles.css */
-.logo-dimensions {
-  width: 64px;
-  height: 64px;
-}
-.logo-skeleton {
-  width: 64px;
-  height: 64px;
-  border-radius: 4px;
-  background-color: #e2e8f0;
-  animation: pulse 1.5s infinite;
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: .5; }
-}
-```
+> [!TIP]
+> When generating skeletons, dynamically choose between Tailwind utility classes (e.g., `animate-pulse`, `bg-gray-200`) if Tailwind is installed in the project's `package.json`, or plain CSS classes/inline styles matching the dimensions if using native CSS. Do not output unused CSS rules.

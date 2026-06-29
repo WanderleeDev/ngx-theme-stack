@@ -25,7 +25,7 @@ Headless, signal-based theme manager for Angular 20+.
 
 - Call `provideThemeStack()` once in root `app.config.ts`. Custom themes merge with defaults.
 - **Theme Synchronization**: Syncs theme configuration in `app.config.ts` with `index.html` assets.
-  - **Manual execution**: Run `pnpm run ngx-theme-stack:sync` (or `npm run ngx-theme-stack:sync` / `yarn run ngx-theme-stack:sync`).
+  - **Manual execution**: Run the sync script using the project's active package manager (e.g. `pnpm run ngx-theme-stack:sync`).
   - **Auto-Sync**: Runs automatically before serving or building via `"prestart"` and `"prebuild"` hooks in `package.json`.
   - **When to sync**: Run after adding/removing themes, renaming themes, changing configuration settings (storageKey, mode, strategy), or manually editing index.html.
   - **Debugging**: If a theme reverts to default/system on reload, check if the theme identifier is missing in the valid themes array (`v`) in `index.html`. If missing, run synchronization.

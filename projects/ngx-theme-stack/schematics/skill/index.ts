@@ -7,11 +7,11 @@ const MD = ['', 'm', 'd'].join('');
 // ── SKILL content (Tier 2 — loaded on activation) ─────────
 const SKILL_CONTENT = `---
 name: ngx-theme-stack
-description: Signal-based theme manager for Angular 20+. Covers setup, services, SSR guards, and Tailwind v4.
+description: Signal-based theme manager for Angular 20+. Use this skill to configure app.config.ts, manage provideThemeStack, add theme switcher components (Toggle, Cycle, Select), handle Tailwind CSS v4 or pure CSS theme variables, fix SSR layout flashes (isHydrated signal), or run pnpm run ngx-theme-stack:sync.
 compatibility: Angular 20+ with TypeScript. Optional Tailwind CSS v4.
 metadata:
   author: WanderleeDev
-  version: '1.2.0'
+  version: '1.2.2'
 ---
 
 # ngx-theme-stack
@@ -24,6 +24,7 @@ Headless, signal-based theme manager for Angular 20+.
   - **Toggle** (\`ThemeToggleService\`) - Binary dark/light toggle.
   - **Cycle** (\`ThemeCycleService\`) - Rotate through all themes.
   - **Select** (\`ThemeSelectService\`) - Full picker dropdown/radio selection.
+- **Exception**: If the user explicitly mentions which switcher type they want in their query, skip the question and implement it directly.
 - **Custom Themes Inquiry**: Ask if they want custom themes (e.g. \`sunset\`, colors, or CSS variables).
 - **DO NOT** generate code or configs until the user responds to these questions.
 
@@ -31,7 +32,7 @@ Headless, signal-based theme manager for Angular 20+.
 
 - Call \`provideThemeStack()\` once in root \`app.config.ts\`. Custom themes merge with defaults.
 - **Theme Synchronization**: Syncs theme configuration in \`app.config.ts\` with \`index.html\` assets.
-  - **Manual execution**: Run \`<package-manager> run ngx-theme-stack:sync\` (e.g., \`npm run ngx-theme-stack:sync\`).
+  - **Manual execution**: Run \`pnpm run ngx-theme-stack:sync\` (or \`npm run ngx-theme-stack:sync\` / \`yarn run ngx-theme-stack:sync\`).
   - **Auto-Sync**: Runs automatically before serving or building via \`"prestart"\` and \`"prebuild"\` hooks in \`package.json\`.
   - **When to sync**: Run after adding/removing themes, renaming themes, changing configuration settings (storageKey, mode, strategy), or manually editing index.html.
   - **Debugging**: If a theme reverts to default/system on reload, check if the theme identifier is missing in the valid themes array (\`v\`) in \`index.html\`. If missing, run synchronization.
@@ -41,40 +42,31 @@ Headless, signal-based theme manager for Angular 20+.
 - Pick ONE convenience service per component. Do not write custom localStorage or direct DOM logic.
 - Use \`CoreThemeService\` directly only for advanced scenarios (dynamic theme names, custom service wrappers). For standard use, prefer convenience services.
 
-## SSR Hydration & Layout Stability
+## References and Guides
 
-Wrap theme-dependent elements in \`@if (theme.isHydrated())\` to prevent layout shift and SSR mismatches. Fallback placeholders in \`@else\` must match the exact hydrated dimensions.
+For detailed instructions and implementations, see these sub-guides:
+- **API Reference & Config options**: [references/api-reference.\${MD}](references/api-reference.\${MD})
+- **Styling (CSS variables, Tailwind v4, and Pure CSS)**: [references/styling.\${MD}](references/styling.\${MD})
+- **SSR Hydration & Layout Stability (prevent layout shift)**: [references/ssr-hydration.\${MD}](references/ssr-hydration.\${MD})
 
-\`\`\`html
-@if (theme.isHydrated()) {
-  <img [src]="theme.isDark() ? darkLogo : lightLogo" />
-} @else {
-  <!-- Implement a custom skeleton matching the hydrated element's exact dimensions -->
-}
-\`\`\`
+## Component Examples
+- **Toggle Component Example**: [assets/theme-toggle.ts](assets/theme-toggle.ts)
+- **Cycle Component Example**: [assets/theme-cycle.ts](assets/theme-cycle.ts)
+- **Select Component Example**: [assets/theme-select.ts](assets/theme-select.ts)
 
-## Configuration & API
+## Anti-patterns
 
-See [references/api-reference.${MD}](references/api-reference.${MD}) for full API docs. Examples: [Toggle](assets/theme-toggle.ts) · [Cycle](assets/theme-cycle.ts) · [Select](assets/theme-select.ts).
+- Do NOT mix Toggle, Cycle, and Select in the same component.
+- Do NOT use Tailwind's \`dark:\` utility modifier (use semantic classes mapped from themes).
+- Do NOT skip \`ngx-theme-stack:sync\` schematic after updating providers.
+- Do NOT use theme signals in templates without an \`@if (theme.isHydrated())\` guard.
+`;
 
-\`\`\`typescript
-import { provideThemeStack } from 'ngx-theme-stack';
-export const appConfig = {
-  providers: [provideThemeStack({ themes: ['sunset'] as const, strategy: 'critters' })],
-};
-\`\`\`
+const STYLING_CONTENT = `# Styling: CSS Variables, Tailwind, and Pure CSS
 
-All convenience services share these signals: \`selectedTheme()\`, \`resolvedTheme()\`, \`isDark()\`, \`isLight()\`, \`isSystem()\`, \`isHydrated()\`.
+Define CSS variables in \`src/themes.css\`. You can use them with either Tailwind CSS or Pure CSS.
 
-| Service              | Method      | Exclusive API                                                                 |
-| -------------------- | ----------- | ----------------------------------------------------------------------------- |
-| \`ThemeToggleService\` | \`toggle()\`  | —                                                                             |
-| \`ThemeCycleService\`  | \`cycle()\`   | \`cycleIndex()\`, \`upcoming()\`, \`preceding()\`, \`availableThemes\`               |
-| \`ThemeSelectService\` | \`select(t)\` | \`availableThemes\`                                                             |
-
-## Styling: CSS Variables & Tailwind Separation
-
-Define CSS variables in \`src/themes.css\` and map them to Tailwind in \`src/styles.css\` (use semantic classes, not \`dark:\`).
+## 1. Define CSS Variables (src/themes.css)
 
 For \`mode: 'class'\` (default) use CSS class selectors:
 
@@ -114,6 +106,24 @@ For \`mode: 'attribute'\` use \`data-theme\` attribute selectors instead:
 }
 \`\`\`
 
+## 2. Choose Styling Integration (src/styles.css)
+
+Before choosing, check if Tailwind is installed in \`package.json\`.
+
+### Option A: Using Pure CSS (No Tailwind)
+If Tailwind is not used or installed in the project, apply the variables directly to your elements:
+
+\`\`\`css
+/* src/styles.css */
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+\`\`\`
+
+### Option B: Using Tailwind CSS v4
+If Tailwind is installed, map the variables inside the \`@theme\` directive (use semantic classes, not \`dark:\`):
+
 \`\`\`css
 /* src/styles.css */
 @import 'tailwindcss';
@@ -122,13 +132,42 @@ For \`mode: 'attribute'\` use \`data-theme\` attribute selectors instead:
   --color-foreground: var(--foreground);
 }
 \`\`\`
+`;
 
-## Anti-patterns
+const SSR_HYDRATION_CONTENT = `# SSR Hydration & Layout Stability
 
-- Do NOT mix Toggle, Cycle, and Select in the same component.
-- Do NOT use Tailwind's \`dark:\` utility modifier (use semantic classes mapped from themes).
-- Do NOT skip \`ngx-theme-stack:sync\` schematic after updating providers.
-- Do NOT use theme signals in templates without an \`@if (theme.isHydrated())\` guard.
+Wrap theme-dependent elements (like logos, theme status indicators, or custom switchers) in \`@if (theme.isHydrated())\` to prevent layout shift and SSR mismatches.
+
+Fallback placeholders in the \`@else\` block should match the exact hydrated dimensions.
+
+## Example: Hydrated Image with Placeholder
+
+### Option A: Using Tailwind CSS Skeletons
+If using Tailwind CSS, use utility classes like \`animate-pulse\` for the placeholder:
+
+\`\`\`html
+@if (theme.isHydrated()) {
+  <img [src]="theme.isDark() ? darkLogo : lightLogo" class="w-16 h-16" />
+} @else {
+  <!-- Tailwind Skeletons matching image dimensions -->
+  <div class="w-16 h-16 rounded bg-gray-200 dark:bg-gray-800 animate-pulse"></div>
+}
+\`\`\`
+
+### Option B: Using Pure CSS Skeletons
+If using pure CSS, match dimensions using inline styles or custom CSS classes:
+
+\`\`\`html
+@if (theme.isHydrated()) {
+  <img [src]="theme.isDark() ? darkLogo : lightLogo" style="width: 64px; height: 64px;" />
+} @else {
+  <!-- CSS Skeleton matching image dimensions -->
+  <div style="width: 64px; height: 64px; border-radius: 4px; background-color: #e2e8f0;"></div>
+}
+\`\`\`
+
+> [!TIP]
+> When generating skeletons, dynamically choose between Tailwind utility classes (e.g., \`animate-pulse\`, \`bg-gray-200\`) if Tailwind is installed in the project's \`package.json\`, or plain CSS classes/inline styles matching the dimensions if using native CSS. Do not output unused CSS rules.
 `;
 
 // ── references/api-reference (Tier 3 — loaded on demand) ────────────────────
@@ -206,18 +245,21 @@ Catch with: \`if (e instanceof NgxThemeStackError) { ... }\`
 
 // ── assets/ component examples (Tier 3 — pure TypeScript, read on demand) ───
 
-const TEMPLATE_TOGGLE = `import { inject, Component } from '@angular/core';
+const TEMPLATE_TOGGLE = `import { inject, Component, ChangeDetectionStrategy } from '@angular/core';
 import { ThemeToggleService } from 'ngx-theme-stack';
 
 @Component({
   selector: 'app-theme-toggle',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: \`
     @if (theme.isHydrated()) {
       <button (click)="theme.toggle()">
         {{ theme.isDark() ? '🌙' : '☀️' }}
       </button>
     } @else {
-      <!-- Implement a custom skeleton/placeholder that matches the hydrated button's exact dimensions to prevent layout shift -->
+      <!-- Placeholder that matches button dimensions to prevent layout shift -->
+      <div style="width: 40px; height: 40px; border-radius: 4px; background: #e2e8f0;"></div>
     }
   \`,
 })
@@ -226,16 +268,19 @@ export class ThemeToggle {
 }
 `;
 
-const TEMPLATE_CYCLE = `import { inject, Component } from '@angular/core';
+const TEMPLATE_CYCLE = `import { inject, Component, ChangeDetectionStrategy } from '@angular/core';
 import { ThemeCycleService } from 'ngx-theme-stack';
 
 @Component({
   selector: 'app-theme-cycle',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: \`
     @if (theme.isHydrated()) {
       <button (click)="theme.cycle()">🔄 Cycle Theme</button>
     } @else {
-      <!-- Implement a custom skeleton/placeholder that matches the hydrated button's exact dimensions to prevent layout shift -->
+      <!-- Placeholder that matches button dimensions to prevent layout shift -->
+      <div style="width: 112px; height: 40px; border-radius: 4px; background: #e2e8f0;"></div>
     }
   \`,
 })
@@ -244,11 +289,13 @@ export class ThemeCycle {
 }
 `;
 
-const TEMPLATE_SELECT = `import { inject, Component } from '@angular/core';
+const TEMPLATE_SELECT = `import { inject, Component, ChangeDetectionStrategy } from '@angular/core';
 import { ThemeSelectService } from 'ngx-theme-stack';
 
 @Component({
   selector: 'app-theme-select',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: \`
     @if (theme.isHydrated()) {
       <select name="select-theme" (change)="onThemeChange($event)">
@@ -259,7 +306,8 @@ import { ThemeSelectService } from 'ngx-theme-stack';
         }
       </select>
     } @else {
-      <!-- Implement a custom skeleton/placeholder that matches the hydrated select's exact dimensions to prevent layout shift -->
+      <!-- Placeholder that matches select dimensions to prevent layout shift -->
+      <div style="width: 128px; height: 40px; border-radius: 4px; background: #e2e8f0;"></div>
     }
   \`,
 })
@@ -280,6 +328,8 @@ const SKILL_ROOT = '.agents/skills/ngx-theme-stack';
 const FILES: { path: string; content: string }[] = [
   { path: `${SKILL_ROOT}/SKILL.${MD}`, content: SKILL_CONTENT },
   { path: `${SKILL_ROOT}/references/api-reference.${MD}`, content: API_REFERENCE },
+  { path: `${SKILL_ROOT}/references/styling.${MD}`, content: STYLING_CONTENT },
+  { path: `${SKILL_ROOT}/references/ssr-hydration.${MD}`, content: SSR_HYDRATION_CONTENT },
   { path: `${SKILL_ROOT}/assets/theme-toggle.ts`, content: TEMPLATE_TOGGLE },
   { path: `${SKILL_ROOT}/assets/theme-cycle.ts`, content: TEMPLATE_CYCLE },
   { path: `${SKILL_ROOT}/assets/theme-select.ts`, content: TEMPLATE_SELECT },
