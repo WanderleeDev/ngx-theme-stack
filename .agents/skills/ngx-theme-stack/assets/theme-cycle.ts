@@ -1,13 +1,16 @@
-import { inject, Component } from '@angular/core';
+import { inject, Component, ChangeDetectionStrategy } from '@angular/core';
 import { ThemeCycleService } from 'ngx-theme-stack';
 
 @Component({
   selector: 'app-theme-cycle',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (theme.isHydrated()) {
       <button (click)="theme.cycle()">🔄 Cycle Theme</button>
     } @else {
-      <!-- Implement a custom skeleton/placeholder that matches the hydrated button's exact dimensions to prevent layout shift -->
+      <!-- Placeholder that matches button dimensions to prevent layout shift -->
+      <div style="width: 112px; height: 40px; border-radius: 4px; background: #e2e8f0;"></div>
     }
   `,
 })

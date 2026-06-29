@@ -1,15 +1,18 @@
-import { inject, Component } from '@angular/core';
+import { inject, Component, ChangeDetectionStrategy } from '@angular/core';
 import { ThemeToggleService } from 'ngx-theme-stack';
 
 @Component({
   selector: 'app-theme-toggle',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (theme.isHydrated()) {
       <button (click)="theme.toggle()">
         {{ theme.isDark() ? '🌙' : '☀️' }}
       </button>
     } @else {
-      <!-- Implement a custom skeleton/placeholder that matches the hydrated button's exact dimensions to prevent layout shift -->
+      <!-- Placeholder that matches button dimensions to prevent layout shift -->
+      <div style="width: 40px; height: 40px; border-radius: 4px; background: #e2e8f0;"></div>
     }
   `,
 })

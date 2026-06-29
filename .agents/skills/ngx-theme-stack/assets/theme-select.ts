@@ -1,8 +1,10 @@
-import { inject, Component } from '@angular/core';
+import { inject, Component, ChangeDetectionStrategy } from '@angular/core';
 import { ThemeSelectService } from 'ngx-theme-stack';
 
 @Component({
   selector: 'app-theme-select',
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (theme.isHydrated()) {
       <select name="select-theme" (change)="onThemeChange($event)">
@@ -13,7 +15,8 @@ import { ThemeSelectService } from 'ngx-theme-stack';
         }
       </select>
     } @else {
-      <!-- Implement a custom skeleton/placeholder that matches the hydrated select's exact dimensions to prevent layout shift -->
+      <!-- Placeholder that matches select dimensions to prevent layout shift -->
+      <div style="width: 128px; height: 40px; border-radius: 4px; background: #e2e8f0;"></div>
     }
   `,
 })
