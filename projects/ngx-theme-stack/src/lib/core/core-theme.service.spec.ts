@@ -6,7 +6,7 @@ import { CoreThemeService } from './core-theme.service';
 
 @Component({
   template: '',
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
 })
 class TestComponent {}
