@@ -19,7 +19,5 @@ export class NgxThemeStackError extends Error {
 
   constructor(message: string) {
     super(`[ngx-theme-stack] ${message}`);
-    // Restore prototype chain (required when targeting ES5 or older)
-    Object.setPrototypeOf(this, new.target.prototype);
   }
 }
