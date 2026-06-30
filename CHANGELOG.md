@@ -1,5 +1,14 @@
 # Changelog
 
+# [3.9.0-next.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.8.7...v3.9.0-next.0) (2026-06-30)
+
+
+### Features
+
+* add Angular 22 peer support, update hydration config, and enable OnPush change detection across demo views ([94c9fcf](https://github.com/WanderleeDev/ngx-theme-stack/commit/94c9fcfe13e2ec7fbdf0420950aaf1474ce3f467))
+* add support for publishing pre-releases to the next npm tag ([b828a53](https://github.com/WanderleeDev/ngx-theme-stack/commit/b828a5350294edf31dc200997780eb3258d6a84e))
+* upgrade to Angular 22, configure ChangeDetectionStrategy.Eager for components, and update build settings ([0d0066d](https://github.com/WanderleeDev/ngx-theme-stack/commit/0d0066d5218c3c2bc136a9e6578d4e8659282a3b))
+
 ## [3.8.7](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.8.6...v3.8.7) (2026-06-14)
 
 ## [3.8.6](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.8.5...v3.8.6) (2026-06-14)

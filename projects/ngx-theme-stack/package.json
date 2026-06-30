@@ -1,6 +1,6 @@
 {
   "name": "ngx-theme-stack",
-  "version": "3.8.7",
+  "version": "3.9.0-next.0",
   "description": "A stack of themes for Angular applications.",
   "keywords": [
     "angular",
