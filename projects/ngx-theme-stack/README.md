@@ -27,6 +27,7 @@ Built for performance, signal-driven reactivity, and SSR zero-flash support.
 - **🧱 Angular Signals:** Built natively with reactive signals for maximum performance.
 - **🌍 SSR & Hydration Ready:** Guaranteed zero flicker or layout shift on startup.
 - **🔄 Extensible & Custom Themes:** Seamlessly add sepia, sunset, or custom color palettes.
+- **🤖 AI Code Assistants Integration:** Work with AI coding assistants using the generated `SKILL.md` standard.
 
 ---
 
@@ -39,6 +40,7 @@ ng add ngx-theme-stack
 > [!TIP]
 > **Using Bun?**
 > Since `ng add` is not supported in Bun environments, use the manual two-step process:
+>
 > ```bash
 > bun add ngx-theme-stack
 > ng generate ngx-theme-stack:ng-add
@@ -69,7 +71,10 @@ import { ThemeToggleService } from 'ngx-theme-stack';
       </button>
     } @else {
       <!-- Placeholder matching dimensions to prevent layout shifts -->
-      <div class="theme-toggle-skeleton" style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 4px;"></div>
+      <div
+        class="theme-toggle-skeleton"
+        style="width: 40px; height: 40px; background: #e2e8f0; border-radius: 4px;"
+      ></div>
     }
   `,
 })
@@ -84,12 +89,12 @@ export class ThemeToggle {
 
 For details on more advanced topics, check out the official guides:
 
-* **[⚙️ Getting Started & Configuration](https://ngx-theme-stack-docs.wanderlee.site/guides/getting-started/)** - Detailed setup options and configuration properties.
-* **[🎨 Styling & Custom Themes](https://ngx-theme-stack-docs.wanderlee.site/guides/styling/)** - Learn how to define CSS variables for custom themes.
-* **[🌪️ Tailwind CSS v4 Integration](https://ngx-theme-stack-docs.wanderlee.site/guides/tailwind/)** - Map variables natively to Tailwind v4 theme configurations.
-* **[⚡ Performance & Anti-Flash Strategies](https://ngx-theme-stack-docs.wanderlee.site/guides/performance/)** - Learn how the zero-flash system works and how to choose between `critters` and `blocking` modes.
-* **[🤖 AI Agent Skill Setup](https://ngx-theme-stack-docs.wanderlee.site/guides/agent-integration/)** - Work with AI code assistants using the generated `SKILL.md` standard.
-* **[🛡️ API Reference](https://ngx-theme-stack-docs.wanderlee.site/reference/api/)** - Deep dive into convenience services, methods, and `CoreThemeService` signals.
+- **[⚙️ Getting Started & Configuration](https://ngx-theme-stack-docs.wanderlee.site/guides/getting-started/)** - Detailed setup options and configuration properties.
+- **[🎨 Styling & Custom Themes](https://ngx-theme-stack-docs.wanderlee.site/guides/styling/)** - Learn how to define CSS variables for custom themes.
+- **[🌪️ Tailwind CSS v4 Integration](https://ngx-theme-stack-docs.wanderlee.site/guides/tailwind/)** - Map variables natively to Tailwind v4 theme configurations.
+- **[⚡ Performance & Anti-Flash Strategies](https://ngx-theme-stack-docs.wanderlee.site/guides/performance/)** - Learn how the zero-flash system works and how to choose between `critters` and `blocking` modes.
+- **[🤖 AI Agent Skill Setup](https://ngx-theme-stack-docs.wanderlee.site/guides/agent-integration/)** - Work with AI code assistants using the generated `SKILL.md` standard.
+- **[🛡️ API Reference](https://ngx-theme-stack-docs.wanderlee.site/reference/api/)** - Deep dive into convenience services, methods, and `CoreThemeService` signals.
 
 ---
 
