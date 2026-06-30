@@ -3,6 +3,7 @@ import { ThemeCycleService } from 'ngx-theme-stack';
 
 @Component({
   selector: 'app-theme-cycle',
+  standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (theme.isHydrated()) {

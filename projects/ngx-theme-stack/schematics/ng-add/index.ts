@@ -147,6 +147,7 @@ export function ngAdd(options: Schema): Rule {
       pkg.scripts = pkg.scripts || {};
 
       const syncCmd = `ng generate ngx-theme-stack:sync --project ${projectName}`;
+      const skillCmd = `ng generate ngx-theme-stack:skill --project ${projectName}`;
       const pm = detectPackageManager(t);
       const pmRunCmd = `${pm} run ngx-theme-stack:sync`;
 
@@ -160,6 +161,18 @@ export function ngAdd(options: Schema): Rule {
         changeset.push(' \u001b[33mM\u001b[0m package.json (ngx-theme-stack:sync script updated)');
       } else {
         changeset.push(' \u001b[90mℹ\u001b[0m package.json (ngx-theme-stack:sync script already correct — skipped)');
+      }
+
+      // 1b. Add/Update main skill script
+      const existingSkill = pkg.scripts['ngx-theme-stack:skill'] as string | undefined;
+      if (!existingSkill) {
+        pkg.scripts['ngx-theme-stack:skill'] = skillCmd;
+        changeset.push(' \u001b[33mM\u001b[0m package.json (ngx-theme-stack:skill script added)');
+      } else if (existingSkill !== skillCmd) {
+        pkg.scripts['ngx-theme-stack:skill'] = skillCmd;
+        changeset.push(' \u001b[33mM\u001b[0m package.json (ngx-theme-stack:skill script updated)');
+      } else {
+        changeset.push(' \u001b[90mℹ\u001b[0m package.json (ngx-theme-stack:skill script already correct — skipped)');
       }
 
       // 2. Patch prebuild (runs before production builds)

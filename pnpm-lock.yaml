@@ -105,8 +105,8 @@ importers:
         specifier: ^22.0.0
         version: 22.0.0(@angular/compiler-cli@22.0.4(@angular/compiler@22.0.4)(typescript@6.0.3))(tailwindcss@4.3.2)(tslib@2.8.1)(typescript@6.0.3)
       ngx-theme-stack:
-        specifier: workspace:*
-        version: link:projects/ngx-theme-stack
+        specifier: file:dist/ngx-theme-stack
+        version: file:dist/ngx-theme-stack(@angular/common@22.0.4(@angular/core@22.0.4(@angular/compiler@22.0.4)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.0.4(@angular/compiler@22.0.4)(rxjs@7.8.2))
       postcss:
         specifier: ^8.5.16
         version: 8.5.16
@@ -3600,6 +3600,12 @@ packages:
     peerDependenciesMeta:
       tailwindcss:
         optional: true
+
+  ngx-theme-stack@file:dist/ngx-theme-stack:
+    resolution: {directory: dist/ngx-theme-stack, type: directory}
+    peerDependencies:
+      '@angular/common': ^20.0.0 || ^21.0.0 || ^22.0.0
+      '@angular/core': ^20.0.0 || ^21.0.0 || ^22.0.0
 
   node-addon-api@6.1.0:
     resolution: {integrity: sha512-+eawOlIgy680F0kBzPUNFhMZGtJ1YmqM6l4+Crf4IkImjYrO/mqPwRMh352g23uIaQKFItcQ64I7KMaJxHgAVA==}
@@ -8034,6 +8040,12 @@ snapshots:
     optionalDependencies:
       rollup: 4.62.2
       tailwindcss: 4.3.2
+
+  ngx-theme-stack@file:dist/ngx-theme-stack(@angular/common@22.0.4(@angular/core@22.0.4(@angular/compiler@22.0.4)(rxjs@7.8.2))(rxjs@7.8.2))(@angular/core@22.0.4(@angular/compiler@22.0.4)(rxjs@7.8.2)):
+    dependencies:
+      '@angular/common': 22.0.4(@angular/core@22.0.4(@angular/compiler@22.0.4)(rxjs@7.8.2))(rxjs@7.8.2)
+      '@angular/core': 22.0.4(@angular/compiler@22.0.4)(rxjs@7.8.2)
+      tslib: 2.8.1
 
   node-addon-api@6.1.0:
     optional: true

@@ -45,9 +45,9 @@ Headless, signal-based theme manager for Angular 20+.
 ## References and Guides
 
 For detailed instructions and implementations, see these sub-guides:
-- **API Reference & Config options**: [references/api-reference.\${MD}](references/api-reference.\${MD})
-- **Styling (CSS variables, Tailwind v4, and Pure CSS)**: [references/styling.\${MD}](references/styling.\${MD})
-- **SSR Hydration & Layout Stability (prevent layout shift)**: [references/ssr-hydration.\${MD}](references/ssr-hydration.\${MD})
+- **API Reference & Config options**: [references/api-reference.${MD}](references/api-reference.${MD})
+- **Styling (CSS variables, Tailwind v4, and Pure CSS)**: [references/styling.${MD}](references/styling.${MD})
+- **SSR Hydration & Layout Stability (prevent layout shift)**: [references/ssr-hydration.${MD}](references/ssr-hydration.${MD})
 
 ## Component Examples
 - **Toggle Component Example**: [assets/theme-toggle.ts](assets/theme-toggle.ts)
