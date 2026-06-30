@@ -32,7 +32,7 @@ Headless, signal-based theme manager for Angular 20+.
 - `isDark()` / `isLight()` return false for custom themes (use `resolvedTheme()`).
 - `selectedTheme()` can be `'system'`; `resolvedTheme()` is always the concrete theme applied to the DOM (never `'system'`).
 - `toggle()` switches between `'dark'` and `'light'`. If a custom theme is active, it switches to `'dark'`.
-- Pick ONE convenience service per component. Do not write custom localStorage or direct DOM logic.
+- Pick ONE convenience service per component. Do not write custom localStorage or direct DOM logic. Isolate switcher components (e.g. `<app-theme-toggle>`) instead of injecting theme services directly into `AppComponent`.
 - Use `CoreThemeService` directly only for advanced scenarios (dynamic theme names, custom service wrappers). For standard use, prefer convenience services.
 
 ## References and Guides
