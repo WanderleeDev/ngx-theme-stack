@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.9.1](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.9.0...v3.9.1) (2026-06-30)
+
+
+### Features
+
+* **schematics:** inject skill script in ng-add and fix interpolation in skill generator ([17000dd](https://github.com/WanderleeDev/ngx-theme-stack/commit/17000ddc0af347aafc1ecc28438ad1e09d9cab03))
+
 # [3.9.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.9.0-next.0...v3.9.0) (2026-06-30)
 
 # [3.9.0-next.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.8.7...v3.9.0-next.0) (2026-06-30)
