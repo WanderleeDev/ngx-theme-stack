@@ -6,7 +6,7 @@ This is the workspace (monorepo) for the **ngx-theme-stack** project. It contain
 
 -   **`projects/ngx-theme-stack/`**: The Angular library source code.
 -   **`projects/ngx-theme-stack/schematics/`**: Angular CLI schematics to automate installation (`ng add`).
--   **`projects/demo-ngx-theme-stack/`**: Official demonstration app showcasing Zero-Flash themes and signals.
+-   **`projects/demo-ngx-theme-stack/`**: Official demonstration app showcasing Zero-Flash themes and signals (interactive demo also available on [StackBlitz](https://stackblitz.com/~/github.com/WanderleeDev/stackblitz-demo)).
 
 ## 🚀 Quick Commands
 

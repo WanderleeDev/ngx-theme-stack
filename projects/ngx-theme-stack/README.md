@@ -7,11 +7,12 @@ Built for performance and SSR support.
 
 [![npm version](https://img.shields.io/npm/v/ngx-theme-stack.svg?style=flat-square)](https://www.npmjs.com/package/ngx-theme-stack)
 [![license](https://img.shields.io/npm/l/ngx-theme-stack.svg?style=flat-square)](https://github.com/WanderleeDev/ngx-theme-stack/blob/main/LICENSE)
-[![angular](https://img.shields.io/badge/angular-v20%20%7C%20v21-dd0031.svg?style=flat-square&logo=angular)](https://angular.dev/)
+[![angular](https://img.shields.io/badge/angular-v20+-dd0031.svg?style=flat-square&logo=angular)](https://angular.dev/)
 [![signals](https://img.shields.io/badge/signals-powered-a78bfa.svg?style=flat-square)](https://angular.dev/guide/signals)
 [![SSR](https://img.shields.io/badge/SSR-ready-4ade80.svg?style=flat-square)](https://angular.dev/guide/ssr)
+[![AI Skill](https://img.shields.io/badge/AI%20Skill-ready-6366f1.svg?style=flat-square)](#-ai-code-assistants-integration)
 
-[🌐 Live Demo](https://demo-ngx-theme-stack.wanderlee.site/) · [📚 Documentation](https://ngx-theme-stack-docs.wanderlee.site/) · [⭐ Star on GitHub](https://github.com/WanderleeDev/ngx-theme-stack)
+[🌐 Live Demo](https://demo-ngx-theme-stack.wanderlee.site/) · [⚡ StackBlitz Demo](https://stackblitz.com/~/github.com/WanderleeDev/stackblitz-demo) · [📚 Documentation](https://ngx-theme-stack-docs.wanderlee.site/) · [⭐ Star on GitHub](https://github.com/WanderleeDev/ngx-theme-stack)
 
 ![ngx-theme-stack banner](https://raw.githubusercontent.com/WanderleeDev/ngx-theme-stack/refs/heads/main/projects/demo-ngx-theme-stack/public/banner.png)
 
@@ -131,6 +132,7 @@ The **`CoreThemeService`** is the foundation — it manages state (Signals), per
 
 | Angular Version | Status    |
 | --------------- | --------- |
+| Angular 22      | ✅ Stable |
 | Angular 21      | ✅ Stable |
 | Angular 20      | ✅ Stable |
 
@@ -230,6 +232,12 @@ If you select a newly added custom theme (e.g. `'sunset'`) and reload the page, 
 ---
 
 ## 🛠️ Usage
+
+> [!TIP]
+> **💡 Architecture Best Practice:**
+> Isolate the theme switcher logic (using `ThemeToggleService`, `ThemeCycleService`, or `ThemeSelectService`) in dedicated, standalone switcher components rather than injecting them directly into the root `AppComponent`.
+>
+> This keeps your root component clean, respects the single-responsibility principle, and ensures that theme-switching UI elements are highly reusable. Only inject the service at the root level if the root UI structure itself needs to dynamically react to theme changes (e.g., for dynamic logo assets or theme-dependent styles not covered by CSS variables).
 
 ### 1 — Simple toggle (dark/light)
 
