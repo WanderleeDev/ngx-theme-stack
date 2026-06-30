@@ -72,5 +72,5 @@
     "typescript-eslint": "8.62.1",
     "vitest": "^4.1.9"
   },
-  "version": "3.9.1"
+  "version": "3.9.2"
 }
