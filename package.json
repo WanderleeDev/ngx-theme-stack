@@ -14,6 +14,7 @@
     "test": "ng test",
     "lint": "ng lint",
     "release": "release-it",
+    "release:next": "release-it --preRelease=next",
     "serve:ssr:demo-ngx-theme-stack": "node dist/demo-ngx-theme-stack/server/server.mjs",
     "prebuild": "pnpm run ngx-theme-stack:sync"
   },

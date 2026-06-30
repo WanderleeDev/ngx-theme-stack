@@ -41,7 +41,13 @@ jobs:
         run: pnpm run build:lib
 
       - name: Publish to NPM (with provenance)
-        run: npm publish --provenance --access public
+        shell: bash
+        run: |
+          if [[ "${{ github.ref_name }}" =~ - ]]; then
+            npm publish --provenance --access public --tag next
+          else
+            npm publish --provenance --access public
+          fi
         working-directory: dist/ngx-theme-stack
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
