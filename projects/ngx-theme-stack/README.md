@@ -98,6 +98,14 @@ For details on more advanced topics, check out the official guides:
 
 ---
 
+## 🤝 Contributing & Issues
+
+Contributions are welcome! If you find a bug or have a suggestion, feel free to open an issue or submit a pull request:
+- Report bugs or request features on [GitHub Issues](https://github.com/WanderleeDev/ngx-theme-stack/issues).
+- For local development guidelines (how to build, test, and run the demo), please refer to the workspace [README](../../README.md).
+
+---
+
 ## 📄 License
 
 [MIT](https://github.com/WanderleeDev/ngx-theme-stack/blob/main/LICENSE)
