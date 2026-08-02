@@ -1,6 +1,6 @@
 import { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 import { patchAppConfig } from '../ng-add/app-config';
-import { buildProvideCall } from '../ng-add/utils';
+import { assertAngularProject, buildProvideCall } from '../ng-add/utils';
 import { DEFAULTS } from '../ng-add/constants';
 import { Schema } from './schema';
 import { buildAntiFlashScript } from '../utils/anti-flash-script';
@@ -217,6 +217,7 @@ export function sync(options: Schema): Rule {
     }
 
     const sourceRoot: string = project.sourceRoot || `${project.root ?? ''}/src`;
+    assertAngularProject(tree, sourceRoot, projectName);
     const config = extractConfig(tree, sourceRoot, context);
     const strategy = (options.strategy || config.strategy || detectStrategy(tree, sourceRoot)) as 'critters' | 'blocking';
     const changeset: string[] = [];

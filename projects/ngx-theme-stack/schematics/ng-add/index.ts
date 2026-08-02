@@ -3,7 +3,7 @@ import { patchIndexHtml } from './anti-flash';
 import { patchAppConfig } from './app-config';
 import { DEFAULT_THEMES, DEFAULTS } from './constants';
 import { Schema } from './schema';
-import { ask, askList, buildProvideCall, createRl } from './utils';
+import { ask, askList, assertAngularProject, buildProvideCall, createRl, detectPackageManager } from './utils';
 import { generateSkill } from '../skill/index';
 
 interface SchematicConfig {
@@ -84,6 +84,8 @@ export function ngAdd(options: Schema): Rule {
     const projectRoot = project.root || '';
     const projectSourceRoot = project.sourceRoot || `${projectRoot}/src`;
 
+    assertAngularProject(tree, projectSourceRoot, projectName);
+
     context.logger.info('\n🎨  ngx-theme-stack — setup');
     context.logger.info(`    project: ${projectName}\n`);
 
@@ -129,13 +131,6 @@ export function ngAdd(options: Schema): Rule {
 
       t.create(themesPath, content);
       changeset.push(` \u001b[36mA\u001b[0m ${themesPath} (theme tokens)`);
-    }
-
-    function detectPackageManager(t: Tree): string {
-      if (t.exists('/pnpm-lock.yaml')) return 'pnpm';
-      if (t.exists('/yarn.lock')) return 'yarn';
-      if (t.exists('/bun.lockb') || t.exists('/bun.lock')) return 'bun';
-      return 'npm';
     }
 
     function patchPackageJsonScripts(t: Tree): void {
