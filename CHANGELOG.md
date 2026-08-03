@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.9.4](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.9.3...v3.9.4) (2026-08-03)
+
+
+### Features
+
+* **schematics:** auto-detect project in skill generator ([9575df6](https://github.com/WanderleeDev/ngx-theme-stack/commit/9575df624322c1c340a3a515d6239eb50d6cefed))
+* **schematics:** interactive project picker on ng-add, sync and skill ([dbd37f8](https://github.com/WanderleeDev/ngx-theme-stack/commit/dbd37f80d6e9004cef62e29c5af195d0a62ca61d))
+
 ## [3.9.3](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.9.2...v3.9.3) (2026-08-03)
 
 
