@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.9.3](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.9.2...v3.9.3) (2026-08-03)
+
+
+### Bug Fixes
+
+* **schematics:** guard ng-add and sync against NestJS projects ([cd3222c](https://github.com/WanderleeDev/ngx-theme-stack/commit/cd3222c3b0a9b6b8ff68b06a411720a4b9b60762))
+
 ## [3.9.2](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.9.1...v3.9.2) (2026-06-30)
 
 ## [3.9.1](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.9.0...v3.9.1) (2026-06-30)
