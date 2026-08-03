@@ -7,10 +7,11 @@
     "project": {
       "type": "string",
       "description": "The name of the Angular project.",
+      "x-prompt": "Which project should receive ngx-theme-stack?",
       "$default": {
         "$source": "projectName"
       }
     }
   },
-  "required": ["project"]
+  "required": []
 }
