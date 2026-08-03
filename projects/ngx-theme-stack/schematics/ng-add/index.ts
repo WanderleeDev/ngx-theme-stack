@@ -73,8 +73,10 @@ export function ngAdd(options: Schema): Rule {
     }
 
     const workspace = JSON.parse(workspaceConfig.toString());
-    const projectName =
-      options.project || workspace.defaultProject || Object.keys(workspace.projects)[0];
+    const projectName = options.project;
+    if (!projectName) {
+      throw new Error('No project provided. Pass --project <name> or run interactively.');
+    }
     const project = workspace.projects[projectName];
 
     if (!project) {
@@ -141,8 +143,11 @@ export function ngAdd(options: Schema): Rule {
       const pkg = JSON.parse(buffer.toString());
       pkg.scripts = pkg.scripts || {};
 
-      const syncCmd = `ng generate ngx-theme-stack:sync --project ${projectName}`;
-      const skillCmd = `ng generate ngx-theme-stack:skill --project ${projectName}`;
+      // Nx monorepos often don't install the Angular CLI (`ng`), so scripts
+      // must call the runner that actually exists in the workspace.
+      const runner = t.exists('nx.json') ? 'nx' : 'ng';
+      const syncCmd = `${runner} generate ngx-theme-stack:sync --project ${projectName}`;
+      const skillCmd = `${runner} generate ngx-theme-stack:skill --project ${projectName}`;
       const pm = detectPackageManager(t);
       const pmRunCmd = `${pm} run ngx-theme-stack:sync`;
 

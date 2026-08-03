@@ -209,7 +209,10 @@ export function sync(options: Schema): Rule {
     }
 
     const workspace = JSON.parse(workspaceConfig.toString());
-    const projectName = options.project ?? workspace.defaultProject;
+    const projectName = options.project;
+    if (!projectName) {
+      throw new Error('No project provided. Pass --project <name> or run interactively.');
+    }
     const project = workspace.projects[projectName];
 
     if (!project) {
