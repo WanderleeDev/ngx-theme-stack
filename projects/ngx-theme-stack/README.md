@@ -46,6 +46,15 @@ ng add ngx-theme-stack
 > ng generate ngx-theme-stack:ng-add
 > ```
 
+> [!TIP]
+> **Using an Nx monorepo?**
+> Since `ng add` doesn't run in Nx workspaces, use the Nx-native two-step process:
+>
+> ```bash
+> nx add ngx-theme-stack
+> nx g ngx-theme-stack:ng-add --project <app-name>
+> ```
+
 ---
 
 ## 🛠️ Quick Start
