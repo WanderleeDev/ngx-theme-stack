@@ -6,6 +6,26 @@ const angular = require("angular-eslint");
 
 module.exports = defineConfig([
   {
+    // Generated output only. `files: ['**/*.ts']` below matches the whole
+    // workspace, and ESLint 9+/flat config does not ignore `dist` or build
+    // caches by default, so any glob that reaches them reports errors on code
+    // nobody wrote:
+    //   - dist/**.d.ts: Angular emits `#private` fields and `any`.
+    //   - .agents/**: generated skill assets, whose example components use an
+    //     `app-` selector (correct for a consumer app, but the workspace rule
+    //     below demands the `lib` prefix).
+    // Scoped per-project lint already skips them; this keeps IDE/plugin/root
+    // globs honest too.
+    ignores: [
+      'dist/**',
+      '.agents/**',
+      '.angular/**',
+      'out-tsc/**',
+      'coverage/**',
+      'vitest-coverage/**',
+    ],
+  },
+  {
     files: ["**/*.ts"],
     extends: [
       eslint.configs.recommended,
