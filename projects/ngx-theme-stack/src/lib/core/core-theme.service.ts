@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { NGX_THEME_STACK_CONFIG } from '../config';
 import { NgxThemeStackError } from '../errors';
-import { NgSystemTheme, NgTheme } from '../types';
+import { NgSystemTheme, NgTheme, ResolvedTheme } from '../types';
 
 /**
  * Core service for managing the application's color theme.
@@ -37,8 +37,21 @@ export class CoreThemeService {
   /** List of available themes for Select/Cycle services. Defaults to ['system', 'light', 'dark']. */
   readonly availableThemes = this.#config.themes;
 
-  /** Internal Set for O(1) existence checks. */
-  readonly #validThemes = new Set<NgTheme>(this.availableThemes);
+  /** Normalized themes with per-theme color-scheme hints. */
+  readonly resolvedThemes: ResolvedTheme[] = this.#config.resolvedThemes;
+
+  /** Plain string array of theme names, suitable for template binding. */
+  readonly themeNames: string[] = this.resolvedThemes.map((t) => t.name);
+
+  /** O(1) name→scheme lookup. */
+  readonly #schemeByName: ReadonlyMap<string, string> = new Map(
+    this.resolvedThemes.map((t) => [t.name, t.scheme]),
+  );
+
+  /** Internal Set for O(1) existence checks. Built from normalized names. */
+  readonly #validThemes = new Set<NgTheme>(
+    this.resolvedThemes.map((t) => t.name as NgTheme),
+  );
 
   /**
    * The anti-flash class to remove from the host element.
@@ -210,17 +223,20 @@ export class CoreThemeService {
   }
 
   private applyThemeClasses(host: HTMLElement, theme: NgTheme): void {
-    host.classList.remove(...this.availableThemes);
+    host.classList.remove(...this.resolvedThemes.map((t) => t.name));
     host.classList.add(theme);
   }
 
   private applyColorSchemeHint(host: HTMLElement, theme: NgTheme): void {
-    if (theme === 'dark' || theme === 'light') {
-      host.style.setProperty('color-scheme', theme);
+    // 'system' never reaches this path — it is resolved to 'dark' or 'light'
+    // by `resolvedTheme`. Custom themes carry the user-declared scheme hint
+    // (default: 'auto', no change).
+    const scheme = this.#schemeByName.get(theme) ?? 'auto';
+    if (scheme === 'auto' || scheme === 'none') {
+      host.style.removeProperty('color-scheme');
       return;
     }
-
-    host.style.removeProperty('color-scheme');
+    host.style.setProperty('color-scheme', scheme);
   }
 
   private captureAntiFlashClass(): void {

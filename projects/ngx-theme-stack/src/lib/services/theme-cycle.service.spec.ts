@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { ThemeCycleService } from './theme-cycle.service';
 import { NGX_THEME_STACK_CONFIG } from '../config';
 import { CoreThemeService } from '../core/core-theme.service';
-import { NgConfig } from '../types';
+import { NgConfig, normalizeThemeInputs, NgThemeInput } from '../types';
 
 function setup(config: Partial<NgConfig> = {}) {
   let store: Record<string, string> = {};
@@ -20,14 +20,16 @@ function setup(config: Partial<NgConfig> = {}) {
     removeEventListener: vi.fn(),
   }));
 
+  const themes = (config.themes as NgThemeInput[] | undefined) ?? ['light', 'dark', 'system'];
   const fullConfig: NgConfig = {
     defaultTheme: 'system',
     storageKey: 'ngx-theme-stack',
     mode: 'class',
-    themes: ['light', 'dark', 'system'],
+    themes,
     strategy: 'critters',
+    resolvedThemes: normalizeThemeInputs(themes as NgThemeInput[]),
     ...config,
-  };
+  } as NgConfig;
 
   TestBed.configureTestingModule({
     providers: [

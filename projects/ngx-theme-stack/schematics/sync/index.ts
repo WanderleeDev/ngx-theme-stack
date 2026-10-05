@@ -61,6 +61,7 @@ interface ExtractedConfig {
   mode: string;
   strategy?: string;
   themes: string[];
+  schemeMap?: Record<string, string>;
 }
 
 // ── Config extraction ─────────────────────────────────────────────────────────
@@ -107,7 +108,21 @@ function extractConfig(
           .filter(Boolean)
       : [...DEFAULTS.themes];
 
-    return { mode, strategy, storageKey, defaultTheme, themes };
+    // Detect object-form theme entries with scheme hints.
+    // Matches patterns like: { name: 'sepia', scheme: 'light' }
+    const schemeMap: Record<string, string> = {};
+    const objThemeRe = /\{\s*name\s*:\s*['"]([^'"]+)['"]\s*,?\s*scheme\s*:\s*['"]([^'"]+)['"]\s*\}/g;
+    let m: RegExpExecArray | null;
+    while ((m = objThemeRe.exec(themesRaw)) !== null) {
+      schemeMap[m[1]] = m[2];
+    }
+
+    // Ensure themes from object form are included in the themes list.
+    for (const name of Object.keys(schemeMap)) {
+      if (!themes.includes(name)) themes.push(name);
+    }
+
+    return { mode, strategy, storageKey, defaultTheme, themes, schemeMap: Object.keys(schemeMap).length ? schemeMap : undefined };
   }
 
   // Fallback to defaults if no config file found
@@ -116,6 +131,7 @@ function extractConfig(
     storageKey: DEFAULTS.storageKey,
     defaultTheme: DEFAULTS.defaultTheme,
     themes: [...DEFAULTS.themes],
+    schemeMap: undefined,
   };
 }
 
@@ -226,7 +242,10 @@ export function sync(options: Schema): Rule {
     const changeset: string[] = [];
 
     // Ensure provideThemeStack exists and is up to date in app.config.ts
-    const provideCall = buildProvideCall(config.defaultTheme, config.storageKey, config.mode, config.themes, strategy);
+    const provideCall = buildProvideCall(
+      config.defaultTheme, config.storageKey, config.mode,
+      config.themes, strategy, config.schemeMap,
+    );
     await patchAppConfig(tree, context, sourceRoot, provideCall, projectName);
 
     context.logger.info('');
@@ -245,7 +264,13 @@ export function sync(options: Schema): Rule {
       let changed = false;
 
       if (content.includes('ngx-theme-stack anti-flash')) {
-        const newScriptBlock = `<!-- ngx-theme-stack anti-flash -->\n  <script>${buildAntiFlashScript(config)}</script>`;
+        const newScriptBlock = `<!-- ngx-theme-stack anti-flash -->\n  <script>${buildAntiFlashScript({
+          storageKey: config.storageKey,
+          defaultTheme: config.defaultTheme,
+          mode: config.mode,
+          themes: config.themes,
+          schemeMap: config.schemeMap,
+        })}</script>`;
         if (SCRIPT_BLOCK_RE.test(content)) {
           const updatedScript = content.replace(SCRIPT_BLOCK_RE, newScriptBlock);
           if (updatedScript !== content) {

@@ -1,5 +1,6 @@
 import { computed, inject, Injectable } from '@angular/core';
 import { CoreThemeService } from '../core/core-theme.service';
+import { NgTheme } from '../types';
 
 /**
  * Convenience service for cycling through themes in a fixed order.
@@ -13,8 +14,15 @@ import { CoreThemeService } from '../core/core-theme.service';
 export class ThemeCycleService {
   readonly #core = inject(CoreThemeService);
 
+  /**
+   * List of all configured theme **names** for cycling.
+   * Returns a plain `string[]` so template consumers can bind directly.
+   * Defaults to `['system', 'light', 'dark']` plus any user-declared themes.
+   */
+  readonly themeNames: string[] = this.#core.themeNames;
+
   /** List of all configured themes for cycling. Defaults to `['light', 'dark', 'system']`. */
-  readonly availableThemes = this.#core.availableThemes;
+  readonly availableThemes = this.themeNames as NgTheme[];
 
   /** The theme explicitly selected by the user. May be `'system'`. */
   readonly selectedTheme = this.#core.selectedTheme;
@@ -24,20 +32,20 @@ export class ThemeCycleService {
 
   /** Index of the currently selected theme in the cycle. */
   readonly cycleIndex = computed(() => {
-    return this.availableThemes.indexOf(this.selectedTheme());
+    return this.themeNames.indexOf(this.selectedTheme());
   });
 
   /** The theme that comes before the currently selected theme in the cycle. */
   readonly preceding = computed(() => {
     const index = this.cycleIndex();
-    const len = this.availableThemes.length;
-    return this.availableThemes[(index - 1 + len) % len];
+    const len = this.themeNames.length;
+    return this.themeNames[(index - 1 + len) % len];
   });
 
   /** The theme that comes after the currently selected theme in the cycle. */
   readonly upcoming = computed(() => {
     const index = this.cycleIndex();
-    return this.availableThemes[(index + 1) % this.availableThemes.length];
+    return this.themeNames[(index + 1) % this.themeNames.length];
   });
 
   /** Whether the currently applied theme is `'dark'`. */

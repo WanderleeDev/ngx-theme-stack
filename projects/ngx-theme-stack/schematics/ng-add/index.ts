@@ -11,6 +11,7 @@ interface SchematicConfig {
   storageKey: string;
   mode: string;
   themes: string[];
+  schemeMap: Record<string, string>;
   strategy: 'critters' | 'blocking';
   provideCall: string;
   addSkill: boolean;
@@ -56,10 +57,34 @@ async function collectCustomOptions(cliAddSkill?: boolean): Promise<SchematicCon
       addSkill = rawAddSkill.toLowerCase() !== 'n';
     }
 
-    const provideCall = buildProvideCall(defaultTheme, storageKey, mode, themes, strategy);
+    // ── Optional color-scheme hints for custom themes ─────────────────
+    const schemeMap: Record<string, string> = {};
+    const customOnly = themes.filter((t) => t !== 'light' && t !== 'dark' && t !== 'system');
+    if (customOnly.length > 0) {
+      const wantScheme = await ask(
+        rl,
+        `  Do your custom themes need explicit color-scheme hints? [y/N] `,
+      );
+      if (wantScheme.toLowerCase() === 'y') {
+        for (const name of customOnly) {
+          const rawScheme = await ask(
+            rl,
+            `    color-scheme for "${name}" (light|dark|auto|none, Enter=auto): `,
+          );
+          const s = rawScheme.trim();
+          if (s && s !== 'auto') {
+            schemeMap[name] = s;
+          }
+        }
+      }
+    }
+
+    const provideCall = buildProvideCall(
+      defaultTheme, storageKey, mode, themes, strategy, schemeMap,
+    );
 
     process.stdout.write('\n');
-    return { defaultTheme, storageKey, mode, themes, strategy, provideCall, addSkill };
+    return { defaultTheme, storageKey, mode, themes, schemeMap, strategy, provideCall, addSkill };
   } finally {
     rl.close();
   }
@@ -101,6 +126,7 @@ export function ngAdd(options: Schema): Rule {
         storageKey,
         mode,
         themes,
+        schemeMap: {},
         strategy: strategy as 'critters' | 'blocking',
         provideCall: buildProvideCall(defaultTheme, storageKey, mode, themes, strategy),
         addSkill: options.addSkill ?? false,
@@ -238,6 +264,7 @@ export function ngAdd(options: Schema): Rule {
         defaultTheme: config.defaultTheme,
         mode: config.mode,
         themes: config.themes,
+        schemeMap: config.schemeMap,
         strategy: config.strategy,
       });
       changeset.push(' \u001b[33mM\u001b[0m index.html (injected anti-flash)');

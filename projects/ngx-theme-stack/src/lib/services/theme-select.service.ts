@@ -12,8 +12,15 @@ import { NgTheme } from '../types';
 export class ThemeSelectService {
   readonly #core = inject(CoreThemeService);
 
+  /**
+   * List of all configured theme **names** for select UI.
+   * Returns a plain `string[]` so template consumers can bind directly.
+   * Defaults to `['system', 'light', 'dark']`.
+   */
+  readonly themeNames: string[] = this.#core.themeNames;
+
   /** List of all configured themes. Defaults to `['light', 'dark', 'system']`. */
-  readonly availableThemes = this.#core.availableThemes;
+  readonly availableThemes = this.themeNames as NgTheme[];
 
   /** The theme explicitly selected by the user. May be `'system'`. */
   readonly selectedTheme = this.#core.selectedTheme;

@@ -1,8 +1,9 @@
 import { Component, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NGX_THEME_STACK_CONFIG } from '../config';
-import { NgConfig } from '../types';
+import { NgConfig, normalizeThemeInputs } from '../types';
 import { CoreThemeService } from './core-theme.service';
+
 
 @Component({
   template: '',
@@ -58,6 +59,7 @@ function setup(
     mode: 'class',
     themes: ['light', 'dark', 'system'],
     strategy: 'critters',
+    resolvedThemes: normalizeThemeInputs(['light', 'dark', 'system']),
     ...config,
   };
 

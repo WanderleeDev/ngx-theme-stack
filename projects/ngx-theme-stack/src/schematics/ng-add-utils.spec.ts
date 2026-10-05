@@ -1,6 +1,7 @@
 import { HostTree } from '@angular-devkit/schematics';
 import {
   assertAngularProject,
+  buildProvideCall,
   detectPackageManager,
   looksLikeNestMain,
 } from '../../schematics/ng-add/utils';
@@ -52,6 +53,37 @@ describe('assertAngularProject', () => {
 
   it('passes when main.ts is missing (guard is best-effort)', () => {
     expect(() => assertAngularProject(new HostTree(), 'src', 'frontend')).not.toThrow();
+  });
+});
+
+describe('buildProvideCall', () => {
+  it('renders string themes as plain quotes', () => {
+    const call = buildProvideCall('system', 'key', 'class', ['system', 'light', 'dark'], 'critters');
+    expect(call).toContain("themes: ['system', 'light', 'dark'] as const");
+    expect(call).not.toContain('scheme');
+  });
+
+  it('renders object-form entries when schemeMap is provided', () => {
+    const call = buildProvideCall(
+      'system', 'key', 'class',
+      ['system', 'light', 'dark', 'sepia'],
+      'critters',
+      { sepia: 'light' },
+    );
+    expect(call).toContain("{ name: 'sepia', scheme: 'light' }");
+    expect(call).toContain("'system'");
+    expect(call).toContain("'light'");
+  });
+
+  it('leaves entries without a schemeMap entry as plain strings', () => {
+    const call = buildProvideCall(
+      'system', 'key', 'class',
+      ['system', 'light', 'dark', 'sepia', 'ocean'],
+      'critters',
+      { sepia: 'light' },
+    );
+    expect(call).toContain("{ name: 'sepia', scheme: 'light' }");
+    expect(call).toContain("'ocean'");
   });
 });
 

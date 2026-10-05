@@ -38,8 +38,16 @@ export function buildProvideCall(
   mode: string,
   themes: string[],
   strategy: string,
+  schemeMap?: Record<string, string>,
 ): string {
-  const themesArr = themes.map((t) => `'${t}'`).join(', ');
+  const entries = themes.map((t) => {
+    const scheme = schemeMap?.[t];
+    if (scheme) {
+      return `{ name: '${t}', scheme: '${scheme}' }`;
+    }
+    return `'${t}'`;
+  });
+  const themesArr = entries.join(', ');
   return [
     'provideThemeStack({',
     `      themes: [${themesArr}] as const,`,

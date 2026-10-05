@@ -2,7 +2,7 @@ import { PLATFORM_ID } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NGX_THEME_STACK_CONFIG } from '../config';
 import { CoreThemeService } from '../core/core-theme.service';
-import { NgConfig } from '../types';
+import { NgConfig, normalizeThemeInputs } from '../types';
 import { ThemeToggleService } from './theme-toggle.service';
 
 function setup(systemPrefersDark = false) {
@@ -33,6 +33,7 @@ function setup(systemPrefersDark = false) {
     mode: 'class',
     themes: ['light', 'dark', 'system'],
     strategy: 'critters',
+    resolvedThemes: normalizeThemeInputs(['light', 'dark', 'system']),
   };
 
   TestBed.configureTestingModule({
