@@ -4,6 +4,7 @@ import { assertAngularProject, buildProvideCall } from '../ng-add/utils';
 import { DEFAULTS } from '../ng-add/constants';
 import { Schema } from './schema';
 import { buildAntiFlashScript } from '../utils/anti-flash-script';
+import { parseThemeInputArray } from '../utils/theme-input';
 
 // ── Regex patterns ────────────────────────────────────────────────────────────
 
@@ -101,28 +102,17 @@ function extractConfig(
     const strategy = OPTION_STRATEGY_RE.exec(opts)?.[1] ?? undefined;
 
     const themesRaw = OPTION_THEMES_RE.exec(opts)?.[1] ?? '';
-    const themes: string[] = themesRaw
-      ? themesRaw
-          .split(',')
-          .map((t) => t.trim().replace(/^['"]|['"]$/g, ''))
-          .filter(Boolean)
-      : [...DEFAULTS.themes];
+    const { themes, schemeMap } = parseThemeInputArray(themesRaw);
+    if (themes.length === 0) themes.push(...DEFAULTS.themes);
 
-    // Detect object-form theme entries with scheme hints.
-    // Matches patterns like: { name: 'sepia', scheme: 'light' }
-    const schemeMap: Record<string, string> = {};
-    const objThemeRe = /\{\s*name\s*:\s*['"]([^'"]+)['"]\s*,?\s*scheme\s*:\s*['"]([^'"]+)['"]\s*\}/g;
-    let m: RegExpExecArray | null;
-    while ((m = objThemeRe.exec(themesRaw)) !== null) {
-      schemeMap[m[1]] = m[2];
-    }
-
-    // Ensure themes from object form are included in the themes list.
-    for (const name of Object.keys(schemeMap)) {
-      if (!themes.includes(name)) themes.push(name);
-    }
-
-    return { mode, strategy, storageKey, defaultTheme, themes, schemeMap: Object.keys(schemeMap).length ? schemeMap : undefined };
+    return {
+      mode,
+      strategy,
+      storageKey,
+      defaultTheme,
+      themes,
+      schemeMap: Object.keys(schemeMap).length ? schemeMap : undefined,
+    };
   }
 
   // Fallback to defaults if no config file found
