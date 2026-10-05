@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { NGX_THEME_STACK_CONFIG } from '../config';
 import { NgxThemeStackError } from '../errors';
-import { NgSystemTheme, NgTheme, ResolvedTheme } from '../types';
+import { NgSystemTheme, NgTheme, NgThemeInput, ResolvedTheme, normalizeThemeInputs } from '../types';
 
 /**
  * Core service for managing the application's color theme.
@@ -37,8 +37,15 @@ export class CoreThemeService {
   /** List of available themes for Select/Cycle services. Defaults to ['system', 'light', 'dark']. */
   readonly availableThemes = this.#config.themes;
 
-  /** Normalized themes with per-theme color-scheme hints. */
-  readonly resolvedThemes: ResolvedTheme[] = this.#config.resolvedThemes;
+  /**
+   * Normalized themes with per-theme color-scheme hints.
+   *
+   * Falls back to deriving the list from `themes` when a config is injected
+   * without `resolvedThemes` (e.g. a hand-rolled `NGX_THEME_STACK_CONFIG`
+   * provider in tests), so the service never loses its valid-theme set.
+   */
+  readonly resolvedThemes: ResolvedTheme[] =
+    this.#config.resolvedThemes ?? normalizeThemeInputs(this.#config.themes as NgThemeInput[]);
 
   /** Plain string array of theme names, suitable for template binding. */
   readonly themeNames: string[] = this.resolvedThemes.map((t) => t.name);

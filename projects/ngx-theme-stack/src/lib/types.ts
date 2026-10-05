@@ -205,7 +205,7 @@ export interface NgConfig<T extends string = string & {}> {
    * //  { name: 'dark', scheme: 'dark' }, { name: 'sepia', scheme: 'light' },
    * //  { name: 'ocean', scheme: 'dark' }]
    */
-  themes: Array<NgTheme<T> | NgThemeOption>;
+  themes: (NgTheme<T> | NgThemeOption)[];
 
   /**
    * Internal, normalized view of {@link NgConfig.themes}.

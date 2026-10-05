@@ -1,7 +1,7 @@
 import { Component, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NGX_THEME_STACK_CONFIG } from '../config';
-import { NgConfig, normalizeThemeInputs } from '../types';
+import { NgConfig, NgThemeInput, normalizeThemeInputs } from '../types';
 import { CoreThemeService } from './core-theme.service';
 
 
@@ -53,15 +53,20 @@ function setup(
 
   vi.stubGlobal('matchMedia', vi.fn().mockReturnValue(matchMediaMock));
 
+  const effectiveThemes = (config.themes as NgThemeInput[] | undefined) ?? [
+    'light',
+    'dark',
+    'system',
+  ];
   const fullConfig: NgConfig = {
     defaultTheme: 'system',
     storageKey: 'ngx-theme-stack',
     mode: 'class',
-    themes: ['light', 'dark', 'system'],
     strategy: 'critters',
-    resolvedThemes: normalizeThemeInputs(['light', 'dark', 'system']),
+    themes: effectiveThemes,
+    resolvedThemes: normalizeThemeInputs(effectiveThemes),
     ...config,
-  };
+  } as NgConfig;
 
   TestBed.configureTestingModule({
     providers: [

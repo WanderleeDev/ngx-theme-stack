@@ -28,7 +28,7 @@ export const DEFAULT_NG_CONFIG: NgConfig = {
   storageKey: 'ngx-theme-stack',
   mode: 'class',
   strategy: 'critters',
-  themes: [...DEFAULT_THEMES] as Array<NgTheme | NgThemeOption>,
+  themes: [...DEFAULT_THEMES] as (NgTheme | NgThemeOption)[],
   resolvedThemes: normalizeThemeInputs(DEFAULT_THEMES as unknown as NgThemeInput[]),
 };
 
@@ -144,9 +144,9 @@ export function provideThemeStack<const T extends string = DefaultNgTheme>(
     useValue: {
       ...DEFAULT_NG_CONFIG,
       ...config,
-      themes: config.themes
-        ? (config.themes as unknown as NgTheme[])
-        : (DEFAULT_NG_CONFIG.themes as unknown as NgTheme[]),
+      // `themes` stays the merged, deduplicated name list (backwards compatible);
+      // `resolvedThemes` carries the normalized per-theme scheme hints.
+      themes: themes as unknown as NgTheme[],
       resolvedThemes,
     } as NgConfig<string>,
   };
