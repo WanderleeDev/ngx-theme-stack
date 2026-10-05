@@ -40,14 +40,15 @@ export type NgSystemTheme = Exclude<DefaultNgTheme, 'system'>;
  * Color scheme hint applied to the root element via `color-scheme`.
  *
  * - `'light'` / `'dark'` — forces the browser to use matching native UI widgets.
- * - `'auto'` — no explicit hint; the browser chooses based on surrounding styles.
- * - `'none'` — explicitly removes any inherited `color-scheme` (legacy default).
+ * - `'auto'` — no explicit hint; the browser chooses, usually from the OS.
+ *
+ * An unknown value is not a valid hint: the schematic falls back to `'auto'`.
  *
  * This value is forwarded to `document.documentElement.style.color-scheme`.
  * It only affects how the browser paints native widgets (scrollbars, inputs,
  * form controls) in that color scheme — it does not pick a theme for you.
  */
-export type NgColorScheme = 'light' | 'dark' | 'auto' | 'none';
+export type NgColorScheme = 'light' | 'dark' | 'auto';
 
 /**
  * Declarative theme entry.
@@ -67,9 +68,10 @@ export interface NgThemeOption {
   name: string;
   /**
    * Optional color-scheme hint for native UI widgets when this theme is active.
-   * - Omitted (or `'auto'`): the library will not set a `color-scheme` hint.
+   * - Omitted (or `'auto'`): no hint is set; the browser decides.
    * - `'light'` / `'dark'`: hint is set on the root element while the theme is active.
-   * - `'none'`: explicitly removed.
+   *
+   * Any other value is invalid and is treated as `'auto'`.
    */
   scheme?: NgColorScheme;
 }

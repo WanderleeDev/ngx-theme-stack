@@ -239,7 +239,7 @@ export class CoreThemeService {
     // by `resolvedTheme`. Custom themes carry the user-declared scheme hint
     // (default: 'auto', no change).
     const scheme = this.#schemeByName.get(theme) ?? 'auto';
-    if (scheme === 'auto' || scheme === 'none') {
+    if (scheme === 'auto') {
       host.style.removeProperty('color-scheme');
       return;
     }

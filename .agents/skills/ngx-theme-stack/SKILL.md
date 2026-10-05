@@ -18,13 +18,13 @@ Headless, signal-based theme manager for Angular 20+.
   - **Cycle** (`ThemeCycleService`) - Rotate through all themes.
   - **Select** (`ThemeSelectService`) - Full picker dropdown/radio selection.
 - **Exception**: If the user explicitly mentions which switcher type they want in their query, skip the question and implement it directly.
-- **Custom Themes Inquiry**: Ask if they want custom themes (e.g. `sunset`, colors, or CSS variables). For each custom theme, also ask whether native browser widgets (scrollbars, inputs) should read as light or dark, then declare it with the object form in `themes`: `{ name: 'sepia', scheme: 'light' }`. Without a `scheme`, a custom theme leaves scrollbars and form controls on the OS colour scheme.
+- **Custom Themes Inquiry**: Ask if they want custom themes (e.g. `sunset`, colors, or CSS variables). For each custom theme, also ask whether native browser widgets (scrollbars, inputs) should read as `light` or `dark`, then declare it with the object form in `themes`: `{ name: 'sepia', scheme: 'light' }`. Answering `auto`, leaving it blank, or anything unrecognised means no hint is declared, which leaves scrollbars and form controls on the OS colour scheme.
 - **DO NOT** generate code or configs until the user responds to these questions.
 
 ## Constraints & Rules
 
 - Call `provideThemeStack()` once in root `app.config.ts`. Custom themes merge with defaults.
-- `themes` accepts plain names and `{ name, scheme }` objects, mixable in one array. `scheme` is `'light' | 'dark' | 'auto' | 'none'` and only controls the CSS `color-scheme` hint for native widgets; it does not select a theme. Built-in names keep their implicit hint.
+- `themes` accepts plain names and `{ name, scheme }` objects, mixable in one array. `scheme` is `'light' | 'dark' | 'auto'` and only controls the CSS `color-scheme` hint for native widgets; it does not select a theme. Any other value is invalid and behaves as `'auto'`. Built-in names keep their implicit hint.
 - **Theme Synchronization**: Syncs theme configuration in `app.config.ts` with `index.html` assets.
   - **Manual execution**: Run `pnpm run ngx-theme-stack:sync` (or `npm run ngx-theme-stack:sync` / `yarn run ngx-theme-stack:sync`).
   - **Auto-Sync**: Runs automatically before serving or building via `"prestart"` and `"prebuild"` hooks in `package.json`.

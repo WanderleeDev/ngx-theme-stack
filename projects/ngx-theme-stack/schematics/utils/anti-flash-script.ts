@@ -38,7 +38,7 @@ export function buildAntiFlashScript(options: AntiFlashScriptOptions): string {
     `if(m==='class'||m==='both')e.classList.add(t);` +
     `if(m==='attribute'||m==='both')e.setAttribute('data-theme',t);` +
     (schemeMap
-      ? `var sc=(s&&s[t])||'';if(sc==='auto'||sc==='none'){e.style.removeProperty('color-scheme');}else{e.style.setProperty('color-scheme',sc);}`
+      ? `var sc=(s&&s[t])||'';if(sc==='auto'){e.style.removeProperty('color-scheme');}else{e.style.setProperty('color-scheme',sc);}`
       : `if(t==='dark'||t==='light')e.style.setProperty('color-scheme',t);`) +
     `}catch(x){}})();`
   );

@@ -3,6 +3,32 @@ import {
   parseThemeInputArray,
   splitTopLevelEntries,
 } from '../../schematics/utils/theme-input';
+import { COLOR_SCHEMES, parseColorScheme } from '../../schematics/ng-add/constants';
+
+describe('parseColorScheme', () => {
+  it('accepts every declared scheme', () => {
+    for (const scheme of COLOR_SCHEMES) {
+      expect(parseColorScheme(scheme)).toBe(scheme);
+    }
+  });
+
+  it('rejects anything outside the declared list', () => {
+    expect(parseColorScheme('banana')).toBeUndefined();
+    expect(parseColorScheme('Light')).toBeUndefined();
+    expect(parseColorScheme('lightt')).toBeUndefined();
+    expect(parseColorScheme('')).toBeUndefined();
+    expect(parseColorScheme('  ')).toBeUndefined();
+  });
+
+  it('rejects none, which was removed on purpose', () => {
+    expect(COLOR_SCHEMES).not.toContain('none');
+    expect(parseColorScheme('none')).toBeUndefined();
+  });
+
+  it('trims before matching', () => {
+    expect(parseColorScheme('  dark  ')).toBe('dark');
+  });
+});
 
 describe('splitTopLevelEntries', () => {
   it('splits plain string entries', () => {
@@ -73,6 +99,7 @@ describe('parseThemeInputArray', () => {
     expect(parseThemeInputArray(body)).toEqual({
       themes: ['system', 'light', 'dark', 'sunset', 'sepia'],
       schemeMap: { sunset: 'dark', sepia: 'light' },
+      invalidSchemes: [],
     });
   });
 
@@ -80,6 +107,7 @@ describe('parseThemeInputArray', () => {
     expect(parseThemeInputArray("'system', 'light', 'dark'")).toEqual({
       themes: ['system', 'light', 'dark'],
       schemeMap: {},
+      invalidSchemes: [],
     });
   });
 
@@ -96,6 +124,38 @@ describe('parseThemeInputArray', () => {
     expect(parseThemeInputArray(body)).toEqual({
       themes: ['light', 'dark', 'sepia'],
       schemeMap: { sepia: 'light' },
+      invalidSchemes: [],
+    });
+  });
+
+  it('drops an invalid scheme and reports it instead of failing', () => {
+    const body =
+      "'light', { name: 'lucky', scheme: 'banana' }, { name: 'sunset', scheme: 'dark' }";
+
+    expect(parseThemeInputArray(body)).toEqual({
+      themes: ['light', 'lucky', 'sunset'],
+      schemeMap: { sunset: 'dark' },
+      invalidSchemes: [{ name: 'lucky', scheme: 'banana' }],
+    });
+  });
+
+  it('drops a legacy none scheme and reports it', () => {
+    const body = "'light', { name: 'paper', scheme: 'none' }";
+
+    expect(parseThemeInputArray(body)).toEqual({
+      themes: ['light', 'paper'],
+      schemeMap: {},
+      invalidSchemes: [{ name: 'paper', scheme: 'none' }],
+    });
+  });
+
+  it('keeps an explicit auto untouched', () => {
+    const body = "'light', { name: 'paper', scheme: 'auto' }";
+
+    expect(parseThemeInputArray(body)).toEqual({
+      themes: ['light', 'paper'],
+      schemeMap: { paper: 'auto' },
+      invalidSchemes: [],
     });
   });
 });

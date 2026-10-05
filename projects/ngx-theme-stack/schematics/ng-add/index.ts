@@ -1,7 +1,7 @@
 import { chain, Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 import { patchIndexHtml } from './anti-flash';
 import { patchAppConfig } from './app-config';
-import { DEFAULT_THEMES, DEFAULTS } from './constants';
+import { DEFAULT_COLOR_SCHEME, DEFAULT_THEMES, DEFAULTS, parseColorScheme } from './constants';
 import { Schema } from './schema';
 import { ask, askList, assertAngularProject, buildProvideCall, createRl, detectPackageManager } from './utils';
 import { generateSkill } from '../skill/index';
@@ -61,20 +61,35 @@ async function collectCustomOptions(cliAddSkill?: boolean): Promise<SchematicCon
     const schemeMap: Record<string, string> = {};
     const customOnly = themes.filter((t) => t !== 'light' && t !== 'dark' && t !== 'system');
     if (customOnly.length > 0) {
-      const wantScheme = await ask(
-        rl,
-        `  Do your custom themes need explicit color-scheme hints? [y/N] `,
+      process.stdout.write(
+        '\n  A custom theme can declare the color-scheme used by native browser\n' +
+          '  widgets (scrollbars, inputs, form controls) while it is active:\n' +
+          "    light -> color-scheme: light\n" +
+          "    dark  -> color-scheme: dark\n" +
+          '    auto  -> no hint; the browser decides, usually from the OS\n' +
+          "  Anything that is not one of those falls back to 'auto'.\n" +
+          "  Built-in themes keep their own hint and are not asked about.\n\n",
       );
-      if (wantScheme.toLowerCase() === 'y') {
-        for (const name of customOnly) {
-          const rawScheme = await ask(
-            rl,
-            `    color-scheme for "${name}" (light|dark|auto|none, Enter=auto): `,
+
+      for (const name of customOnly) {
+        const rawScheme = await ask(
+          rl,
+          `    color-scheme for "${name}" (light|dark|auto) [auto]: `,
+        );
+
+        const parsed = rawScheme === '' ? DEFAULT_COLOR_SCHEME : parseColorScheme(rawScheme);
+
+        if (parsed === undefined) {
+          process.stdout.write(
+            `    \u26a0 "${rawScheme}" is not a valid color-scheme \u2014 falling back to '${DEFAULT_COLOR_SCHEME}'.\n`,
           );
-          const s = rawScheme.trim();
-          if (s && s !== 'auto') {
-            schemeMap[name] = s;
-          }
+          continue;
+        }
+
+        // 'auto' is the default behaviour of a scheme-less entry, so it is not
+        // written out: the theme stays a plain string and the output stays clean.
+        if (parsed !== DEFAULT_COLOR_SCHEME) {
+          schemeMap[name] = parsed;
         }
       }
     }

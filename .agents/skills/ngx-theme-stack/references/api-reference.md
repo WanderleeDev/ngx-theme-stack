@@ -38,7 +38,10 @@ provideThemeStack({
 | `'light'` | Sets `color-scheme: light` while the theme is active. |
 | `'dark'` | Sets `color-scheme: dark` while the theme is active. |
 | `'auto'` (default when omitted) | No hint; the browser decides. |
-| `'none'` | Explicitly removes the hint. |
+
+Any other value is invalid and falls back to `'auto'`. The `ng-add` prompt only
+accepts `light`, `dark`, or `auto`; an unknown answer falls back to `'auto'`.
+The `sync` schematic drops an invalid `scheme` from an existing config and warns.
 
 Built-in names keep their implicit hint (`light` → light, `dark` → dark,
 `system` → auto). Prefer the object form for any custom theme whose native

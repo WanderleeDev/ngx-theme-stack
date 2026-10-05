@@ -37,7 +37,7 @@ describe('buildAntiFlashScript', () => {
     expect(script).toContain('v=["system","light","dark","sepia"]');
   });
 
-  it('removes color-scheme when scheme is auto or none', () => {
+  it('removes color-scheme when the scheme is auto', () => {
     const script = buildAntiFlashScript({
       storageKey: 'key',
       defaultTheme: 'system',
@@ -46,7 +46,18 @@ describe('buildAntiFlashScript', () => {
       schemeMap: { sepia: 'auto' },
     });
     expect(script).toContain(
-      "if(sc==='auto'||sc==='none'){e.style.removeProperty('color-scheme');}",
+      "if(sc==='auto'){e.style.removeProperty('color-scheme');}",
     );
+  });
+
+  it('never emits a none branch, because none is no longer a valid scheme', () => {
+    const script = buildAntiFlashScript({
+      storageKey: 'key',
+      defaultTheme: 'system',
+      mode: 'class',
+      themes: ['system', 'light', 'dark'],
+      schemeMap: { sepia: 'auto' },
+    });
+    expect(script).not.toContain("'none'");
   });
 });

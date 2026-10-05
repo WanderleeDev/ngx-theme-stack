@@ -1,7 +1,7 @@
 import { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 import { patchAppConfig } from '../ng-add/app-config';
 import { assertAngularProject, buildProvideCall } from '../ng-add/utils';
-import { DEFAULTS } from '../ng-add/constants';
+import { COLOR_SCHEMES, DEFAULT_COLOR_SCHEME, DEFAULTS } from '../ng-add/constants';
 import { Schema } from './schema';
 import { buildAntiFlashScript } from '../utils/anti-flash-script';
 import { parseThemeInputArray } from '../utils/theme-input';
@@ -102,8 +102,15 @@ function extractConfig(
     const strategy = OPTION_STRATEGY_RE.exec(opts)?.[1] ?? undefined;
 
     const themesRaw = OPTION_THEMES_RE.exec(opts)?.[1] ?? '';
-    const { themes, schemeMap } = parseThemeInputArray(themesRaw);
+    const { themes, schemeMap, invalidSchemes } = parseThemeInputArray(themesRaw);
     if (themes.length === 0) themes.push(...DEFAULTS.themes);
+
+    for (const { name, scheme } of invalidSchemes) {
+      context.logger.warn(
+        `⚠ "${name}" declares scheme '${scheme}', which is not one of ` +
+          `[${COLOR_SCHEMES.join(', ')}]. Dropping the hint so the theme uses '${DEFAULT_COLOR_SCHEME}'.`,
+      );
+    }
 
     return {
       mode,

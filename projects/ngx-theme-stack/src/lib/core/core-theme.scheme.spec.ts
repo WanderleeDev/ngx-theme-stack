@@ -92,19 +92,6 @@ describe('CoreThemeService — per-theme color-scheme hints', () => {
     expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('');
   });
 
-  it('removes color-scheme when custom theme scheme is none', () => {
-    const { service } = setup({
-      themes: ['light', 'dark', 'system', { name: 'paper', scheme: 'none' } as NgThemeInput],
-    });
-    service.setTheme('dark');
-    TestBed.tick();
-    expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('dark');
-
-    service.setTheme('paper');
-    TestBed.tick();
-    expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('');
-  });
-
   it('keeps the implicit hint for built-in light/dark', () => {
     const { service } = setup({ themes: ['light', 'dark', 'system'] });
     service.setTheme('light');
