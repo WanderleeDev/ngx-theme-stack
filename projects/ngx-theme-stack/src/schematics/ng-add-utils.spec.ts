@@ -1,9 +1,38 @@
 import { HostTree } from '@angular-devkit/schematics';
 import {
   assertAngularProject,
+  buildProvideCall,
   detectPackageManager,
   looksLikeNestMain,
+  parseYesNo,
 } from '../../schematics/ng-add/utils';
+
+describe('parseYesNo', () => {
+  it('accepts y and yes, in any case', () => {
+    for (const answer of ['y', 'Y', 'yes', 'YES', 'Yes', ' y ']) {
+      expect(parseYesNo(answer, false)).toBe(true);
+    }
+  });
+
+  it('accepts n and no, in any case', () => {
+    for (const answer of ['n', 'N', 'no', 'NO', 'No', ' n ']) {
+      expect(parseYesNo(answer, true)).toBe(false);
+    }
+  });
+
+  it('takes the prompt default on an empty answer', () => {
+    expect(parseYesNo('', true)).toBe(true);
+    expect(parseYesNo('   ', true)).toBe(true);
+    expect(parseYesNo('', false)).toBe(false);
+  });
+
+  it('returns undefined for anything unrecognised, instead of guessing', () => {
+    // The agent-skill prompt used `input !== 'n'`, so a typo counted as "yes".
+    for (const answer of ['asdf', 'sí', 'si', 'yep', 'maybe', '1', '0', 'nope']) {
+      expect(parseYesNo(answer, true)).toBeUndefined();
+    }
+  });
+});
 
 describe('looksLikeNestMain', () => {
   it('detects a NestJS import', () => {
@@ -52,6 +81,37 @@ describe('assertAngularProject', () => {
 
   it('passes when main.ts is missing (guard is best-effort)', () => {
     expect(() => assertAngularProject(new HostTree(), 'src', 'frontend')).not.toThrow();
+  });
+});
+
+describe('buildProvideCall', () => {
+  it('renders string themes as plain quotes', () => {
+    const call = buildProvideCall('system', 'key', 'class', ['system', 'light', 'dark'], 'critters');
+    expect(call).toContain("themes: ['system', 'light', 'dark'] as const");
+    expect(call).not.toContain('scheme');
+  });
+
+  it('renders object-form entries when schemeMap is provided', () => {
+    const call = buildProvideCall(
+      'system', 'key', 'class',
+      ['system', 'light', 'dark', 'sepia'],
+      'critters',
+      { sepia: 'light' },
+    );
+    expect(call).toContain("{ name: 'sepia', scheme: 'light' }");
+    expect(call).toContain("'system'");
+    expect(call).toContain("'light'");
+  });
+
+  it('leaves entries without a schemeMap entry as plain strings', () => {
+    const call = buildProvideCall(
+      'system', 'key', 'class',
+      ['system', 'light', 'dark', 'sepia', 'ocean'],
+      'critters',
+      { sepia: 'light' },
+    );
+    expect(call).toContain("{ name: 'sepia', scheme: 'light' }");
+    expect(call).toContain("'ocean'");
   });
 });
 

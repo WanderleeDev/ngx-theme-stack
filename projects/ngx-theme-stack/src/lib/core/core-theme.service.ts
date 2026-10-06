@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { NGX_THEME_STACK_CONFIG } from '../config';
 import { NgxThemeStackError } from '../errors';
-import { NgSystemTheme, NgTheme } from '../types';
+import { NgSystemTheme, NgTheme, NgThemeInput, ResolvedTheme, THEME_NAME_PATTERN, normalizeThemeInputs } from '../types';
 
 /**
  * Core service for managing the application's color theme.
@@ -37,8 +37,28 @@ export class CoreThemeService {
   /** List of available themes for Select/Cycle services. Defaults to ['system', 'light', 'dark']. */
   readonly availableThemes = this.#config.themes;
 
-  /** Internal Set for O(1) existence checks. */
-  readonly #validThemes = new Set<NgTheme>(this.availableThemes);
+  /**
+   * Normalized themes with per-theme color-scheme hints.
+   *
+   * Falls back to deriving the list from `themes` when a config is injected
+   * without `resolvedThemes` (e.g. a hand-rolled `NGX_THEME_STACK_CONFIG`
+   * provider in tests), so the service never loses its valid-theme set.
+   */
+  readonly resolvedThemes: ResolvedTheme[] =
+    this.#config.resolvedThemes ?? normalizeThemeInputs(this.#config.themes as NgThemeInput[]);
+
+  /** Plain string array of theme names, suitable for template binding. */
+  readonly themeNames: string[] = this.resolvedThemes.map((t) => t.name);
+
+  /** O(1) name→scheme lookup. */
+  readonly #schemeByName: ReadonlyMap<string, string> = new Map(
+    this.resolvedThemes.map((t) => [t.name, t.scheme]),
+  );
+
+  /** Internal Set for O(1) existence checks. Built from normalized names. */
+  readonly #validThemes = new Set<NgTheme>(
+    this.resolvedThemes.map((t) => t.name as NgTheme),
+  );
 
   /**
    * The anti-flash class to remove from the host element.
@@ -210,16 +230,21 @@ export class CoreThemeService {
   }
 
   private applyThemeClasses(host: HTMLElement, theme: NgTheme): void {
-    host.classList.remove(...this.availableThemes);
+    host.classList.remove(...this.resolvedThemes.map((t) => t.name));
     host.classList.add(theme);
   }
 
   private applyColorSchemeHint(host: HTMLElement, theme: NgTheme): void {
-    if (theme === 'dark' || theme === 'light') {
-      host.style.setProperty('color-scheme', theme);
+    // A positive whitelist, not a comparison against 'auto': only the two values
+    // that mean something are written. Anything else — including a hand-written
+    // config whose `resolvedThemes` bypassed normalizedThemeInputs and the
+    // compiler — falls through to removing the hint, which is what 'auto' means.
+    // Without this, an arbitrary string would reach setProperty('color-scheme').
+    const scheme = this.#schemeByName.get(theme);
+    if (scheme === 'light' || scheme === 'dark') {
+      host.style.setProperty('color-scheme', scheme);
       return;
     }
-
     host.style.removeProperty('color-scheme');
   }
 
@@ -227,7 +252,7 @@ export class CoreThemeService {
     if (!this.#isBrowser || !this.#initialStoredTheme) return;
 
     if (
-      !/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(this.#initialStoredTheme) ||
+      !THEME_NAME_PATTERN.test(this.#initialStoredTheme) ||
       !this.#validThemes.has(this.#initialStoredTheme as NgTheme)
     ) {
       this.#antiFlashClass = null;

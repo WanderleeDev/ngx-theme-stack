@@ -10,7 +10,8 @@ describe('provideThemeStack', () => {
     });
 
     const config = TestBed.inject(NGX_THEME_STACK_CONFIG);
-    expect(config).toEqual(DEFAULT_NG_CONFIG);
+    expect(config.themes).toEqual(DEFAULT_NG_CONFIG.themes);
+    expect(config.resolvedThemes).toEqual(DEFAULT_NG_CONFIG.resolvedThemes);
   });
 
   it('should merge custom themes with default themes', () => {
@@ -26,6 +27,57 @@ describe('provideThemeStack', () => {
     // Default themes: ['system', 'light', 'dark']
     // Merged: default themes + custom themes (avoiding duplicates)
     expect(config.themes).toEqual(['system', 'light', 'dark', 'sepia', 'ocean']);
+    // Custom themes get implicit 'auto' scheme
+    expect(config.resolvedThemes).toEqual([
+      { name: 'system', scheme: 'auto' },
+      { name: 'light', scheme: 'light' },
+      { name: 'dark', scheme: 'dark' },
+      { name: 'sepia', scheme: 'auto' },
+      { name: 'ocean', scheme: 'auto' },
+    ]);
+  });
+
+  it('should normalize object-form themes with explicit scheme', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideThemeStack({
+          themes: [
+            { name: 'sepia', scheme: 'light' },
+            { name: 'ocean', scheme: 'dark' },
+          ],
+        }),
+      ],
+    });
+
+    const config = TestBed.inject(NGX_THEME_STACK_CONFIG);
+    expect(config.themes).toEqual(['system', 'light', 'dark', 'sepia', 'ocean']);
+    expect(config.resolvedThemes).toEqual([
+      { name: 'system', scheme: 'auto' },
+      { name: 'light', scheme: 'light' },
+      { name: 'dark', scheme: 'dark' },
+      { name: 'sepia', scheme: 'light' },
+      { name: 'ocean', scheme: 'dark' },
+    ]);
+  });
+
+  it('should mix string and object-form themes', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        provideThemeStack({
+          themes: ['forest', { name: 'sand', scheme: 'light' }],
+        }),
+      ],
+    });
+
+    const config = TestBed.inject(NGX_THEME_STACK_CONFIG);
+    expect(config.themes).toEqual(['system', 'light', 'dark', 'forest', 'sand']);
+    expect(config.resolvedThemes).toEqual([
+      { name: 'system', scheme: 'auto' },
+      { name: 'light', scheme: 'light' },
+      { name: 'dark', scheme: 'dark' },
+      { name: 'forest', scheme: 'auto' },
+      { name: 'sand', scheme: 'light' },
+    ]);
   });
 
   it('should throw an error if a theme name is empty or whitespace', () => {
@@ -40,6 +92,35 @@ describe('provideThemeStack', () => {
         themes: ['   '] as NgTheme[],
       })
     ).toThrow('Theme cannot be empty or whitespace.');
+  });
+
+  it('should throw an error if an object-form theme name is empty', () => {
+    expect(() =>
+      provideThemeStack({
+        themes: [{ name: '  ' }],
+      })
+    ).toThrow('Theme cannot be empty or whitespace.');
+  });
+
+  it('should throw an error if a theme name is not a usable CSS class', () => {
+    for (const name of ['2lucky', 'lucky theme', 'lucky.theme', 'lucky#theme', 'sueño']) {
+      expect(() => provideThemeStack({ themes: [name] })).toThrow(NgxThemeStackError);
+      expect(() => provideThemeStack({ themes: [name] })).toThrow(
+        /Invalid theme name.*must match/s,
+      );
+    }
+  });
+
+  it('should accept names that are valid CSS classes', () => {
+    for (const name of ['lucky', 'lucky-theme', 'lucky_theme', 'lucky2', '_lucky', '-lucky']) {
+      expect(() => provideThemeStack({ themes: [name] })).not.toThrow();
+    }
+  });
+
+  it('should throw for an invalid name in object form too', () => {
+    expect(() => provideThemeStack({ themes: [{ name: '2lucky', scheme: 'dark' }] })).toThrow(
+      NgxThemeStackError,
+    );
   });
 
   it('should throw an error if defaultTheme is not in the resolved themes list', () => {

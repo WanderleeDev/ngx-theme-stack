@@ -1,5 +1,33 @@
 # Changelog
 
+# [3.10.0-next.1](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.10.0-next.0...v3.10.0-next.1) (2026-10-06)
+
+
+### Bug Fixes
+
+* **lib:** whitelist the runtime color scheme, and make the yes/no prompt strict ([8f39ef5](https://github.com/WanderleeDev/ngx-theme-stack/commit/8f39ef5a172b491c6dc09e5277be2f8a7badc5d7))
+* **schematics:** validate the color-scheme prompt and drop the duplicate none ([9c83a9c](https://github.com/WanderleeDev/ngx-theme-stack/commit/9c83a9c15ab5ff0909b4938ab836bea8c12fa1aa))
+
+
+### Features
+
+* **lib:** enforce theme names as CSS identifiers, and generate the schematic copies ([5c9044e](https://github.com/WanderleeDev/ngx-theme-stack/commit/5c9044e678de0d169c497932cbab22643274a5c1))
+
+# [3.10.0-next.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.9.4...v3.10.0-next.0) (2026-10-05)
+
+
+### Bug Fixes
+
+* **ci:** stop unstable code from reaching the latest dist-tag ([16fb4c4](https://github.com/WanderleeDev/ngx-theme-stack/commit/16fb4c45c776d0a9c0d081287b47cff32d1444be))
+* **deps:** pin jsdom's undici and drop the duplicate Angular copy ([5622c07](https://github.com/WanderleeDev/ngx-theme-stack/commit/5622c07453a8ee623dc8f335e74aed85e1944e33))
+* **lib:** return the merged theme list from provideThemeStack ([585e945](https://github.com/WanderleeDev/ngx-theme-stack/commit/585e945374faefb68aa11962c8e4bb1596304452))
+* **schematics:** keep object-form themes intact in sync ([f349eab](https://github.com/WanderleeDev/ngx-theme-stack/commit/f349eabfebef5fe52caa12d5774c52f690d7729d))
+
+
+### Features
+
+* **lib:** per-theme color-scheme hints for custom themes ([5c631ae](https://github.com/WanderleeDev/ngx-theme-stack/commit/5c631ae9ff0c1a75e5fa7201fcf7c5af55d632be))
+
 ## [3.9.4](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.9.3...v3.9.4) (2026-08-03)
 
 

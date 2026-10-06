@@ -1,9 +1,10 @@
 import { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 import { patchAppConfig } from '../ng-add/app-config';
 import { assertAngularProject, buildProvideCall } from '../ng-add/utils';
-import { DEFAULTS } from '../ng-add/constants';
+import { COLOR_SCHEMES, DEFAULT_COLOR_SCHEME, DEFAULTS, describeInvalidThemeName, THEME_NAME_PATTERN } from '../ng-add/constants';
 import { Schema } from './schema';
 import { buildAntiFlashScript } from '../utils/anti-flash-script';
+import { parseThemeInputArray } from '../utils/theme-input';
 
 // ── Regex patterns ────────────────────────────────────────────────────────────
 
@@ -61,6 +62,7 @@ interface ExtractedConfig {
   mode: string;
   strategy?: string;
   themes: string[];
+  schemeMap?: Record<string, string>;
 }
 
 // ── Config extraction ─────────────────────────────────────────────────────────
@@ -100,14 +102,32 @@ function extractConfig(
     const strategy = OPTION_STRATEGY_RE.exec(opts)?.[1] ?? undefined;
 
     const themesRaw = OPTION_THEMES_RE.exec(opts)?.[1] ?? '';
-    const themes: string[] = themesRaw
-      ? themesRaw
-          .split(',')
-          .map((t) => t.trim().replace(/^['"]|['"]$/g, ''))
-          .filter(Boolean)
-      : [...DEFAULTS.themes];
+    const { themes, schemeMap, invalidSchemes, invalidNames } = parseThemeInputArray(themesRaw);
+    if (themes.length === 0) themes.push(...DEFAULTS.themes);
 
-    return { mode, strategy, storageKey, defaultTheme, themes };
+    for (const { name, scheme } of invalidSchemes) {
+      context.logger.warn(
+        `⚠ "${name}" declares scheme '${scheme}', which is not one of ` +
+          `[${COLOR_SCHEMES.join(', ')}]. Dropping the hint so the theme uses '${DEFAULT_COLOR_SCHEME}'.`,
+      );
+    }
+
+    for (const name of invalidNames) {
+      context.logger.warn(
+        `⚠ "${name}" is not a valid theme name: ${describeInvalidThemeName(name)}. ` +
+          `A theme name becomes a CSS class, so it must match ${THEME_NAME_PATTERN.source}. ` +
+          'provideThemeStack() will reject it at build time; rename it before continuing.',
+      );
+    }
+
+    return {
+      mode,
+      strategy,
+      storageKey,
+      defaultTheme,
+      themes,
+      schemeMap: Object.keys(schemeMap).length ? schemeMap : undefined,
+    };
   }
 
   // Fallback to defaults if no config file found
@@ -116,6 +136,7 @@ function extractConfig(
     storageKey: DEFAULTS.storageKey,
     defaultTheme: DEFAULTS.defaultTheme,
     themes: [...DEFAULTS.themes],
+    schemeMap: undefined,
   };
 }
 
@@ -226,7 +247,10 @@ export function sync(options: Schema): Rule {
     const changeset: string[] = [];
 
     // Ensure provideThemeStack exists and is up to date in app.config.ts
-    const provideCall = buildProvideCall(config.defaultTheme, config.storageKey, config.mode, config.themes, strategy);
+    const provideCall = buildProvideCall(
+      config.defaultTheme, config.storageKey, config.mode,
+      config.themes, strategy, config.schemeMap,
+    );
     await patchAppConfig(tree, context, sourceRoot, provideCall, projectName);
 
     context.logger.info('');
@@ -245,7 +269,13 @@ export function sync(options: Schema): Rule {
       let changed = false;
 
       if (content.includes('ngx-theme-stack anti-flash')) {
-        const newScriptBlock = `<!-- ngx-theme-stack anti-flash -->\n  <script>${buildAntiFlashScript(config)}</script>`;
+        const newScriptBlock = `<!-- ngx-theme-stack anti-flash -->\n  <script>${buildAntiFlashScript({
+          storageKey: config.storageKey,
+          defaultTheme: config.defaultTheme,
+          mode: config.mode,
+          themes: config.themes,
+          schemeMap: config.schemeMap,
+        })}</script>`;
         if (SCRIPT_BLOCK_RE.test(content)) {
           const updatedScript = content.replace(SCRIPT_BLOCK_RE, newScriptBlock);
           if (updatedScript !== content) {

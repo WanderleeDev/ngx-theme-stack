@@ -1,6 +1,17 @@
 packages:
   - projects/*
 
+# Do not auto-install the library's peer dependencies. The root already owns a
+# single @angular/* copy; auto-installing peers created a second, divergent
+# @angular/core under projects/ngx-theme-stack/node_modules and gave the
+# Angular unit-test runner two TestBed instances (every spec then failed with
+# "Need to call TestBed.initTestEnvironment() first").
+autoInstallPeers: false
+
+# Resolve peer dependencies from the workspace root so the library and the
+# apps share a single copy of @angular/*.
+resolvePeersFromWorkspaceRoot: true
+
 onlyBuiltDependencies:
   - '@parcel/watcher'
   - esbuild
@@ -17,6 +28,10 @@ overrides:
   undici@<6.27.0: '>=6.27.0'
   undici@>=7.0.0 <7.28.0: '>=7.28.0'
   undici@>=8.0.0 <8.5.0: '>=8.5.0'
+  # jsdom@28 requires undici v7's subpath layout (lib/handler/wrap-handler.js),
+  # which undici v8 removed. Scope the override to jsdom so release-it keeps
+  # the undici 8.x it wants.
+  jsdom@28.1.0>undici: '^7.21.0'
   vite@<=7.3.4: '>=7.3.5'
   esbuild@<0.28.1: '>=0.28.1'
   '@babel/core@<=7.29.0': '>=7.29.6'

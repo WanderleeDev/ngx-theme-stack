@@ -1,6 +1,16 @@
 import { InjectionToken } from '@angular/core';
 import { NgxThemeStackError } from '../errors';
-import { DEFAULT_THEMES, DefaultNgTheme, NgConfig } from '../types';
+import {
+  DEFAULT_THEMES,
+  DefaultNgTheme,
+  isValidThemeName,
+  NgConfig,
+  normalizeThemeInputs,
+  NgTheme,
+  NgThemeInput,
+  NgThemeOption,
+  THEME_NAME_PATTERN,
+} from '../types';
 
 /**
  * ⚠ ATTENTION: SHARED CONFIGURATION VALUES
@@ -15,13 +25,14 @@ import { DEFAULT_THEMES, DefaultNgTheme, NgConfig } from '../types';
  * schematics/ng-add/constants.ts → DEFAULTS + DEFAULT_THEMES
  */
 
-export const DEFAULT_NG_CONFIG = {
+export const DEFAULT_NG_CONFIG: NgConfig = {
   defaultTheme: 'system',
   storageKey: 'ngx-theme-stack',
   mode: 'class',
   strategy: 'critters',
-  themes: [...DEFAULT_THEMES],
-} satisfies NgConfig;
+  themes: [...DEFAULT_THEMES] as (NgTheme | NgThemeOption)[],
+  resolvedThemes: normalizeThemeInputs(DEFAULT_THEMES as unknown as NgThemeInput[]),
+};
 
 // The token uses NgConfig<string> because Angular DI resolves types at runtime
 // and cannot carry generic parameters. Type-safety is enforced at the
@@ -91,15 +102,46 @@ export const NGX_THEME_STACK_CONFIG = new InjectionToken<NgConfig<string>>(
 export function provideThemeStack<const T extends string = DefaultNgTheme>(
   config: Partial<NgConfig<T>> = {},
 ) {
-  config.themes?.forEach((t) => {
-    if (t.trim() === '') throw new NgxThemeStackError('Theme cannot be empty or whitespace.');
-  });
+  // Validate user-supplied themes. A name has to be a usable CSS class
+  // identifier: it is emitted as `.name` in class mode, written into
+  // `classList`, and checked by the anti-flash guard in index.html. Catching it
+  // here turns what used to be a silent first-paint flash, or a theme that
+  // never matched its styles, into a build error.
+  if (config.themes) {
+    for (const entry of config.themes as NgThemeInput[]) {
+      const name = typeof entry === 'string' ? entry : entry.name;
+      if (name.trim() === '') {
+        throw new NgxThemeStackError('Theme cannot be empty or whitespace.');
+      }
+      if (!isValidThemeName(name)) {
+        throw new NgxThemeStackError(
+          `Invalid theme name: "${name}". A theme name must match ${THEME_NAME_PATTERN}. ` +
+            'It becomes a CSS class, so it cannot start with a digit, contain ' +
+            'whitespace, or contain a CSS metacharacter such as ".", "#" or ">".',
+        );
+      }
+    }
+  }
 
-  const themes = config.themes
-    ? Array.from(new Set([...DEFAULT_NG_CONFIG.themes, ...config.themes]))
-    : DEFAULT_NG_CONFIG.themes;
+  // Resolve built-in + user themes into a single list of names.
+  const builtinNames: string[] = [...DEFAULT_NG_CONFIG.themes].map((t) =>
+    typeof t === 'string' ? t : t.name,
+  );
+  const userNames: string[] = config.themes
+    ? (config.themes as NgThemeInput[]).map((t) =>
+        typeof t === 'string' ? t.trim() : t.name.trim(),
+      )
+    : [];
+  const themes: string[] = Array.from(new Set([...builtinNames, ...userNames]));
 
-  if (config.defaultTheme && !(themes as string[]).includes(config.defaultTheme as string)) {
+  // Normalize to ResolvedTheme[] (with per-theme scheme hints).
+  const allInputs: NgThemeInput[] = [
+    ...DEFAULT_NG_CONFIG.themes,
+    ...(config.themes ?? []),
+  ];
+  const resolvedThemes = normalizeThemeInputs(allInputs);
+
+  if (config.defaultTheme && !themes.includes(config.defaultTheme as string)) {
     throw new NgxThemeStackError(
       `"defaultTheme" must be one of the resolved themes: [${themes.join(', ')}].`,
     );
@@ -114,7 +156,10 @@ export function provideThemeStack<const T extends string = DefaultNgTheme>(
     useValue: {
       ...DEFAULT_NG_CONFIG,
       ...config,
-      themes,
+      // `themes` stays the merged, deduplicated name list (backwards compatible);
+      // `resolvedThemes` carries the normalized per-theme scheme hints.
+      themes: themes as unknown as NgTheme[],
+      resolvedThemes,
     } as NgConfig<string>,
   };
 }

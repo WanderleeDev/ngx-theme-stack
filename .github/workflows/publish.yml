@@ -21,6 +21,40 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          # Full history is required by the guard below: it asks whether a stable
+          # tag is an ancestor of origin/main. The default `fetch-depth: 1`
+          # leaves no remote-tracking refs, so the check would fail closed and
+          # reject every valid release.
+          fetch-depth: 0
+
+      # ── Release guards ──────────────────────────────────────────────────────
+      # `latest` is what `npm install <pkg>` resolves for everyone, so nothing
+      # unstable may reach it. Prereleases (tag name containing '-') skip both
+      # guards on purpose: they are published under the `next` dist-tag.
+      - name: Guard — a stable tag must live on main
+        if: ${{ github.ref_type == 'tag' && !contains(github.ref_name, '-') }}
+        run: |
+          set -euo pipefail
+          if ! git rev-parse --verify --quiet origin/main >/dev/null; then
+            echo "::error::origin/main is unavailable, so the tag cannot be verified against main."
+            exit 1
+          fi
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::Stable tag '$GITHUB_REF_NAME' is not an ancestor of main. Refusing to publish it as 'latest'."
+            exit 1
+          fi
+          echo "OK: '$GITHUB_REF_NAME' is on main and may be published as 'latest'."
+
+      - name: Guard — a manual publish must run from main
+        if: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_REF_NAME" != "main" ]; then
+            echo "::error::Manual publish is only allowed from 'main' (got '$GITHUB_REF_NAME')."
+            exit 1
+          fi
+          echo "OK: manual publish from main."
 
       - name: Install pnpm
         uses: pnpm/action-setup@v4

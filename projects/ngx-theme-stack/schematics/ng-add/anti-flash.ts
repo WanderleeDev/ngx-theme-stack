@@ -28,6 +28,7 @@ export function patchIndexHtml(
     defaultTheme: string;
     mode: string;
     themes: string[];
+    schemeMap?: Record<string, string>;
     strategy: 'critters' | 'blocking';
   },
 ): void {
@@ -46,6 +47,7 @@ export function patchIndexHtml(
       defaultTheme: options.defaultTheme,
       mode: options.mode,
       themes: options.themes,
+      schemeMap: options.schemeMap,
     })}</script>`;
 
     let updated = content;

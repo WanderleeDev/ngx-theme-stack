@@ -1,8 +1,9 @@
 import { Component, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { NGX_THEME_STACK_CONFIG } from '../config';
-import { NgConfig } from '../types';
+import { NgConfig, NgThemeInput, normalizeThemeInputs } from '../types';
 import { CoreThemeService } from './core-theme.service';
+
 
 @Component({
   template: '',
@@ -52,14 +53,20 @@ function setup(
 
   vi.stubGlobal('matchMedia', vi.fn().mockReturnValue(matchMediaMock));
 
+  const effectiveThemes = (config.themes as NgThemeInput[] | undefined) ?? [
+    'light',
+    'dark',
+    'system',
+  ];
   const fullConfig: NgConfig = {
     defaultTheme: 'system',
     storageKey: 'ngx-theme-stack',
     mode: 'class',
-    themes: ['light', 'dark', 'system'],
     strategy: 'critters',
+    themes: effectiveThemes,
+    resolvedThemes: normalizeThemeInputs(effectiveThemes),
     ...config,
-  };
+  } as NgConfig;
 
   TestBed.configureTestingModule({
     providers: [
@@ -272,6 +279,27 @@ describe('CoreThemeService', () => {
     expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('light');
 
     service.setTheme('sepia');
+    TestBed.tick();
+    expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('');
+  });
+
+  it('never writes a scheme that is not light/dark onto the root element', () => {
+    // A hand-written config can bypass provideThemeStack() and the compiler, so
+    // resolvedThemes may carry a value the types would have rejected. An unknown
+    // scheme must clear the hint rather than reach setProperty('color-scheme').
+    const { service } = setup({
+      themes: ['dark2', 'ghost'],
+      resolvedThemes: [
+        { name: 'dark2', scheme: 'dark' },
+        { name: 'ghost', scheme: 'banana' },
+      ],
+    } as unknown as Partial<NgConfig>);
+
+    service.setTheme('dark2');
+    TestBed.tick();
+    expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('dark');
+
+    service.setTheme('ghost');
     TestBed.tick();
     expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('');
   });

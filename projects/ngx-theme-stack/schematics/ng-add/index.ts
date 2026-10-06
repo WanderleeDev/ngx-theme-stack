@@ -1,9 +1,17 @@
 import { chain, Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 import { patchIndexHtml } from './anti-flash';
 import { patchAppConfig } from './app-config';
-import { DEFAULT_THEMES, DEFAULTS } from './constants';
+import {
+  DEFAULT_COLOR_SCHEME,
+  DEFAULT_THEMES,
+  DEFAULTS,
+  describeInvalidThemeName,
+  isValidThemeName,
+  parseColorScheme,
+  THEME_NAME_PATTERN,
+} from './constants';
 import { Schema } from './schema';
-import { ask, askList, assertAngularProject, buildProvideCall, createRl, detectPackageManager } from './utils';
+import { ask, askList, askYesNo, assertAngularProject, buildProvideCall, createRl, detectPackageManager } from './utils';
 import { generateSkill } from '../skill/index';
 
 interface SchematicConfig {
@@ -11,6 +19,7 @@ interface SchematicConfig {
   storageKey: string;
   mode: string;
   themes: string[];
+  schemeMap: Record<string, string>;
   strategy: 'critters' | 'blocking';
   provideCall: string;
   addSkill: boolean;
@@ -22,14 +31,38 @@ async function collectCustomOptions(cliAddSkill?: boolean): Promise<SchematicCon
   try {
     process.stdout.write('\n');
 
-    const rawThemes = await ask(rl, '  Custom themes (comma-separated, Enter to skip): ');
-    const customThemes = rawThemes
-      ? rawThemes
-          .split(',')
-          .map((t) => t.trim())
-          .filter(Boolean)
-      : [];
-    const themes = [...DEFAULT_THEMES, ...customThemes];
+    let customThemes: string[] = [];
+    for (;;) {
+      const rawThemes = await ask(rl, '  Custom themes (comma-separated, Enter to skip): ');
+      const candidates = rawThemes
+        ? rawThemes
+            .split(',')
+            .map((t) => t.trim())
+            .filter(Boolean)
+        : [];
+
+      // A theme name becomes a CSS class (`.name`) and is written into
+      // classList, so a bad one used to produce a silent first-paint flash, or a
+      // theme whose styles never matched. Reject it here, with the reason.
+      const invalid = candidates.filter((name) => !isValidThemeName(name));
+      if (invalid.length > 0) {
+        for (const bad of invalid) {
+          process.stdout.write(
+            `  \u26a0 "${bad}" is not a valid theme name: ${describeInvalidThemeName(bad)}.\n`,
+          );
+        }
+        process.stdout.write(
+          `  A theme name must match ${THEME_NAME_PATTERN.source}. Please try again.\n\n`,
+        );
+        continue;
+      }
+
+      customThemes = [...new Set(candidates)];
+      break;
+    }
+
+    const customOnly = customThemes.filter((t) => !DEFAULT_THEMES.includes(t as never));
+    const themes = [...DEFAULT_THEMES, ...customOnly];
 
     const defaultTheme = await askList(rl, 'Default theme:', themes, 0);
 
@@ -52,14 +85,54 @@ async function collectCustomOptions(cliAddSkill?: boolean): Promise<SchematicCon
 
     let addSkill = cliAddSkill;
     if (addSkill === undefined) {
-      const rawAddSkill = await ask(rl, '  Generate an AI Agent Skill (SKILL.md) in the project root? [Y/n]: ');
-      addSkill = rawAddSkill.toLowerCase() !== 'n';
+      addSkill = await askYesNo(
+        rl,
+        '  Generate an AI Agent Skill (SKILL.md) in the project root? [Y/n]: ',
+      );
     }
 
-    const provideCall = buildProvideCall(defaultTheme, storageKey, mode, themes, strategy);
+    // ── Optional color-scheme hints for custom themes ─────────────────
+    const schemeMap: Record<string, string> = {};
+    if (customOnly.length > 0) {
+      process.stdout.write(
+        '\n  A custom theme can declare the color-scheme used by native browser\n' +
+          '  widgets (scrollbars, inputs, form controls) while it is active:\n' +
+          "    light -> color-scheme: light\n" +
+          "    dark  -> color-scheme: dark\n" +
+          '    auto  -> no hint; the browser decides, usually from the OS\n' +
+          "  Anything that is not one of those falls back to 'auto'.\n" +
+          "  Built-in themes keep their own hint and are not asked about.\n\n",
+      );
+
+      for (const name of customOnly) {
+        const rawScheme = await ask(
+          rl,
+          `    color-scheme for "${name}" (light|dark|auto) [auto]: `,
+        );
+
+        const parsed = rawScheme === '' ? DEFAULT_COLOR_SCHEME : parseColorScheme(rawScheme);
+
+        if (parsed === undefined) {
+          process.stdout.write(
+            `    \u26a0 "${rawScheme}" is not a valid color-scheme \u2014 falling back to '${DEFAULT_COLOR_SCHEME}'.\n`,
+          );
+          continue;
+        }
+
+        // 'auto' is the default behaviour of a scheme-less entry, so it is not
+        // written out: the theme stays a plain string and the output stays clean.
+        if (parsed !== DEFAULT_COLOR_SCHEME) {
+          schemeMap[name] = parsed;
+        }
+      }
+    }
+
+    const provideCall = buildProvideCall(
+      defaultTheme, storageKey, mode, themes, strategy, schemeMap,
+    );
 
     process.stdout.write('\n');
-    return { defaultTheme, storageKey, mode, themes, strategy, provideCall, addSkill };
+    return { defaultTheme, storageKey, mode, themes, schemeMap, strategy, provideCall, addSkill };
   } finally {
     rl.close();
   }
@@ -101,6 +174,7 @@ export function ngAdd(options: Schema): Rule {
         storageKey,
         mode,
         themes,
+        schemeMap: {},
         strategy: strategy as 'critters' | 'blocking',
         provideCall: buildProvideCall(defaultTheme, storageKey, mode, themes, strategy),
         addSkill: options.addSkill ?? false,
@@ -238,6 +312,7 @@ export function ngAdd(options: Schema): Rule {
         defaultTheme: config.defaultTheme,
         mode: config.mode,
         themes: config.themes,
+        schemeMap: config.schemeMap,
         strategy: config.strategy,
       });
       changeset.push(' \u001b[33mM\u001b[0m index.html (injected anti-flash)');
