@@ -1,5 +1,18 @@
 # Changelog
 
+# [3.10.0-next.1](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.10.0-next.0...v3.10.0-next.1) (2026-10-06)
+
+
+### Bug Fixes
+
+* **lib:** whitelist the runtime color scheme, and make the yes/no prompt strict ([8f39ef5](https://github.com/WanderleeDev/ngx-theme-stack/commit/8f39ef5a172b491c6dc09e5277be2f8a7badc5d7))
+* **schematics:** validate the color-scheme prompt and drop the duplicate none ([9c83a9c](https://github.com/WanderleeDev/ngx-theme-stack/commit/9c83a9c15ab5ff0909b4938ab836bea8c12fa1aa))
+
+
+### Features
+
+* **lib:** enforce theme names as CSS identifiers, and generate the schematic copies ([5c9044e](https://github.com/WanderleeDev/ngx-theme-stack/commit/5c9044e678de0d169c497932cbab22643274a5c1))
+
 # [3.10.0-next.0](https://github.com/WanderleeDev/ngx-theme-stack/compare/v3.9.4...v3.10.0-next.0) (2026-10-05)
 
 
