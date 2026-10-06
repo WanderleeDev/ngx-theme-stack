@@ -55,8 +55,26 @@ provideThemeStack({ themes: ['sepia'] as const })
 provideThemeStack({ themes: [{ name: 'sepia', scheme: 'light' }] as const })
 ```
 
+### Theme names
+
+A theme name becomes a CSS class (`.name`) and is written into `classList`, so it
+must be usable as a CSS identifier. It has to match:
+
+```
+/^-?[a-zA-Z_][a-zA-Z0-9_-]*$/
+```
+
+| Name | Accepted | Why |
+| --- | --- | --- |
+| `lucky`, `lucky-theme`, `lucky_theme`, `lucky2`, `_lucky`, `-lucky` | yes | usable as-is |
+| `2lucky` | no | `.2lucky` is invalid CSS, so the browser drops the rule and the theme silently loses its styles |
+| `lucky theme` | no | `classList.add` throws `InvalidCharacterError` on ASCII whitespace |
+| `lucky.theme` | no | `.lucky.theme` matches two classes while the class token is the single string `lucky.theme`, so the styles never apply, with no error |
+| `sueño`, `café` | no | deliberately ASCII-only, a narrower subset than CSS allows |
+
 **Throws `NgxThemeStackError` when:**
 - A theme entry is empty, or `defaultTheme` is not in themes, or `storageKey` is empty.
+- **A theme name does not match the pattern above.** This is a build error on purpose: the failure it prevents (a first-paint flash, or a theme whose styles never match) used to be silent.
 - `setTheme()` is called with a theme not in the configured themes list.
 
 > After changing `themes` (adding, removing, renaming, or adding a `scheme`),

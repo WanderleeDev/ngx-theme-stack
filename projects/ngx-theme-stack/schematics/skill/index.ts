@@ -11,7 +11,7 @@ description: Signal-based theme manager for Angular 20+. Use this skill to confi
 compatibility: Angular 20+ with TypeScript. Optional Tailwind CSS v4.
 metadata:
   author: WanderleeDev
-  version: '1.2.2'
+  version: '1.3.0'
 ---
 
 # ngx-theme-stack
@@ -37,6 +37,7 @@ Headless, signal-based theme manager for Angular 20+.
   - **Manual execution**: Run \`pnpm run ngx-theme-stack:sync\` (or \`npm run ngx-theme-stack:sync\` / \`yarn run ngx-theme-stack:sync\`).
   - **Auto-Sync**: Runs automatically before serving or building via \`"prestart"\` and \`"prebuild"\` hooks in \`package.json\`.
   - **When to sync**: Run after adding/removing themes, renaming themes, changing configuration settings (storageKey, mode, strategy), or manually editing index.html.
+  - **What it reports**: an invalid theme name, or a \`scheme\` outside \`'light' | 'dark' | 'auto'\`, is dropped from the regenerated config and reported as a warning. It never rewrites silently, and it never emits a value the compiler would reject.
   - **Debugging**: If a theme reverts to default/system on reload, check if the theme identifier is missing in the valid themes array (\`v\`) in \`index.html\`. If missing, run synchronization.
 - \`isDark()\` / \`isLight()\` return false for custom themes (use \`resolvedTheme()\`).
 - \`selectedTheme()\` can be \`'system'\`; \`resolvedTheme()\` is always the concrete theme applied to the DOM (never \`'system'\`).
@@ -231,8 +232,26 @@ provideThemeStack({ themes: ['sepia'] as const })
 provideThemeStack({ themes: [{ name: 'sepia', scheme: 'light' }] as const })
 \`\`\`
 
+### Theme names
+
+A theme name becomes a CSS class (\`.name\`) and is written into \`classList\`, so it
+must be usable as a CSS identifier. It has to match:
+
+\`\`\`
+/^-?[a-zA-Z_][a-zA-Z0-9_-]*$/
+\`\`\`
+
+| Name | Accepted | Why |
+| --- | --- | --- |
+| \`lucky\`, \`lucky-theme\`, \`lucky_theme\`, \`lucky2\`, \`_lucky\`, \`-lucky\` | yes | usable as-is |
+| \`2lucky\` | no | \`.2lucky\` is invalid CSS, so the browser drops the rule and the theme silently loses its styles |
+| \`lucky theme\` | no | \`classList.add\` throws \`InvalidCharacterError\` on ASCII whitespace |
+| \`lucky.theme\` | no | \`.lucky.theme\` matches two classes while the class token is the single string \`lucky.theme\`, so the styles never apply, with no error |
+| \`sueño\`, \`café\` | no | deliberately ASCII-only, a narrower subset than CSS allows |
+
 **Throws \`NgxThemeStackError\` when:**
 - A theme entry is empty, or \`defaultTheme\` is not in themes, or \`storageKey\` is empty.
+- **A theme name does not match the pattern above.** This is a build error on purpose: the failure it prevents (a first-paint flash, or a theme whose styles never match) used to be silent.
 - \`setTheme()\` is called with a theme not in the configured themes list.
 
 > After changing \`themes\` (adding, removing, renaming, or adding a \`scheme\`),
