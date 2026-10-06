@@ -11,7 +11,7 @@ import {
   THEME_NAME_PATTERN,
 } from './constants';
 import { Schema } from './schema';
-import { ask, askList, assertAngularProject, buildProvideCall, createRl, detectPackageManager } from './utils';
+import { ask, askList, askYesNo, assertAngularProject, buildProvideCall, createRl, detectPackageManager } from './utils';
 import { generateSkill } from '../skill/index';
 
 interface SchematicConfig {
@@ -85,8 +85,10 @@ async function collectCustomOptions(cliAddSkill?: boolean): Promise<SchematicCon
 
     let addSkill = cliAddSkill;
     if (addSkill === undefined) {
-      const rawAddSkill = await ask(rl, '  Generate an AI Agent Skill (SKILL.md) in the project root? [Y/n]: ');
-      addSkill = rawAddSkill.toLowerCase() !== 'n';
+      addSkill = await askYesNo(
+        rl,
+        '  Generate an AI Agent Skill (SKILL.md) in the project root? [Y/n]: ',
+      );
     }
 
     // ── Optional color-scheme hints for custom themes ─────────────────

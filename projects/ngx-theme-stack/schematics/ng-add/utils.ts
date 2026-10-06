@@ -16,6 +16,43 @@ export function ask(rl: readline.Interface, question: string): Promise<string> {
 }
 
 /**
+ * Parses a yes/no answer.
+ *
+ * Returns `undefined` for anything unrecognised, so callers can re-ask instead of
+ * guessing. Previously the agent-skill prompt used `input !== 'n'`, which treated
+ * a typo like `asdf` as "yes".
+ *
+ * An empty answer takes the prompt's default, which is what the `[Y/n]` or
+ * `[y/N]` suffix communicates.
+ */
+export function parseYesNo(input: string, defaultYes: boolean): boolean | undefined {
+  const value = input.trim().toLowerCase();
+  if (value === '') return defaultYes;
+  if (value === 'y' || value === 'yes') return true;
+  if (value === 'n' || value === 'no') return false;
+  return undefined;
+}
+
+/**
+ * Asks a yes/no question, re-asking until the answer is recognised.
+ *
+ * @param question Prompt text. Include the default, e.g. `"... [Y/n]: "`.
+ * @param defaultYes Whether an empty answer means yes. Defaults to `true`.
+ */
+export async function askYesNo(
+  rl: readline.Interface,
+  question: string,
+  defaultYes = true,
+): Promise<boolean> {
+  for (;;) {
+    const answer = await ask(rl, question);
+    const parsed = parseYesNo(answer, defaultYes);
+    if (parsed !== undefined) return parsed;
+    process.stdout.write(`  \u26a0 Please answer "y" or "n".\n`);
+  }
+}
+
+/**
  * Displays a numbered list of items to the user and returns the selected item.
  * If the input is invalid or ignored, the default index item is returned.
  */

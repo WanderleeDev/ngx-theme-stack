@@ -22,6 +22,16 @@ export const DEFAULT_THEMES = ['system', 'light', 'dark'] as const;
  */
 export const NG_COLOR_SCHEMES = ['light', 'dark', 'auto'] as const;
 
+/**
+ * Whether `value` is one of the accepted color schemes.
+ *
+ * Used to validate a hand-written config, which can reach the runtime without
+ * the compiler having checked it.
+ */
+export function isNgColorScheme(value: unknown): value is NgColorScheme {
+  return (NG_COLOR_SCHEMES as readonly unknown[]).includes(value);
+}
+
 /** Literal union of built-in themes: `'system' | 'light' | 'dark'`. */
 export type DefaultNgTheme = (typeof DEFAULT_THEMES)[number];
 
@@ -140,7 +150,11 @@ export interface ResolvedTheme {
  * Normalizes a `themes` input (string or object form) into `ResolvedTheme[]`.
  *
  * - String entries are treated as scheme-less and default to `'auto'`.
- * - Object entries must have a non-empty `name` and a valid `scheme`.
+ * - Object entries must have a non-empty `name`. A `scheme` outside
+ *   {@link NG_COLOR_SCHEMES} is replaced by `'auto'` rather than passed through:
+ *   a hand-written config can reach the runtime without the compiler having
+ *   checked it, and `'banana'` would otherwise be written straight into
+ *   `style.setProperty('color-scheme', ...)`.
  * - Built-in themes `'system'`, `'light'`, `'dark'` are special-cased:
  *   `'light'` and `'dark'` carry an implicit scheme of their own name;
  *   `'system'` is scheme-less (resolved via `matchMedia` at runtime).
@@ -160,7 +174,7 @@ export function normalizeThemeInputs(themes: readonly NgThemeInput[]): ResolvedT
       if (name === '') continue;
       if (seen.has(name)) continue;
       seen.add(name);
-      out.push({ name, scheme: entry.scheme ?? 'auto' });
+      out.push({ name, scheme: isNgColorScheme(entry.scheme) ? entry.scheme : 'auto' });
     }
   }
   return out;

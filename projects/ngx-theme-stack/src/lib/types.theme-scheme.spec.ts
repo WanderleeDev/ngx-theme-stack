@@ -1,6 +1,8 @@
 import {
   implicitScheme,
+  isNgColorScheme,
   isValidThemeName,
+  NG_COLOR_SCHEMES,
   normalizeThemeInputs,
   THEME_NAME_PATTERN,
   THEME_NAME_SOURCE,
@@ -39,6 +41,25 @@ describe('normalizeThemeInputs', () => {
   it('defaults object entries to auto when scheme is omitted', () => {
     const result = normalizeThemeInputs([{ name: 'forest' }]);
     expect(result).toEqual([{ name: 'forest', scheme: 'auto' }]);
+  });
+
+  it('replaces an unknown scheme with auto instead of passing it through', () => {
+    // A hand-written config can reach the runtime without the compiler having
+    // checked it; the value must not travel to setProperty('color-scheme', ...).
+    const result = normalizeThemeInputs([
+      { name: 'ghost', scheme: 'banana' } as never,
+      { name: 'paper', scheme: 'none' } as never,
+    ]);
+    expect(result).toEqual([
+      { name: 'ghost', scheme: 'auto' },
+      { name: 'paper', scheme: 'auto' },
+    ]);
+  });
+
+  it('keeps every accepted scheme', () => {
+    for (const scheme of NG_COLOR_SCHEMES) {
+      expect(normalizeThemeInputs([{ name: 'x', scheme }])).toEqual([{ name: 'x', scheme }]);
+    }
   });
 
   it('ignores empty-string entries', () => {
@@ -110,6 +131,20 @@ describe('isValidThemeName', () => {
 
   it('exposes the same source the schematics copy', () => {
     expect(THEME_NAME_PATTERN.source).toBe(THEME_NAME_SOURCE);
+  });
+});
+
+describe('isNgColorScheme', () => {
+  it('accepts every declared scheme', () => {
+    for (const scheme of NG_COLOR_SCHEMES) {
+      expect(isNgColorScheme(scheme)).toBe(true);
+    }
+  });
+
+  it('rejects anything else, including non-strings', () => {
+    for (const value of ['banana', 'Light', 'none', '', undefined, null, 0, {}]) {
+      expect(isNgColorScheme(value)).toBe(false);
+    }
   });
 });
 

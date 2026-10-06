@@ -4,7 +4,35 @@ import {
   buildProvideCall,
   detectPackageManager,
   looksLikeNestMain,
+  parseYesNo,
 } from '../../schematics/ng-add/utils';
+
+describe('parseYesNo', () => {
+  it('accepts y and yes, in any case', () => {
+    for (const answer of ['y', 'Y', 'yes', 'YES', 'Yes', ' y ']) {
+      expect(parseYesNo(answer, false)).toBe(true);
+    }
+  });
+
+  it('accepts n and no, in any case', () => {
+    for (const answer of ['n', 'N', 'no', 'NO', 'No', ' n ']) {
+      expect(parseYesNo(answer, true)).toBe(false);
+    }
+  });
+
+  it('takes the prompt default on an empty answer', () => {
+    expect(parseYesNo('', true)).toBe(true);
+    expect(parseYesNo('   ', true)).toBe(true);
+    expect(parseYesNo('', false)).toBe(false);
+  });
+
+  it('returns undefined for anything unrecognised, instead of guessing', () => {
+    // The agent-skill prompt used `input !== 'n'`, so a typo counted as "yes".
+    for (const answer of ['asdf', 'sí', 'si', 'yep', 'maybe', '1', '0', 'nope']) {
+      expect(parseYesNo(answer, true)).toBeUndefined();
+    }
+  });
+});
 
 describe('looksLikeNestMain', () => {
   it('detects a NestJS import', () => {

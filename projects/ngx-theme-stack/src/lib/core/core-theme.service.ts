@@ -235,15 +235,17 @@ export class CoreThemeService {
   }
 
   private applyColorSchemeHint(host: HTMLElement, theme: NgTheme): void {
-    // 'system' never reaches this path — it is resolved to 'dark' or 'light'
-    // by `resolvedTheme`. Custom themes carry the user-declared scheme hint
-    // (default: 'auto', no change).
-    const scheme = this.#schemeByName.get(theme) ?? 'auto';
-    if (scheme === 'auto') {
-      host.style.removeProperty('color-scheme');
+    // A positive whitelist, not a comparison against 'auto': only the two values
+    // that mean something are written. Anything else — including a hand-written
+    // config whose `resolvedThemes` bypassed normalizedThemeInputs and the
+    // compiler — falls through to removing the hint, which is what 'auto' means.
+    // Without this, an arbitrary string would reach setProperty('color-scheme').
+    const scheme = this.#schemeByName.get(theme);
+    if (scheme === 'light' || scheme === 'dark') {
+      host.style.setProperty('color-scheme', scheme);
       return;
     }
-    host.style.setProperty('color-scheme', scheme);
+    host.style.removeProperty('color-scheme');
   }
 
   private captureAntiFlashClass(): void {

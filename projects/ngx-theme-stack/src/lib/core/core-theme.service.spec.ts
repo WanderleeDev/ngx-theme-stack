@@ -283,6 +283,27 @@ describe('CoreThemeService', () => {
     expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('');
   });
 
+  it('never writes a scheme that is not light/dark onto the root element', () => {
+    // A hand-written config can bypass provideThemeStack() and the compiler, so
+    // resolvedThemes may carry a value the types would have rejected. An unknown
+    // scheme must clear the hint rather than reach setProperty('color-scheme').
+    const { service } = setup({
+      themes: ['dark2', 'ghost'],
+      resolvedThemes: [
+        { name: 'dark2', scheme: 'dark' },
+        { name: 'ghost', scheme: 'banana' },
+      ],
+    } as unknown as Partial<NgConfig>);
+
+    service.setTheme('dark2');
+    TestBed.tick();
+    expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('dark');
+
+    service.setTheme('ghost');
+    TestBed.tick();
+    expect(document.documentElement.style.getPropertyValue('color-scheme')).toBe('');
+  });
+
   // ── Hydration Signal ──
 
   it('should set isHydrated to true in browser environment after next render', () => {
