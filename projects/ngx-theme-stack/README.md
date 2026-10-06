@@ -135,6 +135,33 @@ Any other value is invalid and falls back to `'auto'`. The hint is applied to `<
 
 ---
 
+## 🏷️ Theme Names
+
+A theme name becomes a CSS class (`.name`) in class mode and is written into
+`classList`, so it has to be usable as a CSS identifier. Names must match:
+
+```
+/^-?[a-zA-Z_][a-zA-Z0-9_-]*$/
+```
+
+| Name | Accepted | Why |
+|------|----------|-----|
+| `lucky`, `lucky-theme`, `lucky_theme`, `lucky2`, `_lucky`, `-lucky` | ✅ | usable as-is |
+| `2lucky` | ❌ | `.2lucky` is invalid CSS, so the browser would drop the whole rule and the theme would silently lose its styles |
+| `lucky theme` | ❌ | `classList.add` throws `InvalidCharacterError` on ASCII whitespace |
+| `lucky.theme` | ❌ | `.lucky.theme` matches two classes, but the class token is the single string `lucky.theme`, so the styles would never apply — with no error at all |
+| `sueño`, `café` | ❌ | deliberately ASCII-only. Valid CSS, but a narrower subset is easier to reason about; rejected on purpose, not by accident |
+
+`provideThemeStack()` throws `NgxThemeStackError` for a name that does not match,
+so a bad name is a build error instead of a silent first-paint flash. The
+`ng-add` prompt re-asks with the reason, and `sync` reports invalid names it finds
+in an existing config.
+
+> The same pattern is inline in the anti-flash script, which validates the
+> untrusted `localStorage` value before writing it to the DOM.
+
+---
+
 ## 📚 Advanced Guides & Documentation
 
 For details on more advanced topics, check out the official guides:

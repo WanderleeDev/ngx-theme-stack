@@ -1,7 +1,15 @@
 import { chain, Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 import { patchIndexHtml } from './anti-flash';
 import { patchAppConfig } from './app-config';
-import { DEFAULT_COLOR_SCHEME, DEFAULT_THEMES, DEFAULTS, parseColorScheme } from './constants';
+import {
+  DEFAULT_COLOR_SCHEME,
+  DEFAULT_THEMES,
+  DEFAULTS,
+  describeInvalidThemeName,
+  isValidThemeName,
+  parseColorScheme,
+  THEME_NAME_PATTERN,
+} from './constants';
 import { Schema } from './schema';
 import { ask, askList, assertAngularProject, buildProvideCall, createRl, detectPackageManager } from './utils';
 import { generateSkill } from '../skill/index';
@@ -23,14 +31,38 @@ async function collectCustomOptions(cliAddSkill?: boolean): Promise<SchematicCon
   try {
     process.stdout.write('\n');
 
-    const rawThemes = await ask(rl, '  Custom themes (comma-separated, Enter to skip): ');
-    const customThemes = rawThemes
-      ? rawThemes
-          .split(',')
-          .map((t) => t.trim())
-          .filter(Boolean)
-      : [];
-    const themes = [...DEFAULT_THEMES, ...customThemes];
+    let customThemes: string[] = [];
+    for (;;) {
+      const rawThemes = await ask(rl, '  Custom themes (comma-separated, Enter to skip): ');
+      const candidates = rawThemes
+        ? rawThemes
+            .split(',')
+            .map((t) => t.trim())
+            .filter(Boolean)
+        : [];
+
+      // A theme name becomes a CSS class (`.name`) and is written into
+      // classList, so a bad one used to produce a silent first-paint flash, or a
+      // theme whose styles never matched. Reject it here, with the reason.
+      const invalid = candidates.filter((name) => !isValidThemeName(name));
+      if (invalid.length > 0) {
+        for (const bad of invalid) {
+          process.stdout.write(
+            `  \u26a0 "${bad}" is not a valid theme name: ${describeInvalidThemeName(bad)}.\n`,
+          );
+        }
+        process.stdout.write(
+          `  A theme name must match ${THEME_NAME_PATTERN.source}. Please try again.\n\n`,
+        );
+        continue;
+      }
+
+      customThemes = [...new Set(candidates)];
+      break;
+    }
+
+    const customOnly = customThemes.filter((t) => !DEFAULT_THEMES.includes(t as never));
+    const themes = [...DEFAULT_THEMES, ...customOnly];
 
     const defaultTheme = await askList(rl, 'Default theme:', themes, 0);
 
@@ -59,7 +91,6 @@ async function collectCustomOptions(cliAddSkill?: boolean): Promise<SchematicCon
 
     // ── Optional color-scheme hints for custom themes ─────────────────
     const schemeMap: Record<string, string> = {};
-    const customOnly = themes.filter((t) => t !== 'light' && t !== 'dark' && t !== 'system');
     if (customOnly.length > 0) {
       process.stdout.write(
         '\n  A custom theme can declare the color-scheme used by native browser\n' +

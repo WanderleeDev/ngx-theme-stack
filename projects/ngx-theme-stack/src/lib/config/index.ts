@@ -3,11 +3,13 @@ import { NgxThemeStackError } from '../errors';
 import {
   DEFAULT_THEMES,
   DefaultNgTheme,
+  isValidThemeName,
   NgConfig,
   normalizeThemeInputs,
   NgTheme,
   NgThemeInput,
   NgThemeOption,
+  THEME_NAME_PATTERN,
 } from '../types';
 
 /**
@@ -100,13 +102,23 @@ export const NGX_THEME_STACK_CONFIG = new InjectionToken<NgConfig<string>>(
 export function provideThemeStack<const T extends string = DefaultNgTheme>(
   config: Partial<NgConfig<T>> = {},
 ) {
-  // Validate user-supplied themes: any entry (string or object form) must
-  // carry a non-empty, trimmed name.
+  // Validate user-supplied themes. A name has to be a usable CSS class
+  // identifier: it is emitted as `.name` in class mode, written into
+  // `classList`, and checked by the anti-flash guard in index.html. Catching it
+  // here turns what used to be a silent first-paint flash, or a theme that
+  // never matched its styles, into a build error.
   if (config.themes) {
     for (const entry of config.themes as NgThemeInput[]) {
       const name = typeof entry === 'string' ? entry : entry.name;
       if (name.trim() === '') {
         throw new NgxThemeStackError('Theme cannot be empty or whitespace.');
+      }
+      if (!isValidThemeName(name)) {
+        throw new NgxThemeStackError(
+          `Invalid theme name: "${name}". A theme name must match ${THEME_NAME_PATTERN}. ` +
+            'It becomes a CSS class, so it cannot start with a digit, contain ' +
+            'whitespace, or contain a CSS metacharacter such as ".", "#" or ">".',
+        );
       }
     }
   }

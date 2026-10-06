@@ -25,13 +25,14 @@ Headless, signal-based theme manager for Angular 20+.
   - **Cycle** (\`ThemeCycleService\`) - Rotate through all themes.
   - **Select** (\`ThemeSelectService\`) - Full picker dropdown/radio selection.
 - **Exception**: If the user explicitly mentions which switcher type they want in their query, skip the question and implement it directly.
-- **Custom Themes Inquiry**: Ask if they want custom themes (e.g. \`sunset\`, colors, or CSS variables). For each custom theme, also ask whether native browser widgets (scrollbars, inputs) should read as \`light\` or \`dark\`, then declare it with the object form in \`themes\`: \`{ name: 'sepia', scheme: 'light' }\`. Answering \`auto\`, leaving it blank, or anything unrecognised means no hint is declared, which leaves scrollbars and form controls on the OS colour scheme.
+- **Custom Themes Inquiry**: Ask if they want custom themes (e.g. \`sunset\`, colors, or CSS variables). Suggested names must match \`/^-?[a-zA-Z_][a-zA-Z0-9_-]*$/\` (ASCII, no leading digit, no whitespace, no CSS metacharacter). For each custom theme, also ask whether native browser widgets (scrollbars, inputs) should read as \`light\` or \`dark\`, then declare it with the object form in \`themes\`: \`{ name: 'sepia', scheme: 'light' }\`. Answering \`auto\`, leaving it blank, or anything unrecognised means no hint is declared, which leaves scrollbars and form controls on the OS colour scheme.
 - **DO NOT** generate code or configs until the user responds to these questions.
 
 ## Constraints & Rules
 
 - Call \`provideThemeStack()\` once in root \`app.config.ts\`. Custom themes merge with defaults.
 - \`themes\` accepts plain names and \`{ name, scheme }\` objects, mixable in one array. \`scheme\` is \`'light' | 'dark' | 'auto'\` and only controls the CSS \`color-scheme\` hint for native widgets; it does not select a theme. Any other value is invalid and behaves as \`'auto'\`. Built-in names keep their implicit hint.
+- **Theme names must match \`/^-?[a-zA-Z_][a-zA-Z0-9_-]*$/\`** (ASCII only). A name becomes a CSS class and is written into \`classList\`, so a leading digit makes \`.2lucky\` invalid CSS (the browser drops the rule and the theme loses its styles), ASCII whitespace throws \`InvalidCharacterError\` in \`classList.add\`, and a CSS metacharacter turns \`.lucky.theme\` into a two-class selector that can never match the single class token \`lucky.theme\` — silently. \`provideThemeStack()\` throws \`NgxThemeStackError\` for a bad name; pick a name in that shape before writing config.
 - **Theme Synchronization**: Syncs theme configuration in \`app.config.ts\` with \`index.html\` assets.
   - **Manual execution**: Run \`pnpm run ngx-theme-stack:sync\` (or \`npm run ngx-theme-stack:sync\` / \`yarn run ngx-theme-stack:sync\`).
   - **Auto-Sync**: Runs automatically before serving or building via \`"prestart"\` and \`"prebuild"\` hooks in \`package.json\`.

@@ -1,3 +1,5 @@
+import { THEME_NAME_PATTERN } from '../ng-add/constants';
+
 export interface AntiFlashScriptOptions {
   storageKey: string;
   defaultTheme: string;
@@ -33,7 +35,12 @@ export function buildAntiFlashScript(options: AntiFlashScriptOptions): string {
     schemeLookup +
     `t=localStorage.getItem(k)||d,` +
     `e=document.documentElement;` +
-    `if(!/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(t)||v.indexOf(t)===-1)t=d;` +
+    // Same rule as the library and the schematics. This guard is NOT redundant:
+    // the value comes from localStorage, which the user (or anything with access
+    // to the browser) can write, and the declared list it is compared against is
+    // a plain, hand-editable array in index.html. It runs before Angular and
+    // writes to classList and to an attribute, so it validates on its own.
+    `if(!/${THEME_NAME_PATTERN.source}/.test(t)||v.indexOf(t)===-1)t=d;` +
     `if(t==='system')t=window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light';` +
     `if(m==='class'||m==='both')e.classList.add(t);` +
     `if(m==='attribute'||m==='both')e.setAttribute('data-theme',t);` +

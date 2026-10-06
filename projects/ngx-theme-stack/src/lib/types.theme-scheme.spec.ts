@@ -1,6 +1,9 @@
 import {
   implicitScheme,
+  isValidThemeName,
   normalizeThemeInputs,
+  THEME_NAME_PATTERN,
+  THEME_NAME_SOURCE,
 } from './types';
 
 describe('normalizeThemeInputs', () => {
@@ -69,6 +72,44 @@ describe('normalizeThemeInputs', () => {
       { name: 'ocean', scheme: 'auto' },
       { name: 'reef', scheme: 'auto' },
     ]);
+  });
+});
+
+describe('isValidThemeName', () => {
+  it('accepts names usable as a CSS class', () => {
+    for (const name of ['lucky', 'Lucky', 'lucky-theme', 'lucky_theme', 'lucky2', '_lucky', '-lucky']) {
+      expect(isValidThemeName(name)).toBe(true);
+    }
+  });
+
+  it('rejects a leading digit, which is not a valid CSS class selector', () => {
+    expect(isValidThemeName('2lucky')).toBe(false);
+  });
+
+  it('rejects whitespace, which throws in classList.add', () => {
+    expect(isValidThemeName('lucky theme')).toBe(false);
+    expect(isValidThemeName('lucky\ttheme')).toBe(false);
+  });
+
+  it('rejects CSS metacharacters, which change what the selector matches', () => {
+    // .lucky.theme looks for two classes, but the class token is the single
+    // string 'lucky.theme', so the styles would never match — with no error.
+    for (const name of ['lucky.theme', 'lucky#id', 'lucky>child', 'lucky[attr]', 'lucky:hover']) {
+      expect(isValidThemeName(name)).toBe(false);
+    }
+  });
+
+  it('rejects non-ASCII on purpose, as a documented narrower subset', () => {
+    expect(isValidThemeName('sueño')).toBe(false);
+    expect(isValidThemeName('año')).toBe(false);
+  });
+
+  it('rejects the empty string', () => {
+    expect(isValidThemeName('')).toBe(false);
+  });
+
+  it('exposes the same source the schematics copy', () => {
+    expect(THEME_NAME_PATTERN.source).toBe(THEME_NAME_SOURCE);
   });
 });
 

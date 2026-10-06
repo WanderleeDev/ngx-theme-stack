@@ -1,7 +1,7 @@
 import { Rule, SchematicContext, Tree } from '@angular-devkit/schematics';
 import { patchAppConfig } from '../ng-add/app-config';
 import { assertAngularProject, buildProvideCall } from '../ng-add/utils';
-import { COLOR_SCHEMES, DEFAULT_COLOR_SCHEME, DEFAULTS } from '../ng-add/constants';
+import { COLOR_SCHEMES, DEFAULT_COLOR_SCHEME, DEFAULTS, describeInvalidThemeName, THEME_NAME_PATTERN } from '../ng-add/constants';
 import { Schema } from './schema';
 import { buildAntiFlashScript } from '../utils/anti-flash-script';
 import { parseThemeInputArray } from '../utils/theme-input';
@@ -102,13 +102,21 @@ function extractConfig(
     const strategy = OPTION_STRATEGY_RE.exec(opts)?.[1] ?? undefined;
 
     const themesRaw = OPTION_THEMES_RE.exec(opts)?.[1] ?? '';
-    const { themes, schemeMap, invalidSchemes } = parseThemeInputArray(themesRaw);
+    const { themes, schemeMap, invalidSchemes, invalidNames } = parseThemeInputArray(themesRaw);
     if (themes.length === 0) themes.push(...DEFAULTS.themes);
 
     for (const { name, scheme } of invalidSchemes) {
       context.logger.warn(
         `⚠ "${name}" declares scheme '${scheme}', which is not one of ` +
           `[${COLOR_SCHEMES.join(', ')}]. Dropping the hint so the theme uses '${DEFAULT_COLOR_SCHEME}'.`,
+      );
+    }
+
+    for (const name of invalidNames) {
+      context.logger.warn(
+        `⚠ "${name}" is not a valid theme name: ${describeInvalidThemeName(name)}. ` +
+          `A theme name becomes a CSS class, so it must match ${THEME_NAME_PATTERN.source}. ` +
+          'provideThemeStack() will reject it at build time; rename it before continuing.',
       );
     }
 

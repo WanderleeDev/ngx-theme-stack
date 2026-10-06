@@ -102,6 +102,27 @@ describe('provideThemeStack', () => {
     ).toThrow('Theme cannot be empty or whitespace.');
   });
 
+  it('should throw an error if a theme name is not a usable CSS class', () => {
+    for (const name of ['2lucky', 'lucky theme', 'lucky.theme', 'lucky#theme', 'sueño']) {
+      expect(() => provideThemeStack({ themes: [name] })).toThrow(NgxThemeStackError);
+      expect(() => provideThemeStack({ themes: [name] })).toThrow(
+        /Invalid theme name.*must match/s,
+      );
+    }
+  });
+
+  it('should accept names that are valid CSS classes', () => {
+    for (const name of ['lucky', 'lucky-theme', 'lucky_theme', 'lucky2', '_lucky', '-lucky']) {
+      expect(() => provideThemeStack({ themes: [name] })).not.toThrow();
+    }
+  });
+
+  it('should throw for an invalid name in object form too', () => {
+    expect(() => provideThemeStack({ themes: [{ name: '2lucky', scheme: 'dark' }] })).toThrow(
+      NgxThemeStackError,
+    );
+  });
+
   it('should throw an error if defaultTheme is not in the resolved themes list', () => {
     expect(() =>
       provideThemeStack({

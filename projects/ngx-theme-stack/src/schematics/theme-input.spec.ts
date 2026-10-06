@@ -100,6 +100,7 @@ describe('parseThemeInputArray', () => {
       themes: ['system', 'light', 'dark', 'sunset', 'sepia'],
       schemeMap: { sunset: 'dark', sepia: 'light' },
       invalidSchemes: [],
+      invalidNames: [],
     });
   });
 
@@ -108,6 +109,7 @@ describe('parseThemeInputArray', () => {
       themes: ['system', 'light', 'dark'],
       schemeMap: {},
       invalidSchemes: [],
+      invalidNames: [],
     });
   });
 
@@ -125,6 +127,7 @@ describe('parseThemeInputArray', () => {
       themes: ['light', 'dark', 'sepia'],
       schemeMap: { sepia: 'light' },
       invalidSchemes: [],
+      invalidNames: [],
     });
   });
 
@@ -136,6 +139,7 @@ describe('parseThemeInputArray', () => {
       themes: ['light', 'lucky', 'sunset'],
       schemeMap: { sunset: 'dark' },
       invalidSchemes: [{ name: 'lucky', scheme: 'banana' }],
+      invalidNames: [],
     });
   });
 
@@ -146,6 +150,7 @@ describe('parseThemeInputArray', () => {
       themes: ['light', 'paper'],
       schemeMap: {},
       invalidSchemes: [{ name: 'paper', scheme: 'none' }],
+      invalidNames: [],
     });
   });
 
@@ -156,6 +161,18 @@ describe('parseThemeInputArray', () => {
       themes: ['light', 'paper'],
       schemeMap: { paper: 'auto' },
       invalidSchemes: [],
+      invalidNames: [],
+    });
+  });
+
+  it('reports names that are not usable as a CSS class, without dropping them', () => {
+    const body = "'light', '2lucky', 'lucky theme', 'lucky.theme', 'sueño'";
+
+    expect(parseThemeInputArray(body)).toEqual({
+      themes: ['light', '2lucky', 'lucky theme', 'lucky.theme', 'sueño'],
+      schemeMap: {},
+      invalidSchemes: [],
+      invalidNames: ['2lucky', 'lucky theme', 'lucky.theme', 'sueño'],
     });
   });
 });

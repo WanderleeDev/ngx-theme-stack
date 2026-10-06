@@ -12,7 +12,7 @@ import {
 } from '@angular/core';
 import { NGX_THEME_STACK_CONFIG } from '../config';
 import { NgxThemeStackError } from '../errors';
-import { NgSystemTheme, NgTheme, NgThemeInput, ResolvedTheme, normalizeThemeInputs } from '../types';
+import { NgSystemTheme, NgTheme, NgThemeInput, ResolvedTheme, THEME_NAME_PATTERN, normalizeThemeInputs } from '../types';
 
 /**
  * Core service for managing the application's color theme.
@@ -250,7 +250,7 @@ export class CoreThemeService {
     if (!this.#isBrowser || !this.#initialStoredTheme) return;
 
     if (
-      !/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(this.#initialStoredTheme) ||
+      !THEME_NAME_PATTERN.test(this.#initialStoredTheme) ||
       !this.#validThemes.has(this.#initialStoredTheme as NgTheme)
     ) {
       this.#antiFlashClass = null;

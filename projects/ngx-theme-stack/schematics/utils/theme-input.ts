@@ -9,7 +9,7 @@
  * parentheses, or quotes).
  */
 
-import { parseColorScheme } from '../ng-add/constants';
+import { isValidThemeName, parseColorScheme } from '../ng-add/constants';
 
 /** One parsed theme entry: its name and optional color-scheme hint. */
 export interface ParsedThemeInput {
@@ -101,15 +101,18 @@ export function parseThemeInputArray(body: string): {
   themes: string[];
   schemeMap: Record<string, string>;
   invalidSchemes: InvalidScheme[];
+  invalidNames: string[];
 } {
   const themes: string[] = [];
   const schemeMap: Record<string, string> = {};
   const invalidSchemes: InvalidScheme[] = [];
+  const invalidNames: string[] = [];
 
   for (const entry of splitTopLevelEntries(body)) {
     const parsed = parseThemeEntry(entry);
     if (!parsed) continue;
     themes.push(parsed.name);
+    if (!isValidThemeName(parsed.name)) invalidNames.push(parsed.name);
     if (parsed.droppedScheme !== undefined) {
       invalidSchemes.push({ name: parsed.name, scheme: parsed.droppedScheme });
     } else if (parsed.scheme) {
@@ -117,5 +120,5 @@ export function parseThemeInputArray(body: string): {
     }
   }
 
-  return { themes, schemeMap, invalidSchemes };
+  return { themes, schemeMap, invalidSchemes, invalidNames };
 }

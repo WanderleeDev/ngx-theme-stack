@@ -13,6 +13,15 @@
  */
 export const DEFAULT_THEMES = ['system', 'light', 'dark'] as const;
 
+/**
+ * Canonical list of accepted `color-scheme` hints.
+ *
+ * The type is derived from this runtime array, so the list and the union can
+ * never disagree. It is copied into the schematics by
+ * scripts/generate-schematic-constants.mjs.
+ */
+export const NG_COLOR_SCHEMES = ['light', 'dark', 'auto'] as const;
+
 /** Literal union of built-in themes: `'system' | 'light' | 'dark'`. */
 export type DefaultNgTheme = (typeof DEFAULT_THEMES)[number];
 
@@ -48,7 +57,41 @@ export type NgSystemTheme = Exclude<DefaultNgTheme, 'system'>;
  * It only affects how the browser paints native widgets (scrollbars, inputs,
  * form controls) in that color scheme — it does not pick a theme for you.
  */
-export type NgColorScheme = 'light' | 'dark' | 'auto';
+export type NgColorScheme = (typeof NG_COLOR_SCHEMES)[number];
+
+/**
+ * Pattern a theme identifier must match to be usable as a CSS class.
+ *
+ * A theme name is emitted as a class selector (`.name`) in class mode, so it has
+ * to be a valid CSS identifier. The anti-flash script also puts it into
+ * `classList`, where an ASCII whitespace throws `InvalidCharacterError`.
+ *
+ * This is deliberately ASCII-only: a narrower, easy-to-reason-about subset than
+ * the full CSS identifier grammar, which also admits non-ASCII characters. The
+ * point is that the rule is **enforced**, so a name that would break is a build
+ * error instead of a silent first-paint flash.
+ *
+ * What each part excludes, and why it matters:
+ * - a leading digit (`2lucky`) makes `.2lucky` invalid CSS, so the browser drops
+ *   the whole rule and the theme silently loses its styles;
+ * - an ASCII space (`lucky theme`) throws in `classList.add`;
+ * - a CSS metacharacter (`.`, `#`, `>`, `[`, `:`, ...) changes what the selector
+ *   means: `.lucky.theme` looks for two classes while the class token is the
+ *   single string `lucky.theme`, so the styles never match, with no error.
+ *
+ * ⚠ KEEP IN SYNC with THEME_NAME_PATTERN in
+ * projects/ngx-theme-stack/schematics/ng-add/constants.ts — the schematics are
+ * CommonJS and cannot import this ESM module, so the pattern is duplicated and
+ * a spec asserts both copies are identical.
+ */
+export const THEME_NAME_SOURCE = '^-?[a-zA-Z_][a-zA-Z0-9_-]*$';
+
+export const THEME_NAME_PATTERN = new RegExp(THEME_NAME_SOURCE);
+
+/** Whether `name` is usable as a theme identifier. See {@link THEME_NAME_PATTERN}. */
+export function isValidThemeName(name: string): boolean {
+  return THEME_NAME_PATTERN.test(name);
+}
 
 /**
  * Declarative theme entry.
@@ -64,7 +107,7 @@ export type NgColorScheme = 'light' | 'dark' | 'auto';
  * ```
  */
 export interface NgThemeOption {
-  /** Theme identifier. Must match `/^[a-zA-Z][a-zA-Z0-9_-]*$/`. */
+  /** Theme identifier. Must match {@link THEME_NAME_PATTERN}. */
   name: string;
   /**
    * Optional color-scheme hint for native UI widgets when this theme is active.
